@@ -10,8 +10,9 @@ Crm2
 Вер. 3.5.9
 [+]
 Добавлен модуль menu.
-Список меню по левому краю настраивается в файле C:\xampp\htdocs\crm2\application\config\config_newcrm.php параметр configLeftMenu
-
+Список всех реализованных меню находится в C:\xampp\htdocs\crm2\modules\menu\config\menu\leftside.php.
+Список меню по левому краю настраивается в файле C:\xampp\htdocs\crm2\application\config\config_newcrm.php параметр configLeftMenu.
+На экране будут показаны только те пункты, которые имеются в файле config_newcrm.php.
 5.10.2024
 Вер. 3.5.8
 [+]

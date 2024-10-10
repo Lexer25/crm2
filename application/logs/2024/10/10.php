@@ -15,3 +15,4 @@
 2024-10-10 15:52:03 --- CRITICAL: ErrorException [ 4 ]: syntax error, unexpected 'case' (T_CASE) ~ APPPATH\views\contacts\list.php [ 127 ] in file:line
 2024-10-10 15:52:03 --- DEBUG: #0 [internal function]: Kohana_Core::shutdown_handler()
 #1 {main} in file:line
+2024-10-10 19:07:45 --- DEBUG: 324 <pre class="debug"><small>array</small><span>(0)</span> </pre> in C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php:84
