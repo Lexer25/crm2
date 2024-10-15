@@ -1,0 +1,380 @@
+<?php defined('SYSPATH') OR die('No direct script access.'); ?>
+
+2024-09-12 14:18:25 --- DEBUG: 324 <pre class="debug"><small>array</small><span>(0)</span> </pre> in C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php:84
+2024-09-12 14:19:07 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:19:07 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:20:54 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:20:54 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:20:55 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:20:55 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:35:30 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:35:30 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Doors))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:35:31 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:35:31 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Doors))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:37:01 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:37:01 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Doors))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:37:26 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:37:26 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:37:27 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:37:27 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:41:56 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:41:56 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:41 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:41 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:42 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:42 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:59 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:59 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:59 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:44:59 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:54:25 --- CRITICAL: ErrorException [ 2 ]: implode(): Invalid arguments passed ~ APPPATH\classes\Model\eventlog.php [ 13 ] in file:line
+2024-09-12 14:54:25 --- DEBUG: #0 [internal function]: Kohana_Core::error_handler(2, 'implode(): Inva...', 'C:\\xampp\\htdocs...', 13, Array)
+#1 C:\xampp\htdocs\crm2\application\classes\Model\eventlog.php(13): implode(',', NULL)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\eventlog.php(37): Model_Eventlog->getCountEvent(24)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Eventlog->action_index()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Eventlog))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in file:line
+2024-09-12 14:54:25 --- CRITICAL: ErrorException [ 2 ]: implode(): Invalid arguments passed ~ APPPATH\classes\Model\eventlog.php [ 13 ] in file:line
+2024-09-12 14:54:25 --- DEBUG: #0 [internal function]: Kohana_Core::error_handler(2, 'implode(): Inva...', 'C:\\xampp\\htdocs...', 13, Array)
+#1 C:\xampp\htdocs\crm2\application\classes\Model\eventlog.php(13): implode(',', NULL)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\eventlog.php(37): Model_Eventlog->getCountEvent(24)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Eventlog->action_index()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Eventlog))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in file:line
+2024-09-12 14:54:30 --- CRITICAL: ErrorException [ 2 ]: implode(): Invalid arguments passed ~ APPPATH\classes\Model\eventlog.php [ 110 ] in file:line
+2024-09-12 14:54:30 --- DEBUG: #0 [internal function]: Kohana_Core::error_handler(2, 'implode(): Inva...', 'C:\\xampp\\htdocs...', 110, Array)
+#1 C:\xampp\htdocs\crm2\application\classes\Model\eventlog.php(110): implode(',', NULL)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\eventlog.php(91): Model_Eventlog->getEventAlarmList(1, 100, 24, Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Eventlog->action_alarm()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Eventlog))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in file:line
+2024-09-12 14:54:30 --- CRITICAL: ErrorException [ 2 ]: implode(): Invalid arguments passed ~ APPPATH\classes\Model\eventlog.php [ 110 ] in file:line
+2024-09-12 14:54:30 --- DEBUG: #0 [internal function]: Kohana_Core::error_handler(2, 'implode(): Inva...', 'C:\\xampp\\htdocs...', 110, Array)
+#1 C:\xampp\htdocs\crm2\application\classes\Model\eventlog.php(110): implode(',', NULL)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\eventlog.php(91): Model_Eventlog->getEventAlarmList(1, 100, 24, Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Eventlog->action_alarm()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Eventlog))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in file:line
+2024-09-12 14:55:15 --- CRITICAL: View_Exception [ 0 ]: The requested view report/history could not be found ~ SYSPATH\classes\Kohana\View.php [ 265 ] in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:55:15 --- DEBUG: #0 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(145): Kohana_View->set_filename('report/history')
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(30): Kohana_View->__construct('report/history', Array)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\Reports.php(34): Kohana_View::factory('report/history', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Reports->action_events()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:55:51 --- CRITICAL: View_Exception [ 0 ]: The requested view report/history could not be found ~ SYSPATH\classes\Kohana\View.php [ 265 ] in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:55:51 --- DEBUG: #0 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(145): Kohana_View->set_filename('report/history')
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(30): Kohana_View->__construct('report/history', Array)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\Reports.php(34): Kohana_View::factory('report/history', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Reports->action_events()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:55:51 --- CRITICAL: View_Exception [ 0 ]: The requested view report/history could not be found ~ SYSPATH\classes\Kohana\View.php [ 265 ] in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:55:51 --- DEBUG: #0 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(145): Kohana_View->set_filename('report/history')
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(30): Kohana_View->__construct('report/history', Array)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\Reports.php(34): Kohana_View::factory('report/history', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Reports->action_events()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:56:41 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:56:41 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 14:56:45 --- CRITICAL: ErrorException [ 2 ]: implode(): Invalid arguments passed ~ APPPATH\classes\Model\eventlog.php [ 110 ] in file:line
+2024-09-12 14:56:45 --- DEBUG: #0 [internal function]: Kohana_Core::error_handler(2, 'implode(): Inva...', 'C:\\xampp\\htdocs...', 110, Array)
+#1 C:\xampp\htdocs\crm2\application\classes\Model\eventlog.php(110): implode(',', NULL)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\eventlog.php(91): Model_Eventlog->getEventAlarmList(1, 100, 24, Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Eventlog->action_alarm()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Eventlog))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in file:line
+2024-09-12 14:56:57 --- CRITICAL: View_Exception [ 0 ]: The requested view report/history could not be found ~ SYSPATH\classes\Kohana\View.php [ 265 ] in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:56:57 --- DEBUG: #0 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(145): Kohana_View->set_filename('report/history')
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(30): Kohana_View->__construct('report/history', Array)
+#2 C:\xampp\htdocs\crm2\application\classes\Controller\Reports.php(34): Kohana_View::factory('report/history', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Reports->action_events()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in C:\xampp\htdocs\crm2\system\classes\Kohana\View.php:145
+2024-09-12 14:57:33 --- CRITICAL: ErrorException [ 1 ]: Call to undefined method History::getFullHistory() ~ APPPATH\classes\Controller\Reports.php [ 57 ] in file:line
+2024-09-12 14:57:33 --- DEBUG: #0 [internal function]: Kohana_Core::shutdown_handler()
+#1 {main} in file:line
+2024-09-12 15:00:42 --- CRITICAL: ErrorException [ 4 ]: syntax error, unexpected 's' (T_STRING), expecting function (T_FUNCTION) ~ APPPATH\classes\Controller\Reports.php [ 462 ] in file:line
+2024-09-12 15:00:42 --- DEBUG: #0 [internal function]: Kohana_Core::shutdown_handler()
+#1 {main} in file:line
+2024-09-12 15:06:51 --- CRITICAL: ErrorException [ 4 ]: syntax error, unexpected ')' ~ APPPATH\classes\Controller\Reports.php [ 442 ] in file:line
+2024-09-12 15:06:51 --- DEBUG: #0 [internal function]: Kohana_Core::shutdown_handler()
+#1 {main} in file:line
+2024-09-12 15:07:20 --- CRITICAL: ErrorException [ 1 ]: Call to undefined method PHPExcel_Worksheet::getAlignment() ~ APPPATH\classes\Controller\Reports.php [ 442 ] in file:line
+2024-09-12 15:07:20 --- DEBUG: #0 [internal function]: Kohana_Core::shutdown_handler()
+#1 {main} in file:line
+2024-09-12 15:19:12 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 15:19:12 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Doors))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 15:20:27 --- CRITICAL: Exception [ 182 ]: Вы не можете добавлять сотрудников в организацию "Все" ~ APPPATH\classes\Controller\contacts.php [ 224 ] in C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php:84
+2024-09-12 15:20:27 --- DEBUG: #0 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Contacts->action_save()
+#1 [internal function]: Kohana_Controller->execute()
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Contacts))
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#5 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#6 {main} in C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php:84
+2024-09-12 15:44:24 --- CRITICAL: Exception [ 182 ]: Вы не можете добавлять сотрудников в организацию "Все" ~ APPPATH\classes\Controller\contacts.php [ 224 ] in C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php:84
+2024-09-12 15:44:24 --- DEBUG: #0 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Contacts->action_save()
+#1 [internal function]: Kohana_Controller->execute()
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Contacts))
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#5 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#6 {main} in C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php:84
+2024-09-12 16:09:40 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:09:40 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:09:40 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:09:40 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:10:51 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:10:51 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:10:52 --- CRITICAL: ErrorException [ 8 ]: Undefined variable: content ~ APPPATH\views\template.php [ 94 ] in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:10:52 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\views\template.php(94): Kohana_Core::error_handler(8, 'Undefined varia...', 'C:\\xampp\\htdocs...', 94, Array)
+#1 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(62): include('C:\\xampp\\htdocs...')
+#2 C:\xampp\htdocs\crm2\system\classes\Kohana\View.php(359): Kohana_View::capture('C:\\xampp\\htdocs...', Array)
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller\Template.php(44): Kohana_View->render()
+#4 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(87): Kohana_Controller_Template->after()
+#5 [internal function]: Kohana_Controller->execute()
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Reports))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#8 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#9 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#10 {main} in C:\xampp\htdocs\crm2\application\views\template.php:94
+2024-09-12 16:13:05 --- CRITICAL: Database_Exception [ 23000 ]: SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: roles_users.user_id, roles_users.role_id [ INSERT INTO roles_users (user_id, role_id) VALUES ('10', '4') ] ~ APPPATH\classes\Kohana\Database\PDO.php [ 159 ] in C:\xampp\htdocs\crm2\application\classes\Kohana\Database\Query.php:255
+2024-09-12 16:13:05 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\classes\Kohana\Database\Query.php(255): Kohana_Database_PDO->query(2, 'INSERT INTO rol...', false, Array)
+#1 C:\xampp\htdocs\crm2\modules\kohana-acl\classes\Model\Aclm.php(253): Kohana_Database_Query->execute('aclcfg')
+#2 C:\xampp\htdocs\crm2\modules\kohana-acl\classes\Controller\Acls.php(70): Model_Aclm->addRoleUser('10', '4')
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Acls->action_addItem()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Acls))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in C:\xampp\htdocs\crm2\application\classes\Kohana\Database\Query.php:255
+2024-09-12 16:13:43 --- CRITICAL: Database_Exception [ 23000 ]: SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: roles_users.user_id, roles_users.role_id [ INSERT INTO roles_users (user_id, role_id) VALUES ('10', '4') ] ~ APPPATH\classes\Kohana\Database\PDO.php [ 159 ] in C:\xampp\htdocs\crm2\application\classes\Kohana\Database\Query.php:255
+2024-09-12 16:13:43 --- DEBUG: #0 C:\xampp\htdocs\crm2\application\classes\Kohana\Database\Query.php(255): Kohana_Database_PDO->query(2, 'INSERT INTO rol...', false, Array)
+#1 C:\xampp\htdocs\crm2\modules\kohana-acl\classes\Model\Aclm.php(253): Kohana_Database_Query->execute('aclcfg')
+#2 C:\xampp\htdocs\crm2\modules\kohana-acl\classes\Controller\Acls.php(70): Model_Aclm->addRoleUser('10', '4')
+#3 C:\xampp\htdocs\crm2\system\classes\Kohana\Controller.php(84): Controller_Acls->action_addItem()
+#4 [internal function]: Kohana_Controller->execute()
+#5 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client\Internal.php(97): ReflectionMethod->invoke(Object(Controller_Acls))
+#6 C:\xampp\htdocs\crm2\system\classes\Kohana\Request\Client.php(114): Kohana_Request_Client_Internal->execute_request(Object(Request), Object(Response))
+#7 C:\xampp\htdocs\crm2\system\classes\Kohana\Request.php(997): Kohana_Request_Client->execute(Object(Request))
+#8 C:\xampp\htdocs\crm2\index.php(120): Kohana_Request->execute()
+#9 {main} in C:\xampp\htdocs\crm2\application\classes\Kohana\Database\Query.php:255
