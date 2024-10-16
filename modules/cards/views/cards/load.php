@@ -1,63 +1,3 @@
-<script type="text/javascript" language="javascript">
-	function toggleBlock(idCard)
-	{
-		$.get("<?php echo URL::base(); ?>ajax/togglecard/" + idCard, function(data) {
-				var a = $('#cardisactive');
-				if (data == '00') {
-					a.removeAttr('checked');
-					$('#blockButton').val('<?php echo __('cards.unblock'); ?>');
-				} else {
-					a.attr('checked', 'checked');
-					$('#blockButton').val('<?php echo __('cards.block'); ?>');
-				}
-		});
-	}
-	
-	function validatecard()
-	{
-		$('.error').hide();
-		if ($('#idcard').val() == '') {
-			$('#error11').show();
-			$('#idcard').focus();
-			return false;
-		}
-
-		if (!$('#idcard').val().match(/^[0-9a-f]{8}$/i)) {
-			$('#error12').show();
-			$('#idcard').focus();
-			return false;
-		}
-		
-		if ($('#carddatestart').val() == '') {
-			$('#error2').show();
-			return false;
-		}
-		
-		if ($('#carddateend').val() != '') {
-			var a1 = $('#carddatestart').val().split('-'),
-				a2 = $('#carddateend').val().split('-'),
-				d1 = (new Date()).setFullYear(a1[0], a1[1] - 1, a1[2]),
-				d2 = (new Date()).setFullYear(a2[0], a2[1] - 1, a2[2]);
-			
-			if (d1 > d2) {
-				$('#error3').show();
-				return false;
-			}
-		}
-	}
-	
-	function deletecard(id) {
-		if (confirm('<?php echo __('cards.confirmdelete'); ?>')) {
-			location.href = '<?php echo URL::base(); ?>cards/deletecard/' + id;
-		}
-	}
-	function reload(id) {
-		if (confirm('<?php echo __('cards.reload'); ?>')) {
-			location.href = '<?php echo URL::base(); ?>cards/reload/' + id;
-		}
-	}
-	
-</script>
 <?php
 include Kohana::find_file('views','alert');
  if (isset($alert)) { ?>
@@ -126,9 +66,14 @@ include Kohana::find_file('views','alert');
 			<div id="cardhistory">
 			<br />
 			<h3><?php echo __('cards.loadhistory'); ?></h3>
-			<table class="data" width="100%" cellpadding="0" cellspacing="0">
+			<?php
+		include Kohana::find_file('views', 'paginatoion_controller_template'); 
+		$sn=0;
+?>
+			<table class="data tablesorter-blue" width="60%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
 					<tr>
+						<th class="filter-false sorter-false"><?php echo __('sn'); ?></th>
 						<th style=""><?php echo __('queue.door_id'); ?></th>
 						<th style=""><?php echo __('load.device'); ?></th>
 						<th style="width:20%"><?php echo __('load.date'); ?></th>
@@ -140,6 +85,7 @@ include Kohana::find_file('views','alert');
 				<tbody>
 					<?php foreach ($loads as $load) { ?>
 					<tr>
+						<td><?php echo ++$sn; ?></td>
 						<td><?php echo Arr::get($load,'ID_DEV'); ?></td>
 						<td><?php echo iconv('CP1251', 'UTF-8', Arr::get($load,'NAME')); ?></td>
 						<td><?php echo  Arr::get($load,'LOAD_TIME')? Arr::get($load,'LOAD_TIME') : __('device.no_data_about_load_time') ;?></td>

@@ -346,13 +346,7 @@ class Controller_Cards extends Controller_Template
 			$list=$filter;//todo надо сделать фильтрацию, отобрать только те номера, которые доступны текущему пользователю
 		}
 		
-		$pagination = new Pagination(array(
-			'uri_segment' => 2,
-			'total_items' => $q,
-			'style' => 'floating',
-			'items_per_page' => $this->listsize,
-			'auto_hide' => true,
-		));
+		
 
 		$catdTypelist = $cards->getcatdTypelist();//формирую переменную, что затем передать ее во view
 		
@@ -373,7 +367,7 @@ class Controller_Cards extends Controller_Template
 			->bind('alert', $fl)
 			->bind('arrAlert', $arrAlert)
 			->bind('filter', $filter)
-			->bind('pagination', $pagination);
+			;
 			//echo View::factory('profiler/stats');
 	}
 

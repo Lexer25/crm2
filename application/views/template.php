@@ -85,35 +85,35 @@
 			}
 
 	</style>
-	
-  
-  
-</head>
-<body>
-	<div class="content_wrapper">
-		<?php include Kohana::find_file('views', 'header'); ?>		
-		<br>
-		<br>
-		<?php include Kohana::find_file('views', 'sidebar'); ?>
-		
-		<div id="content">
-			<div class="inner">
-				<?php 
-				//include Kohana::find_file('views/','alert');
-				echo $content; 
-		if (false) include Kohana::find_file('views', 'bottom_status_table');				
-							?>
-		
+ 
+	</head> 
+	<body>
+		<div class="content_wrapper">
+			<?php include Kohana::find_file('views', 'header'); ?>		
+			<br>
+			<br>
+			<?php include Kohana::find_file('views', 'sidebar'); ?>
+			
+			<div id="content">
+				<div class="inner">
+					<?php 
+					//include Kohana::find_file('views/','alert');
+					echo $content; 
+				if (false) include Kohana::find_file('views', 'bottom_status_table');				
+								?>
+				</div>
+			</div>
+		</div>
 
-<script>
-function updateAdditionalInfo() {
-        var currentTime = new Date();
-        var formattedTime = currentTime.toLocaleTimeString();
-        // Обновляем текущее время
-        document.getElementById("currentTime").textContent = "Время: " + formattedTime;
-    }
-	
- setInterval(updateAdditionalInfo, 1000);
-</script>
-</body>
+	<script>
+	function updateAdditionalInfo() {
+			var currentTime = new Date();
+			var formattedTime = currentTime.toLocaleTimeString();
+			// Обновляем текущее время
+			document.getElementById("currentTime").textContent = "Время: " + formattedTime;
+		}
+		
+	 setInterval(updateAdditionalInfo, 1000);
+	</script>
+	</body>
 </html>

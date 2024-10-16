@@ -60,10 +60,16 @@ if ($alert) { ?>
 	
 		if (count($cards) > 0) { // если список пуст - значит, нечего показывать
 		?> 
+		<?php
+		include Kohana::find_file('views', 'paginatoion_controller_template'); 
+		$sn=0;
+?>
+
 		<form id="form_data" name="form_data" action="" method="post">
 			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
-			<thead  allign="center">
+			<thead>
 					<tr>
+						<th class="filter-false sorter-false"><?php echo __('sn'); ?></th>
 						<th><?php echo __('cards.code'); ?></th>
 						<th><?php echo __('cards.id_cardtype'); ?></th>
 						<th><?php echo __('cards.status'); ?></th>
@@ -72,12 +78,13 @@ if ($alert) { ?>
 						<th><?php echo __('cards.active'); ?></th>
 						<th><?php echo __('cards.holder'); ?></th>
 						<th><?php echo __('cards.company'); ?></th>
-						<th><?php echo __('cards.action'); ?></th>
+						<th class="filter-false sorter-false"><?php echo __('cards.action'); ?></th>
 					</tr>
-				</thead>	
-					<tr align="center">
+			</thead>	
+			<tbody>	
+				<tr align="center">
 					<?php
-						echo '<td>1</td>';
+					/* 	echo '<td>1</td>';
 						echo '<td>2</td>';
 						echo '<td>22</td>';
 						echo '<td>3</td>';
@@ -86,12 +93,13 @@ if ($alert) { ?>
 						echo '<td>6</td>';
 						echo '<td>7</td>';
 						echo '<td>8</td>';
+						echo '<td>9</td>'; */
 					
 					?>
 						
 					</tr>
 			
-				<tbody>
+				
 					<?php 
 					$listStatus=array(0=>__('RFID'),
 									1=>__('RFID Mifare'),
@@ -113,6 +121,7 @@ if ($alert) { ?>
 					
 					echo'<tr>';
 						
+						echo '<td>'.++$sn.'</td>';
 						echo '<td>'; 
 						
 						echo $is_allowed? HTML::anchor('cards/edit/' . $key->id_card, $key->id_card_on_screen) : $key->id_card_on_screen .' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
@@ -128,7 +137,8 @@ if ($alert) { ?>
 						echo '<td>'.$key->timestart.'</td>';
 						echo '<td>'.$key->timeend.'</td>';
 						echo '<td>';
-						  echo $key->is_active.' '.($key->is_active == '1') ? __('yes') : __('no'). '</td>';
+						  echo $key->is_active.' '.($key->is_active == '1') ? __('yes') : __('no');
+						echo '</td>'; 
 						echo '<td>'; 
 							if (Auth::instance()->logged_in('admin'))
 							    echo $is_allowed? HTML::anchor('contacts/edit/' . $contact->id_pep, iconv('CP1251', 'UTF-8', $contact->name . ' ' . $contact->surname)) : iconv('CP1251', 'UTF-8', $contact->name . ' ' . $contact->surname).' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
@@ -145,7 +155,7 @@ if ($alert) { ?>
 
 
 						if($is_allowed){?>
-						    <a href="javascript:" onclick="if (confirm('<?php echo __('cards.confirmdelete'); ?>')) location.href='<?php echo URL::base() . 'cards/delete/' . $key->id_card; ?>';">
+						    <a href="javascript:" onclick="if (confirm('<?php echo __('cards.confirmdelete'); ?>')) location.href='<?php echo URL::base() . 'cards/delete/' . $key->id_card; ?>';"></a>
 						    <?php echo HTML::image('images/icon_delete.png', array('title' => __('cards.delete'), 'class' => 'help'));
 						    
 						} else {
@@ -161,9 +171,9 @@ if ($alert) { ?>
 				</tbody>
 			</table>
 			<div id="chart_wrapper" class="chart_wrapper"></div>
-		<!-- End bar chart table-->
+		
 		</form>
-		<?php echo $pagination; ?>
+		
 		<?php } else { ?>
 		<div style="margin: 100px 0; text-align: center;">
 			<?php echo __('cards.empty'); ?><br /><br />

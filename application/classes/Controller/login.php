@@ -27,7 +27,7 @@
                 
                    Session::instance()
 						->set('language', 'ru-ru')
-						->set('listsize', 25)
+						->set('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact))
 						->set('org_control', Arr::get($user, 'ID_PEP'));
 						;
 						
