@@ -200,7 +200,7 @@ where ssa.id_org='. $id_org;
 			$g[] = $value['id_group'];
 		}
 
-		$sql =  'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' o.*, p.name AS parent, a.name AS accessname ' .
+		$sql =  'SELECT  o.*, p.name AS parent, a.name AS accessname ' .
 				'FROM organization o INNER JOIN organization p ON o.id_parent = p.id_org LEFT OUTER JOIN accessname a ON o.id_def_accessname = a.id_accessname ' .
 				'WHERE o.id_group IN (' . join(',', $g) . ')' . ($filter ? " AND o.name containing '$filter' " : '') .
 				'ORDER BY o.id_org';
@@ -244,7 +244,7 @@ where ssa.id_org='. $id_org;
 	public function getListUser($user, $page = 1, $perpage = 10, $filter)
 	{
 		$sql = '
-				SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . '
+				SELECT 
 					o.id_org, o.name, o.divcode,
 					SUM(ug."O_VIEW") sumoview,
 					SUM(ug."O_EDIT") sumoedit,
@@ -290,7 +290,7 @@ where ssa.id_org='. $id_org;
 				'delete'	=> $value['delete']);
 		}
 		
-		$sql =	'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' o.*, g.id_group AS "GROUP", p.name AS parent, a.name AS accessname ' .
+		$sql =	'SELECT  o.*, g.id_group AS "GROUP", p.name AS parent, a.name AS accessname ' .
 				'FROM organization o ' .
 				'INNER JOIN organizationgroup g ON g.id_org = o.id_org ' .
 				'INNER JOIN organization p ON o.id_parent = p.id_org ' .
@@ -348,7 +348,7 @@ where ssa.id_org='. $id_org;
 		$id_org_control=Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL');
 		if(is_null($filter)) //если это не поиск конкретной оргназации, то вывожу всех дочек parent_org
 		{			
-		$sql = 'select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' o.*, p.name AS parent, p.id_org AS parentid, p.name AS accessname ' . 
+		$sql = 'select  o.*, p.name AS parent, p.id_org AS parentid, p.name AS accessname ' . 
 			'from organization o
 			join organization_getchild (1,'.$id_org_control.') og on og.id_org =o.id_org 
 			INNER JOIN organization p ON o.id_parent = p.id_org 
@@ -356,7 +356,7 @@ where ssa.id_org='. $id_org;
 			ORDER BY  o.name COLLATE PXW_CYRL';
 			//echo Debug::vars('177 нет фильтра', $sql, $filter);
 		} else {//если строго по фильтру, то вывожу эту организацию (если она разрешена текущего пользователю)
-			$sql = 'select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' o.*, p.name AS parent, p.id_org AS parentid, p.name AS accessname ' . 
+			$sql = 'select  o.*, p.name AS parent, p.id_org AS parentid, p.name AS accessname ' . 
 			'from organization o
 			join organization_getchild (1,'.$id_org_control.') og on og.id_org =o.id_org 
 			INNER JOIN organization p ON o.id_parent = p.id_org 
@@ -433,7 +433,7 @@ where ssa.id_org='. $id_org;
 	
 	public function getListByGroup($group, $page = 1, $perpage = 10, $filter)
 	{
-		$sql =	'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' o.*, p.name AS parent, a.name AS accessname ' .
+		$sql =	'SELECT  o.*, p.name AS parent, a.name AS accessname ' .
 				'FROM organization o INNER JOIN organization p ON o.id_parent = p.id_org ' .
 				'LEFT OUTER JOIN accessname a ON o.id_def_accessname = a.id_accessname ' .
 				'LEFT OUTER JOIN organizationgroup g ON o.id_org = g.id_org ' .

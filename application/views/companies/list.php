@@ -113,9 +113,18 @@ if ($alert) { ?>
 	<?php
 		//echo Debug::vars('19', $org_tree);
 		echo '<br><div class="content">'.$org_tree.'</div>';//прорисовка дерева орг
+		
 	?>
+	
+	
+	
+	
 	<br class="clear"/>
 	<div class="content">
+	<?php
+		include Kohana::find_file('views', 'paginatoion_controller_template'); 
+		$sn=0;
+	?>
 		<form id="form_data" name="form_data" action="" method="post">
 			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
@@ -127,13 +136,14 @@ if ($alert) { ?>
 						-->
 						<?php
 
-						echo '<th>' . __('companies.id') . '</th>';
+						echo '<th class="filter-false sorter-false">' . __('sn') . '</th>';
+						echo '<th class="filter-false">' . __('companies.id') . '</th>';
 						echo '<th>' . __('companies.name') . '</th>';
-						echo '<th>' . __('companies.countChildren') . '</th>';
-						echo '<th>' . __('companies.countContact') . '</th>';
+						echo '<th class="sorter-false">' . __('companies.countChildren') . '</th>';
+						echo '<th class="sorter-false">' . __('companies.countContact') . '</th>';
 						echo '<th>' . __('companies.code') . '</th>';
 						echo '<th>' . __('companies.parent') . '</th>';
-						echo '<th>' . __('companies.action') . '</th>';
+						echo '<th class="filter-false sorter-false">' . __('companies.action') . '</th>';
 						?>
 					</tr>
 				</thead>
@@ -150,6 +160,7 @@ if ($alert) { ?>
 						-->
 						<?php 
 						
+						echo '<td align="center">' . ++$sn . '</td>';
 						echo '<td align="center">' . $company->id_org . '</td>';
 						echo '<td>' . HTML::anchor('companies/edit/' . $company->id_org, iconv('CP1251', 'UTF-8', $company->name));
 							if($company->flag & 1) echo HTML::image('/images/icon_guest2.png', array('width'=>'16'));
@@ -214,6 +225,6 @@ if ($alert) { ?>
 		<!-- End bar chart table-->
 		</form>
 		
-		<?php echo $pagination; ?>
+		
 	</div>
 </div>

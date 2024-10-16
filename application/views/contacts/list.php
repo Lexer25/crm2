@@ -58,12 +58,16 @@ include Kohana::find_file('views','alert'); ?>
 	</div>
 	<br class="clear"/>
 	<div class="content">
-		<?php include Kohana::find_file('views', 'paginatoion_controller_template'); ?>
+		
 		<?php if (count($people) <= 0) { ?>
 		<div style="margin: 100px 0; text-align: center;">
 			<?php echo __('contacts.empty');?><br /><br />
 		</div>
 		<?php } else { ?>
+		<?php
+		include Kohana::find_file('views', 'paginatoion_controller_template'); 
+		$sn=0;
+?>
 		<form id="form_data" name="form_data" action="" method="post">
 			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
@@ -73,7 +77,9 @@ include Kohana::find_file('views','alert'); ?>
 							<input type="checkbox" id="check_all" name="check_all"/>
 						</th>
 						-->
+						<th class="filter-false sorter-false"><?php echo __('sn'); ?></th>
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<th>'.__('contacts.id_pep').'</th>'?>
+						
 						<th class="filter-false"><?php echo __('contacts.count_identificator'); ?></th>
 						<th><?php echo __('contact.active'); ?></th>
 						
@@ -98,6 +104,7 @@ include Kohana::find_file('views','alert'); ?>
 							<input type="checkbox" />
 						</td>
 						-->
+						<td><?php echo ++$sn; ?></td>
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<td>'.$peppep->id_pep.'</td>'?>
 						
 							<td><?php if(count($peppep->count_identificator)) {

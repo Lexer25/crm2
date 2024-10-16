@@ -48,13 +48,7 @@ class Controller_Companies extends Controller_Template
 		$count_q = Model::factory('Company')->getCountUser(Arr::get(Auth::instance()->get_user(), 'ID_PEP'), $parent_org, $filter);// сколько всего организаций для авторизованного пользователя?
 		
 		
-		$pagination = new Pagination(array(//подготовка страниц исходя из количества
-			'uri_segment' => 2,
-			'total_items' => $count_q,
-			'style' => 'classic',
-			'items_per_page' => $this->listsize,
-			'auto_hide' => true,
-		));
+		
 		
 		$list = $companies->getListAdmin(// получение списка организаций, удовлетворяющего фильтру
 				Arr::get(Auth::instance()->get_user(), 'ID_PEP'),
@@ -83,69 +77,6 @@ class Controller_Companies extends Controller_Template
 		$org_tree = Model::Factory('Company')->getOrgListForOnce(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'));// я получил список организаций разрешенных текущему пользователю.
 		//echo Debug::vars('84', $org_tree);exit;
 		
-		//==============================
-		
-/* 	$check=	array(
-	1 => array(
-        "id" =>  1,
-        "title" =>  "Все_",
-        "parent" =>  0
-    ),
-    749 => array (
-        "id" =>  "749",
-        "title" =>  " разовый пропуск_",
-        "parent" =>  "752",
-        "busy" => NULL,
-    ),
-    760 => array (
-        "id" =>  "760",
-        "title" =>  "Архив ЭК_",
-        "parent" =>  "759",
-        "busy" => NULL,
-    ),
-    759 => array (
-        "id" => "759",
-        "title" =>  "Гости ЭК",
-        "parent" =>  "752",
-        "busy" => NULL
-    ),
-    750 => array (
-        "id" =>  "750",
-        "title" =>  "РИС",
-        "parent" =>  "752",
-        "busy" => NULL
-    ),
-    752 => array (
-        "id" =>  "752",
-        "title" =>  "Экспериментальное кольцо",
-        "parent" =>  "1",
-        "busy" => NULL
-    ),
-    754 => array (
-        "id" =>  "754",
-        "title" =>  "временный",
-        "parent" =>  "752",
-        "busy" => NULL
-    ),
-    757 => array (
-        "id" =>  "757",
-        "title" =>  "сотрудники эк",
-        "parent" =>  "752",
-        "busy" => NULL
-    )
-	);
-	
-	$check2=array(
-	//1 => array("id" =>  1,"title" =>  "Все_2","parent" =>  0),
-    749 => array ("id" =>  "749","title" =>  " разовый пропуск_2", "parent" =>  "752","busy" => NULL, ),
-    760 => array ("id" =>  "760","title" =>  "Архив ЭК_2","parent" =>  "759","busy" => NULL, ),
-    759 => array ("id" => "759","title" =>  "Гости ЭК_2","parent" =>  "752","busy" => NULL),
-    750 => array ("id" =>  "750", "title" =>  "РИС_2","parent" =>  "752","busy" => NULL),
-    752 => array ("id" =>  "752","title" =>  "Экспериментальное кольцо_2","parent" =>  "0","busy" => NULL),
-    754 => array ("id" =>  "754","title" =>  "временный_2","parent" =>  "752","busy" => NULL),
-    757 => array ("id" =>  "757","title" =>  "сотрудники эк_2","parent" =>  "752","busy" => NULL)
-	); */
-		//==============================
 		$org_tree=Model::Factory('treeorg')->make_tree($org_tree, 1);//формирую иерархический список
 		//$org_tree=Model::Factory('treeorg')->make_tree($check2, 2);//формирую иерархический список
 		
@@ -155,7 +86,6 @@ class Controller_Companies extends Controller_Template
 			->bind('alert', $fl)
 			->bind('col1', $company_columns)
 			->bind('filter', $filter)
-			->bind('pagination', $pagination)
 			->bind('org_tree', $org_tree)
 			;
 			//echo View::factory('profiler/stats');
@@ -178,14 +108,6 @@ class Controller_Companies extends Controller_Template
 		
 		$q = $contacts->getCountByOrg($id);
 
-		$pagination = new Pagination(array(
-			'uri_segment' => 2,
-			'total_items' => $q,
-			'style' => 'floating',
-			'items_per_page' => $this->listsize,
-			'auto_hide' => true,
-		));
-		
 		$list = $contacts->getListByOrg(Arr::get($_GET, 'page', 1), $this->listsize, $id);
 		$fl = null;
 		
@@ -206,7 +128,7 @@ class Controller_Companies extends Controller_Template
 			->bind('showphone', $showphone)
 			->bind('hidesearch', $hidesearch)
 			->bind('filter', $filter)
-			->bind('pagination', $pagination);
+			;
 	}
 	
 	/*
@@ -233,7 +155,7 @@ class Controller_Companies extends Controller_Template
 			->bind('company', $company)
 			->bind('company_acl', $company_acl)
 			->bind('aclsForCurrentUser', $aclsForCurrentUser)
-			->bind('pagination', $pagination);
+			;
 	}
 	
 		/*
