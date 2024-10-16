@@ -1,19 +1,12 @@
-<script type="text/javascript">
-
-
- 
-  	$(function() {		
-  		$("#tablesorter").tablesorter({ headers: { 7:{sorter: false}},  widgets: ['zebra']});
-		
-  	});	
-	
-</script>
- 
 <?php 
 //echo Debug::vars('13',$people );exit;
 //echo Debug::vars('14',$company );exit;
 //echo Debug::vars('15', Session::instance()->get('viewDeletePeopleOnly'));//exit;
-
+if(count($people)>500){
+	$alert=__('contCount', array(':contCount'=>Kohana::$config->load('config_newcrm')->table_view_max_contact));
+	$people=array_slice($people, 0, 500);
+	
+}
 if ($alert) { ?>
 <div class="alert_success">
 	<p>
@@ -65,8 +58,12 @@ include Kohana::find_file('views','alert'); ?>
 	</div>
 	<br class="clear"/>
 	<div class="content">
-	
-		<?php if (count($people) > 0) { ?>
+		<?php include Kohana::find_file('views', 'paginatoion_controller_template'); ?>
+		<?php if (count($people) <= 0) { ?>
+		<div style="margin: 100px 0; text-align: center;">
+			<?php echo __('contacts.empty');?><br /><br />
+		</div>
+		<?php } else { ?>
 		<form id="form_data" name="form_data" action="" method="post">
 			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
@@ -77,9 +74,8 @@ include Kohana::find_file('views','alert'); ?>
 						</th>
 						-->
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<th>'.__('contacts.id_pep').'</th>'?>
-						<th><?php echo __('contacts.count_identificator_rfid'); ?></th>
-						<th><?php echo __('contacts.count_identificator_grz'); ?></th>
-						<!--<th><?php echo __('contact.active'); ?></th>-->
+						<th class="filter-false"><?php echo __('contacts.count_identificator'); ?></th>
+						<th><?php echo __('contact.active'); ?></th>
 						
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListTabNumView')) echo '<th>'.__('contacts.code').'</th>'?>
 						<th><?php echo __('contacts.name'); ?></th>
@@ -87,7 +83,7 @@ include Kohana::find_file('views','alert'); ?>
 						
 						<th><?php echo __('contacts.company'); ?></th>
 						
-						<th><?php echo __('contacts.action'); ?></th>
+						<th class="filter-false sorter-false"><?php echo __('contacts.action'); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -104,63 +100,14 @@ include Kohana::find_file('views','alert'); ?>
 						-->
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<td>'.$peppep->id_pep.'</td>'?>
 						
-							<td>
-							<?php if(count($peppep->count_identificator)) {
-								foreach($peppep->count_identificator as $key){
-								
-										switch(Arr::get($key, 'ID_CARDTYPE')){
-											case 1:
-												
-												if(Arr::get($key, 'COUNT')<4){
-													for($i=0; $i<Arr::get($key, 'COUNT'); $i++){
-														echo HTML::anchor('contacts/cardlist/'.$peppep->id_pep, HTML::image('images/icon_card.png'));
-													}
-												}
-												if(Arr::get($key, 'COUNT')>3){
-													for($i=0; $i<3; $i++){
-														echo HTML::anchor('contacts/cardlist/'.$peppep->id_pep, HTML::image('images/icon_card.png'));
-														
-													}
-													echo '...';
-												}
-													 
-													
-											break;
-										}
-									
-								; }
-								}?>
-						</td>
-						<td>
-								<?php if(count($peppep->count_identificator)) {
-								foreach($peppep->count_identificator as $key){
-								
-										switch(Arr::get($key, 'ID_CARDTYPE')){
-										
-											case 4:
-												///echo HTML::anchor('contacts/cardlist/'.$peppep->id_pep, HTML::image('images/icon_grz.png', array('height'=>10)));
-												if(Arr::get($key, 'COUNT')<4){
-													for($i=0; $i<Arr::get($key, 'COUNT'); $i++){
-														echo HTML::anchor('contacts/cardlist/'.$peppep->id_pep, HTML::image('images/icon_grz.png', array('height'=>'16')));
-													}
-												}
-												if(Arr::get($key, 'COUNT')>3){
-													for($i=0; $i<3; $i++){
-														echo HTML::anchor('contacts/cardlist/'.$peppep->id_pep, HTML::image('images/icon_grz.png', array('height'=>'16')));
-														
-													}
-													echo '...';
-												}
-											break;
-											
-											
-										}
-									
-								; }
-								}?>
+							<td><?php if(count($peppep->count_identificator)) {
+								echo HTML::anchor('contacts/cardlist/'.$peppep->id_pep, HTML::image('images/icon_card.png'))
+								//.' '
+								//.__('(:count)', array(':count'=>count($peppep->count_identificator)))
+								; }?>
 						</td>
 						
-						<!--<td><?php echo Arr::get($pep,'IS_ACTIVE')? 'Да':'Нет'; ?></td>-->
+						<td><?php echo Arr::get($pep,'IS_ACTIVE')? 'Да':'Нет'; ?></td>
 						
 						
 						
@@ -268,14 +215,15 @@ include Kohana::find_file('views','alert'); ?>
 					<?php } ?>
 				</tbody>
 			</table>
+			
+			
+			
+			
+			
+			
 			<div id="chart_wrapper" class="chart_wrapper"></div>
 		<!-- End bar chart table-->
 		</form>
-		<?php echo $pagination; ?>
-		<?php } else { ?>
-		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('contacts.empty'); ?><br /><br />
-		</div>
-		<?php } ?>
+		<?php }?>
 	</div>
 </div>

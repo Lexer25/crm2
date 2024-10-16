@@ -68,7 +68,7 @@ include Kohana::find_file('views','alert'); ?>
 	
 		<?php if (count($people) > 0) { ?>
 		<form id="form_data" name="form_data" action="" method="post">
-			<table class="table table-striped table-hover table-condensed tablesorter" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
+			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
 					<tr>
 						<!--
