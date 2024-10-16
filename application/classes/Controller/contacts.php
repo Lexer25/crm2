@@ -181,13 +181,7 @@ class Controller_Contacts extends Controller_Template
 			//количество пиплов, доступные текущему авторизованному пользователю
 			$q = $contacts->getCountUser($id_orgctrl, iconv('UTF-8', 'CP1251', $filter));
 			//echo Debug::vars('128', $filter, $q); exit;
-			$pagination = new Pagination(array(
-				'uri_segment' => 2,
-				'total_items' => $q,
-				'style' => 'floating',
-				'items_per_page' => $this->listsize,
-				'auto_hide' => true,
-			));
+			
 			
 			$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
 	//	}  
@@ -205,7 +199,7 @@ class Controller_Contacts extends Controller_Template
 			->bind('arrAlert[]', $arrAlert[])
 			->bind('showphone', $showphone)
 			->bind('filter', $filter)
-			->bind('pagination', $pagination);
+			;
 			
 
 	$this->template->content =	$view;	

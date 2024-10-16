@@ -2,7 +2,7 @@
 
 return array
 (
-	'npp'						=> '№ п/п',
+	'contCount'						=> 'Будут поазаны первые :count контактов. При необходимости пользуйтесь поиском.',
 	'npp'						=> '№ п/п',
 	'id_dev'						=> 'id по базе данных СКУД',
 	'identity'						=> 'Идентификаторы',
@@ -378,7 +378,8 @@ return array
 	
 	'contacts.id_pep'				=>'id_pep',
 	'contacts.titleSearch'			=>'Результат поиска по фильтру \':filter\'',
-	'contacts.count_identificator'			=>'Наличие идентификатора',
+	'contacts.count_identificator_rfid'			=>'Наличие идентификатора RFID',
+	'contacts.count_identificator_grz'			=>'Наличие идентификатора ГРЗ',
 	'contacts.host'			=>'Быстрая регистрация',
 	
 	'guests'						=> 'Гости',

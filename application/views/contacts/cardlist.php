@@ -73,8 +73,16 @@ $catdTypelist = Model::factory('Card')->getcatdTypelist();//получил сп�
 	<br class="clear" />
 	<div class="content">
 		<?php if (count($cards) > 0) { ?>
+		
+		
+<?php
+		include Kohana::find_file('views', 'paginatoion_controller_template'); 
+		$sn=0;
+?>
+
+
 		<form id="form_data" name="form_data" action="" method="post">
-			<table class="data" width="100%" cellpadding="0" cellspacing="0">
+			<table class="data tablesorter-blue" width="60%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
 					<tr>
 						<!--
@@ -82,12 +90,13 @@ $catdTypelist = Model::factory('Card')->getcatdTypelist();//получил сп�
 							<input type="checkbox" id="check_all" name="check_all"/>
 						</th>
 						-->
+						<th class="filter-false sorter-false"><?php echo __('sn'); ?></th>
 						<th><?php echo __('cards.code'); ?></th>
 						<th><?php echo __('cards.type'); ?></th>
 						<th><?php echo __('cards.datestart'); ?></th>
 						<th><?php echo __('cards.dateend'); ?></th>
-						<th><?php echo __('cards.active'); ?></th>
-						<th><?php echo __('cards.action'); ?></th>
+						<th class="filter-false sorter-false"><?php echo __('cards.active'); ?></th>
+						<th class="filter-false sorter-false"><?php echo __('cards.action'); ?></th>
 						
 					</tr>
 				</thead>
@@ -103,6 +112,7 @@ $catdTypelist = Model::factory('Card')->getcatdTypelist();//получил сп�
 							<input type="checkbox" />
 						</td>
 						-->
+						<td><?php echo ++$sn; ?></td>
 						<td><?php 
 						//	$viewFromatForEdit = $key->id_card_on_screen;
 						//	if(Kohana::$config->load('system')->get('viewFromatForEdit') == 'DEC')$viewFromatForEdit = $key->id_card_on_screen;

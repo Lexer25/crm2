@@ -205,7 +205,7 @@ class Controller_Contacts extends Controller_Template
 			->bind('arrAlert[]', $arrAlert[])
 			->bind('showphone', $showphone)
 			->bind('filter', $filter)
-			->bind('pagination', $pagination);
+			;
 			
 
 	$this->template->content =	$view;	
@@ -1004,7 +1004,7 @@ class Controller_Contacts extends Controller_Template
 	
 	public function action_savecard()
 	{
-		echo Debug::vars('348', $_POST ); exit;
+		//echo Debug::vars('348', $_POST ); exit;
 		$post=Validation::factory($_POST);
 		$arrAlert=array();
 		$post->rule('id', 'not_empty')// id сотрудника, которому присваивается номер карты

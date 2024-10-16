@@ -2,94 +2,7 @@
 /*
 Эта страница выводит список категорий доступа для указаного пипла
 */
-?>
-<script language="javascript">
-	function validate()
-	{
-		$('.error').hide();
-		if ($('#surname').val() == '') {
-			$('#error1').show();
-			$('#surname').focus();
-			return false;
-		}
-		var ymd = $('#datebirth').val();
-		if (ymd == '') {
-			$('#error21').show();
-			return false;
-		}
-		if (!ymd.match(/^\d{4}-\d{2}-\d{2}$/)) {
-			$('#error22').show();
-			return false;
-		}
-		ymd = ymd.split('-');
-		if (ymd[1] > 12 || ymd[1] < 1 || ymd[2] > 31 || ymd[2] < 1) {
-			$('#error23').show();
-			return false;
-		}
-		ymd = $('#datedoc').val(); 
-		if (ymd == '') {
-			$('#error31').show();
-			return false;
-		}
-		if (!ymd.match(/^\d{4}-\d{2}-\d{2}$/)) {
-			$('#error32').show();
-			return false;
-		}
-		ymd = ymd.split('-');
-		if (ymd[1] > 12 || ymd[1] < 1 || ymd[2] > 31 || ymd[2] < 1) {
-			$('#error33').show();
-			return false;
-		}
-		var hm = $('#workstart').val();
-		if (hm == '') {
-			$('#error41').show();
-			$('#workstart').focus();
-			return false;
-		}
-		if (!hm.match(/^\d{2}:\d{2}$/) && !hm.match(/^\d{2}:\d{2}:\d{2}$/)) {
-			$('#error42').show();
-			$('#workstart').focus();
-			return false;
-		}
-		hm = hm.split(':');
-		if (hm[0] > 23 || hm[1] > 59 || (hm.length == 3 && hm[2] > 59)) {
-			$('#error43').show();
-			$('#workstart').focus();
-			return false;
-		}
-		hm = $('#workend').val();
-		if (hm == '') {
-			$('#error51').show();
-			$('#workend').focus();
-			return false;
-		}
-		if (!hm.match(/^\d{2}:\d{2}$/) && !hm.match(/^\d{2}:\d{2}:\d{2}$/)) {
-			$('#error52').show();
-			$('#workend').focus();
-			return false;
-		}
-		hm = hm.split(':');
-		if (hm[0] > 23 || hm[1] > 59 || (hm.length == 3 && hm[2] > 59)) {
-			$('#error53').show();
-			$('#workstart').focus();
-			return false;
-		}
-		if ($('#tabnum').val() == '') {
-			$('#error6').show();
-			$('#tabnum').focus();
-			return false;
-		} else if ($('#login').val() == '') {
-			$('#error7').show();
-			$('#login').focus();
-			return false;
-		} else if ($('#password').val() == '') {
-			$('#error8').show();
-			$('#password').focus();
-			return false;
-		}
-	}
-</script>
-<?php 
+ 
 //echo Debug::vars('89', $contact);
 //echo Debug::vars('90', $contact_acl);
 
@@ -287,9 +200,12 @@ echo Form::open('reports/doorList');
 	
 	
 	</table>
-	
+	<?php
+		include Kohana::find_file('views', 'paginatoion_controller_template'); 
+		$sn=0;
+?>
 	<table class="data tablesorter-blue" width="60%" cellpadding="0" cellspacing="0" id="tablesorter" >
-			<tbody>
+			<thead>
 				<tr>
 					<th>№</th>
 					<th>Название двери</th>
@@ -305,6 +221,8 @@ echo Form::open('reports/doorList');
 					<th>Повтор</th>
 					
 				</tr>
+				</thead>
+				<tbody>
 				<?php
 				$i=0;
 			foreach(array_unique($doorAll) as $key=>$value){	

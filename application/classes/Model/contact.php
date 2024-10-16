@@ -224,7 +224,7 @@ class Model_Contact extends Model
 			$g[] = $value['id_group'];
 		}
 
-		$sql =	'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' p.*, o.name AS oname ' . 
+		$sql =	'SELECT  p.*, o.name AS oname ' . 
     			'FROM organization o INNER JOIN people p  ON (p.id_org = o.id_org) ' .
 				'WHERE o.id_group IN (' . join(', ', $g) . ') ' . ($filter ? " AND (p.surname containing '$filter' OR p.name containing '$filter')" : '') .
 				'ORDER BY id_pep';
@@ -239,7 +239,7 @@ class Model_Contact extends Model
 	{
 		
 
-		$sql =  'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 	o.id_org,
+		$sql =  'SELECT  	o.id_org,
     				o.name AS oname,
     				p.id_pep,
 					p."ACTIVE" as is_active,
@@ -262,7 +262,7 @@ class Model_Contact extends Model
 	
 	public function getListAdmin($page = 1, $perpage = 10, $filter)
 	{
-		$sql =  'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' p.*, o.name AS oname ' .
+		$sql =  'SELECT  p.*, o.name AS oname ' .
 				'FROM people p INNER JOIN organization o ON p.id_org = o.id_org ' .
 				($filter ? " WHERE upper(p.surname) containing upper('$filter') OR upper(p.name) containing upper('$filter')" : '') . 
 				'ORDER BY id_pep'; 
@@ -295,7 +295,7 @@ class Model_Contact extends Model
 		
 				
 		if(is_null($filter) or $filter=='' or $filter=='*') {// если фильтра нет, то выбираем всех пиплов из родительской и подчиненной организаций
-		$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
+		$sql='select  
 				o.id_org,
 				o.name AS oname,
                 p.id_pep,
@@ -307,7 +307,7 @@ class Model_Contact extends Model
 		join organization_getchild (1, ' . $id_org . ') og on og.id_org = p.id_org
 		where p."ACTIVE"='.$this->peopleIsActive.'';
 		} else {
-			$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
+			$sql='select  
 				o.id_org,
 				o.name AS oname,
                 p.id_pep,
