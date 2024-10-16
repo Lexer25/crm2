@@ -202,6 +202,13 @@ return [
 									'title'   => 'report.history',
 									'tooltip' => 'report.history',
 								],
+						'stat'=>[
+									'url'     => 'mreports/stat',
+									'icon'    => '',
+									'title'   => 'mreport.stat',
+									'tooltip' => 'mreport.stat',
+									'visible' => true,
+								],
 						'peopleRegStat'=>[
 									'url'     => 'reports/peopleRegStat',
 									'icon'    => '',

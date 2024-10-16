@@ -142,6 +142,7 @@ Kohana::modules(array(
 	'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
 	'kohana-acl' => MODPATH . 'kohana-acl', // подключение модуля Passoffice
 	'menu' => MODPATH.'menu',
+	'mreports' => MODPATH.'report',
 	
 	));
 /*

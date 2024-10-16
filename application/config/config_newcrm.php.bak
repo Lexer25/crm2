@@ -10,7 +10,7 @@ return array(
 
 	'version' => array(
 		'minor' => '3',
-		'major' => '5.10'),
+		'major' => '6.0'),
 	
 	'use_acl'=>false,
 	'role_default'=>'admin',

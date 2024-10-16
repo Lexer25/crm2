@@ -82,8 +82,7 @@ include Kohana::find_file('views','alert'); ?>
 						
 						<th class="filter-false"><?php echo __('contacts.count_identificator_rfid'); ?></th>
 						<th class="filter-false"><?php echo __('contacts.count_identificator_grz'); ?></th>
-						<th><?php echo __('contact.active'); ?></th>
-						
+											
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListTabNumView')) echo '<th>'.__('contacts.code').'</th>'?>
 						<th><?php echo __('contacts.name'); ?></th>
 						<th><?php echo __('contact.post'); ?></th>
@@ -142,7 +141,7 @@ include Kohana::find_file('views','alert'); ?>
 											if ($imageCount>constants::maxCountImageForId) $imageCount=constants::maxCountImageForId;
 											for($i=0; $i<$imageCount; $i++)
 											{
-												echo HTML::image('/images/icon_grz.png', array('width'=>'21'));
+												echo HTML::image('/images/icon_grz.png', array('height'=>'16'));
 												
 											}
 											if(Arr::get($value, 'COUNT')>constants::maxCountImageForId) echo '...';
@@ -152,14 +151,8 @@ include Kohana::find_file('views','alert'); ?>
 								; }?>
 						</td>
 						
-						
-						
-						<td><?php echo Arr::get($pep,'IS_ACTIVE')? 'Да':'Нет'; ?></td>
-						
-						
-						
 						<td><?php 
-						//echo Debug::vars('115', $pep);
+						
 						if (Auth::instance()->logged_in('admin') && $peppep->id_pep <>1)
 						    echo HTML::anchor('contacts/edit/' . $peppep->id_pep, iconv('CP1251', 'UTF-8', $peppep->surname. ' '.$peppep->name . ' ' . $peppep->patronymic));
 							else
