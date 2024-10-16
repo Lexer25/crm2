@@ -14,7 +14,7 @@ return array(
 	
 	'use_acl'=>false,
 	'role_default'=>'admin',
-	'table_view_max_contact'=>'500',
+	'table_view_max_contact'=>'500',//максимальное количество получаемых идентификаторов для вывода на страницу
 	
 	
 	//'listMenu'=>'sidebar_0',// ссылка на файл правого меню

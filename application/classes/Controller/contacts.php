@@ -16,8 +16,8 @@ class Controller_Contacts extends Controller_Template
 
 		$this->session = Session::instance();
 		I18n::$lang = $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->set('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact));
-		$this->listsize = $this->session->get('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact));
+		$this->listsize = $this->session->set('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact);
+		$this->listsize = $this->session->get('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact);
 		$this->rfid_min_length=Kohana::$config->load('rfid')->get('min_length');
 		$this->rfid_max_length=Kohana::$config->load('rfid')->get('max_length');
 		

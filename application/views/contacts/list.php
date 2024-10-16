@@ -80,7 +80,8 @@ include Kohana::find_file('views','alert'); ?>
 						<th class="filter-false sorter-false"><?php echo __('sn'); ?></th>
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<th>'.__('contacts.id_pep').'</th>'?>
 						
-						<th class="filter-false"><?php echo __('contacts.count_identificator'); ?></th>
+						<th class="filter-false"><?php echo __('contacts.count_identificator_rfid'); ?></th>
+						<th class="filter-false"><?php echo __('contacts.count_identificator_grz'); ?></th>
 						<th><?php echo __('contact.active'); ?></th>
 						
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListTabNumView')) echo '<th>'.__('contacts.code').'</th>'?>
@@ -107,12 +108,51 @@ include Kohana::find_file('views','alert'); ?>
 						<td><?php echo ++$sn; ?></td>
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<td>'.$peppep->id_pep.'</td>'?>
 						
-							<td><?php if(count($peppep->count_identificator)) {
-								echo HTML::anchor('contacts/cardlist/'.$peppep->id_pep, HTML::image('images/icon_card.png'))
-								//.' '
-								//.__('(:count)', array(':count'=>count($peppep->count_identificator)))
+						<td><?php //вывод символов идентификаторов RFID
+								
+								if(count($peppep->count_identificator)) {
+									foreach($peppep->count_identificator as $ley=>$value)
+									{
+										
+											//echo Debug::vars('111', $value );
+										if(Arr::get($value, 'ID_CARDTYPE') == constants::idRfid) { //это rfid
+											$imageCount=Arr::get($value, 'COUNT');
+											if ($imageCount>constants::maxCountImageForId) $imageCount=constants::maxCountImageForId;
+											for($i=0; $i<$imageCount; $i++)
+											{
+												echo HTML::image('/images/icon_card.png', array('width'=>'16'));
+												
+											}
+											if(Arr::get($value, 'COUNT')>constants::maxCountImageForId) echo '...';
+										}											
+									}
+								
 								; }?>
 						</td>
+						
+						<td><?php //вывод символов идентификаторов ГРЗ
+								
+								if(count($peppep->count_identificator)) {
+									foreach($peppep->count_identificator as $ley=>$value)
+									{
+										
+											//echo Debug::vars('111', $value );
+										if(Arr::get($value, 'ID_CARDTYPE') == constants::idGrz) { //это грз
+											$imageCount=Arr::get($value, 'COUNT');
+											if ($imageCount>constants::maxCountImageForId) $imageCount=constants::maxCountImageForId;
+											for($i=0; $i<$imageCount; $i++)
+											{
+												echo HTML::image('/images/icon_grz.png', array('width'=>'21'));
+												
+											}
+											if(Arr::get($value, 'COUNT')>constants::maxCountImageForId) echo '...';
+										}											
+									}
+								
+								; }?>
+						</td>
+						
+						
 						
 						<td><?php echo Arr::get($pep,'IS_ACTIVE')? 'Да':'Нет'; ?></td>
 						

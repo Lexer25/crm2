@@ -9,6 +9,11 @@
 */
 class constants
 {
+	
+	const idRfid=1;
+	const idGrz=4;
+	
+	
 	const MAX_VALUE = 10;
 	const DANGER = 'danger';
 	//const RFID_MAX_LENGTH = 8;
@@ -38,6 +43,10 @@ class constants
 	
 	// ограничение длины названия организации
 	const ORGNAME_LENGHT = 50;
+	
+	
+	// максимальное количество иконок на экране при отображении количества идентификаторов
+	const maxCountImageForId = 3;
 	
 	
 	
