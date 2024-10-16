@@ -101,7 +101,7 @@
 				<?php 
 				//include Kohana::find_file('views/','alert');
 				echo $content; 
-		if (false) include Kohana::find_file('views', 'bottom_status_table');				
+		include Kohana::find_file('views', 'bottom_status_table');				
 							?>
 		
 
