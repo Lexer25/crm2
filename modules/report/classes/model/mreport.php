@@ -13,8 +13,6 @@ class Model_mreport extends Model
 			
 			$ttime=time()-60*60*24*30*$month;
 			$timeFrom=date('Y-m-d', mktime(0, 0, 0, date('m', $ttime), 1, date('Y', $ttime)));
-		
-		
 
 			$sql='SELECT EXTRACT(year from p.time_stamp) as yearFrom, EXTRACT(month from p.time_stamp) as montFrom, count(*) FROM people p
 			where p.time_stamp>\''.$timeFrom.'\'

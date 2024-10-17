@@ -2,6 +2,7 @@
 //echo Debug::vars('2',$getStat);exit;
 //echo Debug::vars('3',Arr::get($getStat,'title'));//exit;
 
+echo __($titleReport);
 					
  include Kohana::find_file('views', 'paginatoion_controller_template'); 
 		$sn=0;?>
@@ -11,11 +12,11 @@
 			<thead>
 					<?php 
 					echo'<tr>';
-						echo '<th>'.++$sn.'1</th>';
-					 foreach(Arr::get($getStat,'title') as $key=>$value){
+						echo '<th>'.__('sn').'</th>';
+					 foreach(Arr::get($getStat,'titleColumn') as $key=>$value){
 					 
 					
-						echo '<th>'.$value.'</th>';
+						echo '<th>'.__($value).'</th>';
 						
 				
 					}; 

@@ -27,19 +27,45 @@ class Controller_mreports extends Controller_Template {
 	
 		//echo Debug::vars('29 report stat');exit;
 		
-			//получил список групп конфигурации
-		$getStat=Model::factory('mreport')->getStat_0();//отчет статистика для Щербинки
+		$report=new Report();
 		
-		$fl = $this->session->get('alert', '');
-		$this->session->delete('alert');
 		
-		$content = View::factory('stat/list')
-			->bind('alert', $fl)
-			->bind('getStat', $getStat)
+		Session::instance()->set('report', $report);
+		$content = View::factory('report')
+			->bind('report', $report)
+			
 			;
         $this->template->content = $content;
 	}
 	
 	
+	public function action_export()
+	{
+		
+		if(Arr::get($_POST, 'savecsv'))
+		{
+			$csv=new ExportCsv(Session::instance()->get('report'));
+			$csv->makeReport();
+			$csv->sendFile();
+			
+			
+		};
+		if(Arr::get($_POST, 'savexls'))
+		{
+			$csv=new ExportCsv(Session::instance()->get('report'));
+			$csv->makeReport();
+			$csv->sendFile();
+			
+			
+		}
+		if(Arr::get($_POST, 'savepdf')) 
+		{
+			$csv=new ExportCsv(Session::instance()->get('report'));
+			$csv->makeReport();
+			$csv->sendFile();
+						
+		}
+		echo Debug::vars('44', $_POST, $_GET, Session::instance()->get('report'));exit;
+	}
 	
 }
