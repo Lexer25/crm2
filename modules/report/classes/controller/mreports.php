@@ -60,13 +60,19 @@ class Controller_mreports extends Controller_Template {
 		}
 		if(Arr::get($_POST, 'savepdf')) 
 		{
-			// $csv=new ExportPdf(Session::instance()->get('report'));
-			// $csv->makeReport();
-			// $csv->sendFile();
-			
-			if(Kohana::find_file('views','testpdf'))
+			/*  $csv=new ExportPdf(Session::instance()->get('report'));
+			 $csv->makeReport();
+			 $csv->sendFile(); */
+		 	
+			if(Kohana::find_file('views','report'))
 				{
-				 $content=View::Factory('testpdf'); 
+				// $content=View::Factory('report')
+				// ->bind('report', $report); 
+				
+				$content=View::Factory('testpdf')
+				 ; 
+				
+				
 				} else {
 					throw new  Exception('Нет файла view!');
 				}
@@ -99,9 +105,9 @@ class Controller_mreports extends Controller_Template {
 //echo Debug::vars('49', $content);//exit;
 						$this->template->content = $content;
 				}
-						
+						 
 		}
-		//echo Debug::vars('44', $_POST, $_GET, Session::instance()->get('report'));exit;
+		
 	}
 	
 }
