@@ -734,6 +734,8 @@ $dompdf->stream();
 					->bind('id_pep', $id_pep)
 					->bind('id_admin', $huser)
 					; 
+					
+
 				//$content=View::Factory('\report\doorlist\west_garden');	
 				//if(false){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
 				if(true){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
