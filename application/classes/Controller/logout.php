@@ -5,8 +5,7 @@ class Controller_Logout extends Controller {
 	public function action_index()
 	{
 		Auth::instance()->logout();
-		Session::instance()->delete('username');
-		Session::instance()->delete('viewDeletePeopleOnly');
+		Session::instance()->destroy('');
 		$this->redirect('/');
 	}
 

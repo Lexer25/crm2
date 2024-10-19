@@ -70,7 +70,6 @@ function updateAdditionalInfo() {
 						'2'=>'DEC 10 digit',
 						'4'=>'ГРЗ A123BC45',
 						);
-						
 					
 				?>
 				<div id="someidentifier">
@@ -80,7 +79,7 @@ function updateAdditionalInfo() {
 							<td><?php echo __('template.Auth', array(':auth'=> Auth::instance()->logged_in()? 'True':'False')) ;?></td>
 							<td><?php echo __('Формат RFID в БД СКУД <u>:id</u> (:format)',array(':id'=>Kohana::$config->load('system')->get('baseFormatRfid'), ':format'=> Arr::get($list, Kohana::$config->load('system')->get('baseFormatRfid'), '--')));?></td>
 							<td><?php echo __('Формат регистрационного считывателя <u>:id</u> (:format)',array(':id'=>Kohana::$config->load('system')->get('regFormatRfid'), ':format'=> Arr::get($list2, Kohana::$config->load('system')->get('regFormatRfid'))));?></td>
-							<td><?php echo __('template.Role', array(':role'=> Session::instance()->get('role')));?></td>
+							<td><?php echo __('template.Role', array(':role'=> Arr::get(Session::instance()->get('auth_user_crm'), 'ROLE')));?></td>
 							<td><?php echo __('template.DB', array(':db'=> Arr::get(
 									Arr::get(
 											Kohana::$config->load('database')->fb,

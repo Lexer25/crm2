@@ -209,6 +209,13 @@ return [
 									'tooltip' => 'mreport.stat',
 									'visible' => true,
 								],
+						'report1'=>[
+									'url'     => 'mreports/report1',
+									'icon'    => '',
+									'title'   => 'mreport.report1',
+									'tooltip' => 'mreport.report1',
+									'visible' => true,
+								],
 						'peopleRegStat'=>[
 									'url'     => 'reports/peopleRegStat',
 									'icon'    => '',

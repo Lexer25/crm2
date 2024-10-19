@@ -58,8 +58,9 @@ class Auth_City extends Auth {
 			
 			return TRUE;
 			} else {
+				Log::instance()->add(Log::DEBUG, '63 Неудачная попытка входа для username '.$username);
+				//Пароль не найден, поэтому переходим на окно ввода пароля.
 				
-				throw new Exception('Дублирование логина и  пароля', 63);
 			}
 	}
 	

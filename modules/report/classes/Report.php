@@ -8,7 +8,7 @@ class Report
 {
 	
 	//название отчета
-	public $titleReport='Шаблон отчета';
+	public $titleReport='Шаблон отчета тестовый';
 	
 	//дата создания отчета
 	public $dateCreated;

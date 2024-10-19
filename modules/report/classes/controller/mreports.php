@@ -19,7 +19,7 @@ class Controller_mreports extends Controller_Template {
 	
 	
 	/*
-	17.12.2023 вывод списка конфигурационных групп
+	17.10.2024 шаблон тестового отчета
 	*/
 	
 	public function action_stat()
@@ -29,9 +29,38 @@ class Controller_mreports extends Controller_Template {
 		
 		$report=new Report();
 		
-		
+			
 		Session::instance()->set('report', $report);
 		$content = View::factory('report')
+			->bind('report', $report)
+			;
+        $this->template->content = $content;
+	}
+	
+	
+	/*
+	18.10.2024 отчет для Щербинки статистика выданных карт
+	*/
+	
+	public function action_report1()
+	{
+	
+		//echo Debug::vars('29 report stat');exit;
+		
+		$report=new Report();
+		//echo Debug::vars('51', Arr::get(Session::instance()->get('auth_user_crm'), 'ID_ORGCTRL'));
+		//echo Debug::vars('52', Arr::get(Session::instance()->get('auth_user_crm'), 'ROLE'));
+		
+		$result=Model::factory('mreport')->getReport1(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_ORGCTRL'));
+		$report->titleColumn=Arr::get($result, 'title');
+		$report->titleColumn=array('Год', 'Месяц', 'Количество зарегистрированных сотрудников');
+		$report->rowData=Arr::get($result, 'data');
+		$report->titleReport='Зарегистрированные сотрудники';
+		$report->org='ВНИИЖТ Экспериментальное кольцо';
+		
+		
+		//Session::instance()->set('report', $report);
+		$content = View::factory('report1')
 			->bind('report', $report)
 			
 			;
@@ -39,6 +68,9 @@ class Controller_mreports extends Controller_Template {
 	}
 	
 	
+	/*
+		18.10.2024 экспорт результата
+	*/
 	public function action_export()
 	{
 		

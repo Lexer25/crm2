@@ -30,6 +30,7 @@
 					<tr>
 						<th class="filter-false sorter-false"><?php echo __('sn');?></th>
 						<?php
+						
 						foreach($report->titleColumn as $key=>$value)
 						{
 							
