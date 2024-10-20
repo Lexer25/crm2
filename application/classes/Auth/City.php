@@ -52,7 +52,6 @@ class Auth_City extends Auth {
 			
 				
 				$user['ROLE']=$this->get_role(Arr::get($user, 'ID_PEP'));
-//				$user['get_user']='55-55';
 	
 				$this->complete_login($user);
 			

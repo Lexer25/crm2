@@ -343,7 +343,7 @@ class Controller_Contacts extends Controller_Template
 			echo Debug::vars('101 ', $id, $id_org_old, $org); //exit;
 			if(($id_org_old != $org) and ($inherit ==1)) // если есть изменения в организации, и включено наследование, то надо поменять и набор категорий доступа
 			{
-				echo Debug::vars('104 набор категорий доступа ИЗМЕНИЛСЯ.'); //exit;	
+				
 				$aclList= Model::factory('company')->company_acl($org);//список категорий доступа, уже выданных организации;//передаю новый набор категорий доступа
 				
 				foreach($aclList as $key=>$value)
