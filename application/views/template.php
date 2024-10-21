@@ -101,7 +101,7 @@
 					echo $content;
 
 //вывод строки статуса					
-				if (true) include Kohana::find_file('views', 'bottom_status_table');				
+				if (false) include Kohana::find_file('views', 'bottom_status_table');	
 								?>
 				</div>
 			</div>

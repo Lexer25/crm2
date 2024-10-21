@@ -5,6 +5,7 @@
 */
 class Controller_mreports extends Controller_Template { 
 		private $session;
+		private $user;
 		public $template = 'template';
 	
 
@@ -13,6 +14,7 @@ class Controller_mreports extends Controller_Template {
 			
 			parent::before();
 			$this->session = Session::instance();
+			$this->user = new User();
 			
 	}
 	
@@ -51,7 +53,8 @@ class Controller_mreports extends Controller_Template {
 		//echo Debug::vars('51', Arr::get(Session::instance()->get('auth_user_crm'), 'ID_ORGCTRL'));
 		//echo Debug::vars('52', Arr::get(Session::instance()->get('auth_user_crm'), 'ROLE'));
 		
-		$result=Model::factory('mreport')->getReport1(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_ORGCTRL'));
+		//$result=Model::factory('mreport')->getReport1(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_ORGCTRL'));
+		$result=Model::factory('mreport')->getReport1($this->user->id_orgctrl);
 		$report->titleColumn=Arr::get($result, 'title');
 		$report->titleColumn=array('Год', 'Месяц', 'Количество зарегистрированных сотрудников');
 		$report->rowData=Arr::get($result, 'data');
@@ -74,6 +77,7 @@ class Controller_mreports extends Controller_Template {
 	public function action_export()
 	{
 		//echo Debug::vars('76',$_POST);exit;
+		Log::instance()->add(Log::DEBUG, '63 '.Debug::vars($_POST));
 		if(Arr::get($_POST, 'savecsv'))
 		{
 			$csv=new ExportCsv(Session::instance()->get('report'));
