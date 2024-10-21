@@ -98,8 +98,10 @@
 				<div class="inner">
 					<?php 
 					//include Kohana::find_file('views/','alert');
-					echo $content; 
-				if (false) include Kohana::find_file('views', 'bottom_status_table');				
+					echo $content;
+
+//вывод строки статуса					
+				if (true) include Kohana::find_file('views', 'bottom_status_table');				
 								?>
 				</div>
 			</div>

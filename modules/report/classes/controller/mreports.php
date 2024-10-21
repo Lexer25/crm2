@@ -59,7 +59,7 @@ class Controller_mreports extends Controller_Template {
 		$report->org='ВНИИЖТ Экспериментальное кольцо';
 		
 		
-		//Session::instance()->set('report', $report);
+		Session::instance()->set('report', $report);
 		$content = View::factory('report1')
 			->bind('report', $report)
 			
@@ -73,7 +73,7 @@ class Controller_mreports extends Controller_Template {
 	*/
 	public function action_export()
 	{
-		
+		//echo Debug::vars('76',$_POST);exit;
 		if(Arr::get($_POST, 'savecsv'))
 		{
 			$csv=new ExportCsv(Session::instance()->get('report'));

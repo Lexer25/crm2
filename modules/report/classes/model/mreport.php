@@ -13,9 +13,9 @@ class Model_mreport extends Model
 			
 			$ttime=time()-60*60*24*30*$month;
 			$timeFrom=date('Y-m-d', mktime(0, 0, 0, date('m', $ttime), 1, date('Y', $ttime)));
-
+//echo Debug::vars('16', Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'));exit;
 			$sql='SELECT EXTRACT(year from p.time_stamp) as yearFrom, EXTRACT(month from p.time_stamp) as montFrom, count(*) FROM people p
-			join organization_getchild(1, '.$id_org.') og on og.id_org=p.id_org
+			join organization_getchild(1, '.Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL').') og on og.id_org=p.id_org
 			where p.time_stamp>\''.$timeFrom.'\'
 				GROUP BY 1, 2
 				order by 1,2';
