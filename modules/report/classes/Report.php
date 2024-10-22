@@ -42,15 +42,9 @@ class Report
 	*/
 	public function __construct()
 	{
-		
+		$this->dateCreated=date('d.m.Y H:i:s');
 	
 		
 	}
-	
-	
-	
-	
-	
-	
 	
 }

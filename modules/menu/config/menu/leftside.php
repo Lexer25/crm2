@@ -210,7 +210,7 @@ return [
 									'visible' => true,
 								],
 						'report1'=>[
-									'url'     => 'mreports/report1',
+									'url'     => 'mreports/reportSelect',
 									'icon'    => '',
 									'title'   => 'mreport.report1',
 									'tooltip' => 'mreport.report1',

@@ -25,7 +25,8 @@ class exportCSV
 		fputcsv ($fp, Array('',iconv('UTF-8','CP1251',$report->dateCreated)),';');
 		
 		//кто готовил и департамент
-		fputcsv ($fp, Array(iconv('UTF-8','CP1251',__('fromUser')),iconv('UTF-8','CP1251',$report->fromUser),iconv('UTF-8','CP1251',__('depatment')),iconv('UTF-8','CP1251',$report->depatment)),';');
+		//fputcsv ($fp, Array(iconv('UTF-8','CP1251',__('fromUser')),iconv('UTF-8','CP1251',$report->fromUser),iconv('UTF-8','CP1251',__('depatment')),iconv('UTF-8','CP1251',$report->depatment)),';');
+		fputcsv ($fp, Array(iconv('UTF-8','CP1251',__('fromUser')),$report->fromUser,iconv('UTF-8','CP1251',__('depatment')),$report->depatment),';');
 		
 		fputcsv ($fp, $report->titleColumn,';');
 

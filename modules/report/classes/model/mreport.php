@@ -8,12 +8,10 @@ class Model_mreport extends Model
 	
 	public function getReport1($id_org){// Статистика
 		
-		$month=20;
-		
-			
+			$month=20;
 			$ttime=time()-60*60*24*30*$month;
 			$timeFrom=date('Y-m-d', mktime(0, 0, 0, date('m', $ttime), 1, date('Y', $ttime)));
-//echo Debug::vars('16', Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'));exit;
+
 			$sql='SELECT EXTRACT(year from p.time_stamp) as yearFrom, EXTRACT(month from p.time_stamp) as montFrom, count(*) FROM people p
 			join organization_getchild(1, '.Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL').') og on og.id_org=p.id_org
 			where p.time_stamp>\''.$timeFrom.'\'
@@ -29,10 +27,11 @@ class Model_mreport extends Model
 			{
 				
 				$query[$key]['MONTFROM']=Arr::get($monthes, $value['MONTFROM']).' ('.$value['MONTFROM'].')';
+
 				
 				
 			}
-			//echo Debug::vars('34', $query);exit;
+		
 			$titleArray=array('YEARFROM', 'MONTFROM', 'COUNT' );
 			return array('title'=>$titleArray, 'data'=>$query);
 	}

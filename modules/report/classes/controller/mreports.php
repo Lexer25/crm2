@@ -34,39 +34,79 @@ class Controller_mreports extends Controller_Template {
 			
 		Session::instance()->set('report', $report);
 		$content = View::factory('report')
-			->bind('report', $report)
+		
 			;
         $this->template->content = $content;
 	}
 	
 	
 	/*
+	21.10.2024 отчет для Щербинки. Выбор параметров
+	*/
+	
+	public function action_reportSelect()
+	{
+	
+		
+		$content = View::factory('reportSelect')
+			
+			;
+        $this->template->content = $content;
+	}
+	
+	/*
 	18.10.2024 отчет для Щербинки статистика выданных карт
 	*/
 	
-	public function action_report1()
+	
+	/*
+	21.10.2024 отчет для Щербинки. Подготовка отчета
+	*/
+	
+	public function action_makeReport_0()
 	{
 	
-		//echo Debug::vars('29 report stat');exit;
-		
-		$report=new Report();
-		//echo Debug::vars('51', Arr::get(Session::instance()->get('auth_user_crm'), 'ID_ORGCTRL'));
-		//echo Debug::vars('52', Arr::get(Session::instance()->get('auth_user_crm'), 'ROLE'));
-		
-		//$result=Model::factory('mreport')->getReport1(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_ORGCTRL'));
-		$result=Model::factory('mreport')->getReport1($this->user->id_orgctrl);
-		$report->titleColumn=Arr::get($result, 'title');
-		$report->titleColumn=array('Год', 'Месяц', 'Количество зарегистрированных сотрудников');
-		$report->rowData=Arr::get($result, 'data');
-		$report->titleReport='Зарегистрированные сотрудники';
-		$report->org='ВНИИЖТ Экспериментальное кольцо';
-		
-		
-		Session::instance()->set('report', $report);
-		$content = View::factory('report1')
-			->bind('report', $report)
+		echo Debug::vars('69', $_POST);exit;
+		$content = View::factory('reportSelect')
 			
 			;
+        $this->template->content = $content;
+	}
+	
+	/*
+	18.10.2024 отчет для Щербинки статистика выданных карт
+	*/
+	
+	
+	
+	
+	
+	
+	public function action_makeReport()
+	{
+	
+		//echo Debug::vars('29 report stat', $_POST);exit;
+		$post=Validation::factory(Arr::get($_POST, 'dataReport'))
+			->rule('id_report', 'not_empty')
+			->rule('id_report', 'digit');
+			
+		if($post->check()){
+		//номер 234 следует брать из post, где этот номер - фиксированный.	
+			$report=Model::factory('mr_m234')->getReport1($post,$this->user);
+		
+			Session::instance()->set('report', $report);
+			
+			$content = View::factory('report1')
+				->bind('report', $report)
+				;
+		} else {
+			
+			$content = View::factory('reportError', array(
+			'mess'=> $post->errors(),
+			));
+		}
+		
+		
         $this->template->content = $content;
 	}
 	
@@ -96,16 +136,18 @@ class Controller_mreports extends Controller_Template {
 		}
 		if(Arr::get($_POST, 'savepdf')) 
 		{
-			/*  $csv=new ExportPdf(Session::instance()->get('report'));
+			/*  $reportData=new ExportPdf(Session::instance()->get('report'));
 			 $csv->makeReport();
 			 $csv->sendFile(); */
-		 	
-			if(Kohana::find_file('views','report'))
+		 	$reportData=Session::instance()->get('report');
+			
+			if(Kohana::find_file('views','exportpdf'))
 				{
 				// $content=View::Factory('report')
 				// ->bind('report', $report); 
 				
-				$content=View::Factory('testpdf')
+				$content=View::Factory('exportpdf')
+					->bind('reportData', $reportData)
 				 ; 
 				
 				
