@@ -13,7 +13,7 @@ class exportCSV
 	{
 		
 			
-		$file_name="report_wt_test".date('Y-m-d_H_i_s').".csv";
+		$file_name=$report->fileName.'_'.date('Y-m-d_H_i_s').".csv";
 		
 		$fp = fopen($file_name, 'w');
 		$f_title=array('Отчет рабочего времени сотрудника '.$report->fromUser);

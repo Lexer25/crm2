@@ -8,5 +8,6 @@ return array
 	'COUNT'=>'Количество',
 	'mreport.stat'=>'Тест',
 	'mreport.report1'=>'Статистика',
+	'button.makeReport'=>'Подготовить отчет',
   
 );

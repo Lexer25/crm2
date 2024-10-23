@@ -177,36 +177,32 @@ if ($alert) { ?>
 						echo '<td>';
 					
 						//набор параметров, определяющий поведение кнопок для разных ролей
-						
+						$user=new User();
 						$acl=new Acl(true);
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'read')){
+						if($acl->is_allowed($user->role,'organization', 'read')){
 							$dis1='';
 							$dis2='class="disabled"';
 							$dis2_lighten='lighten';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'create')){
+						if($acl->is_allowed($user->role,'organization', 'create')){
 							$dis1='';
 							$dis2='class="disabled"';
 							$dis2_lighten='lighten';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'update')){
+						if($acl->is_allowed($user->role,'organization', 'update')){
 							$dis1='';
 							$dis2='';
 							$dis2_lighten='';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'delete')){
+						if($acl->is_allowed($user->role,'organization', 'delete')){
 							$dis1='';
 							$dis2='';
 							$dis2_lighten='';
 							$dis3='';
 						};
-						
-						
-						
-						//if($acl->is_allowed(Session::instance()->get('role'),'organization', 'read')){
 							
 			echo HTML::anchor('companies/edit/' . $company->id_org, HTML::image('images/icon_edit.png', array('title' => __('tip.edit'), 'class' => 'help '.$dis1)));
 						?>

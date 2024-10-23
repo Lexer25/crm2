@@ -117,6 +117,13 @@ return [
 								'icon'    => '',
 								'title'   => 'sidebar.deletedcontact',
 								'tooltip' => 'sidebar.deletedcontact'
+							],
+						'hostSetup'=>[
+								'url'     => 'contacts/disp/hostSetup',
+								'icon'    => '',
+								'title'   => 'setup',
+								'tooltip' => 'setup',
+								'visible' => true,
 							]
 							
 					]
@@ -188,12 +195,12 @@ return [
 					
 				],
 				
-				
+		//раздел Отчеты		
 		'Reports'=>[
 					'url'     => '',
 					'icon'    => 'export.png',
-					'title'   => 'report.history',
-					'tooltip' => 'report.history',
+					'title'   => 'report.reports',
+					'tooltip' => 'report.reports',
 					'visible' => true, // можно запретить показ, если false
 					'items'   => [
 						'history'=>[
@@ -207,7 +214,7 @@ return [
 									'icon'    => '',
 									'title'   => 'mreport.stat',
 									'tooltip' => 'mreport.stat',
-									'visible' => true,
+									'visible' => false,
 								],
 						'report1'=>[
 									'url'     => 'mreports/reportSelect',

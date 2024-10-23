@@ -34,7 +34,7 @@ class Controller_mreports extends Controller_Template {
 			
 		Session::instance()->set('report', $report);
 		$content = View::factory('report')
-		
+			->bind('report', $report)
 			;
         $this->template->content = $content;
 	}
@@ -121,16 +121,16 @@ class Controller_mreports extends Controller_Template {
 		if(Arr::get($_POST, 'savecsv'))
 		{
 			$csv=new ExportCsv(Session::instance()->get('report'));
-			$csv->makeReport();
-			$csv->sendFile();
+			//$csv->makeReport();
+			//$csv->sendFile();
 			
 			
 		};
 		if(Arr::get($_POST, 'savexls'))
 		{
 			$csv=new ExportXlsx(Session::instance()->get('report'));
-			$csv->makeReport();
-			$csv->sendFile();
+			//$csv->makeReport();
+			//$csv->sendFile();
 			
 			
 		}

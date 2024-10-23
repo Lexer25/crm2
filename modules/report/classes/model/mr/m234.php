@@ -12,6 +12,7 @@ class Model_mr_m234 extends Model
 			$report=new Report();
 			$report->org=Kohana::$config->load('main')->get('orgname');
 			$report->titleReport='Количество зарегистрированных сотрудников за последние '.Arr::get($post, 'howManyMonce').' месяцев';
+			$report->fileName='crm_report_'.Arr::get($post, 'howManyMonce').'_month';
 			
 			// беру ФИО оператора
 			$pep=new Contact($user->id_pep);
@@ -25,7 +26,8 @@ class Model_mr_m234 extends Model
 			$report->depatment  =  $org->name;
 			
 			
-			$month=20;
+			$month=Arr::get($post, 'howManyMonce');
+			//echo Debug::vars('29',$post,  $month);exit;
 			$ttime=time()-60*60*24*30*$month;
 			$timeFrom=date('Y-m-d', mktime(0, 0, 0, date('m', $ttime), 1, date('Y', $ttime)));
 

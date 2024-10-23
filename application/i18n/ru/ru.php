@@ -491,6 +491,7 @@ return array
 	'button.reportEvents'			=> 'Подготовить отчет Журнал событий',
 	'Reports'						=> 'Отчеты',
 	'report.history'				=> 'Единый журнал событий',
+	'report.reports'					=> 'Отчеты',
 	
 
 	'settings.title'				=> 'Настройки',

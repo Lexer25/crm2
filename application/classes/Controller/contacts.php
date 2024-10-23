@@ -32,9 +32,6 @@ class Controller_Contacts extends Controller_Template
 		$confFastOrder=array();
 		$confFastOrder= Kohana::$config->load('system')->get('fastorder');
 		$confFastOrder[Arr::get($_POST, 'id_pep')] = Arr::get($_POST, 'id_org');
-		//$var3[Arr::get($_POST, 'id_pep')] = Arr::get($_POST, 'id_org');
-		//echo Debug::vars('35', $confFastOrder, Arr::get($_POST, 'id_pep'),   Arr::get($_POST, 'id_org'), $var3 );exit;			
-		//$confFastOrder[]=$value;
 		Kohana::$config->_write_config('system', 'fastorder', $confFastOrder);
 		$this->redirect('/');
 		
@@ -411,6 +408,11 @@ class Controller_Contacts extends Controller_Template
 			case 'hostDeletedList': // показать удаленные контакты орагизации host.
 				$this->session->set('is_host', '1');
 				$this->redirect('contacts/deletedList');
+			
+			break;
+			case 'hostSetup': // настройки для быстрой регистрации.
+				
+				$this->template->content = View::factory('contacts/hostSetup');
 			
 			break;
 			
