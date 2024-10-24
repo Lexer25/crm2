@@ -11,10 +11,6 @@ class exportXlsx
 	
 	public function __construct(Report $report)
 	{
-		
-			
-		//echo Debug::vars('29', $_POST); exit;
-		
 		define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 		require_once APPPATH . '/vendor/PHPExcel-1.8/Classes/PHPExcel.php';
 		require_once APPPATH . '/vendor//PHPExcel-1.8/Classes/PHPExcel/Writer/Excel2007.php';
@@ -26,11 +22,11 @@ class exportXlsx
 		
 		$objPHPExcel->getProperties()->setCreator("ООО Артсек")
 									 ->setLastModifiedBy("ООО Артсек")
-									 ->setTitle("Учет рабочего времени титул")
-									 ->setSubject("Отчет Учет рабочего времени по выбранному сотруднику")
-									 ->setDescription("Отчет Учет рабочего времени по выбранному сотрунику. Отчет получен экспортом из системы Artonit City.")
-									 ->setKeywords("Учет рабочего времени")
-									 ->setCategory("Учет рабочего времени");
+									 ->setTitle($report->titleReport)
+									 ->setSubject($report->titleReport)
+									 ->setDescription($report->titleReport)
+									 ->setKeywords($report->titleReport)
+									 ->setCategory($report->titleReport);
 
 		$xls=$objPHPExcel->setActiveSheetIndex(0);	//создал новый лист
 	
@@ -76,8 +72,8 @@ class exportXlsx
 
 		
 		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
-		$file_name='УРВ_'.iconv('CP1251', 'UTF-8', '567').'_'.date('Y_m_d').'.xlsx';
+
+		$file_name=$report->fileName.'_'.date('Y-m-d_H_i_s').'.xlsx';
 		$objWriter->save($file_name);
 		
 		$content = Model::Factory('ReportWorkTime')->send_file($file_name);

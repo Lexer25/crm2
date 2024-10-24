@@ -6,9 +6,9 @@
 //echo Debug::vars('89', $contact);
 //echo Debug::vars('90', $contact_acl);
 
-	
+						$user=new User();
 						$acl=new Acl(true);
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'read')){
+						if($acl->is_allowed($user->role,'organization', 'read')){
 							$dis1='disabled="disbled"';
 							$dis1_arr='disabled'>'disbled';
 							
@@ -16,21 +16,21 @@
 							$dis2_lighten='lighten';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'create')){
+						if($acl->is_allowed($user->role,'organization', 'create')){
 							$dis1='disabled="disbled"';
 							$dis1_arr='';
 							$dis2='class="disabled"';
 							$dis2_lighten='lighten';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'update')){
+						if($acl->is_allowed($user->role,'organization', 'update')){
 							$dis1='';
 							$dis1_arr='';
 							$dis2='';
 							$dis2_lighten='';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'delete')){
+						if($acl->is_allowed($user->role,'organization', 'delete')){
 							$dis1='';
 							$dis1_arr='';
 							$dis2='';

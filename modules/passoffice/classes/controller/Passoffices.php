@@ -28,11 +28,12 @@ class Controller_Passoffices extends Controller_Template
 		parent::before();
 		
 		//Проверка: может ли пользователь вообще заходить в этот раздел?
+						$user=new User();
 						$acl=new Acl(true);
 						$resource='passoffice';
 						
 						
-						if(!$acl->is_allowed(Session::instance()->get('role'),$resource, 'read')){
+						if(!$acl->is_allowed($user->role,$resource, 'read')){
 							
 							$this->redirect('/');
 							throw new Exception ('Нет прав. Доступ в раздел запрещен.', 40);

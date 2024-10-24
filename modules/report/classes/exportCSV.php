@@ -16,23 +16,35 @@ class exportCSV
 		$file_name=$report->fileName.'_'.date('Y-m-d_H_i_s').".csv";
 		
 		$fp = fopen($file_name, 'w');
-		$f_title=array('Отчет рабочего времени сотрудника '.$report->fromUser);
-		
-		
+			
 		//собираю заголовок	Название отчета и головную организацию
 		fputcsv ($fp, Array(iconv('UTF-8','CP1251', $report->titleReport), iconv('UTF-8','CP1251',$report->org)),';');
 		//дата создания отчета
-		fputcsv ($fp, Array('',iconv('UTF-8','CP1251',$report->dateCreated)),';');
+		fputcsv ($fp, Array(iconv('UTF-8','CP1251',__('dateCreated')),iconv('UTF-8','CP1251',$report->dateCreated)),';');
 		
 		//кто готовил и департамент
-		//fputcsv ($fp, Array(iconv('UTF-8','CP1251',__('fromUser')),iconv('UTF-8','CP1251',$report->fromUser),iconv('UTF-8','CP1251',__('depatment')),iconv('UTF-8','CP1251',$report->depatment)),';');
+		
 		fputcsv ($fp, Array(iconv('UTF-8','CP1251',__('fromUser')),$report->fromUser,iconv('UTF-8','CP1251',__('depatment')),$report->depatment),';');
 		
-		fputcsv ($fp, $report->titleColumn,';');
+		//заголовок таблицы
+		$title=$report->titleColumn;
+		//преобразую каждый элемент массива в Win1251
+		foreach($title as $key=>$value)
+			{
+				$title[$key]=iconv('UTF-8','CP1251', $value);
+			}
+		
+		fputcsv ($fp, $title,';');
 
 		foreach ($report->rowData as $key=>$value)
 		{
-			//echo Debug::vars('29', $value); exit;
+			//преобразую каждый элемент массива в Win1251
+			foreach($value as $key2=>$value2)
+			{
+				//echo Debug::vars('38',$value,  $key2, $value2);exit;
+				$value[$key2]=iconv('UTF-8','CP1251', $value2);
+				
+			}
 			fputcsv ($fp, $value,';');
 		}
 			

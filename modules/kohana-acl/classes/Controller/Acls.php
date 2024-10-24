@@ -21,9 +21,10 @@ class Controller_Acls extends Controller_Template {
 		$this->user = Auth::instance()->get_user();
 		I18n::$lang = $session->get('language', 'en-us');
 		//echo Debug::vars('23',$_POST);exit;
+		$user=new User();
 		$acl=new Acl(true);
 		$resource='acl';
-		if(!$acl->is_allowed(Session::instance()->get('role'),$resource, 'read')){
+		if(!$acl->is_allowed($user->role,$resource, 'read')){
 			
 			
 			$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>__('No_ACL'));

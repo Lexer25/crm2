@@ -101,9 +101,9 @@ $tt=microtime(true);
 //echo Debug::vars('99', Auth::instance());
 
 //набор параметров, определяющий поведение кнопок для разных ролей
-						
+						$user=new User();
 						$acl=new Acl(true);
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'read')){
+						if($acl->is_allowed($user->role,'organization', 'read')){
 							$dis1='disabled="disbled"';
 							$dis1_arr='disabled'>'disbled';
 							
@@ -111,21 +111,21 @@ $tt=microtime(true);
 							$dis2_lighten='lighten';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'create')){
+						if($acl->is_allowed($user->role,'organization', 'create')){
 							$dis1='disabled="disbled"';
 							$dis1_arr='';
 							$dis2='class="disabled"';
 							$dis2_lighten='lighten';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'update')){
+						if($acl->is_allowed($user->role,'organization', 'update')){
 							$dis1='';
 							$dis1_arr='';
 							$dis2='';
 							$dis2_lighten='';
 							$dis3='';
 						};
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'delete')){
+						if($acl->is_allowed($user->role,'organization', 'delete')){
 							$dis1='';
 							$dis1_arr='';
 							$dis2='';
@@ -464,7 +464,7 @@ if ($alert) { ?>
 						
 						
 						echo '<br><label for="note">'.__('contact.note').'</label><br>';
-						if($acl->is_allowed(Session::instance()->get('role'),'organization', 'read')){
+						if($acl->is_allowed($user->role,'organization', 'read')){
 							echo Form::textarea('note', iconv('CP1251', 'UTF-8', $contact->note), array('id'=>'note', 'disabled'=>'disabled'));
 						} else {
 							echo Form::textarea('note', iconv('CP1251', 'UTF-8', $contact->note), array('id'=>'note'));
@@ -491,7 +491,7 @@ if ($alert) { ?>
 				case('edit'):
 			
 					echo Form::hidden('todo', 'updateContact');//
-					if(!$acl->is_allowed(Session::instance()->get('role'),'organization', 'read')){
+					if(!$acl->is_allowed($user->role,'organization', 'read')){
 						echo Form::submit('', __('button.save'), array('disabled'=>'disabled'));
 					} else {
 						echo Form::submit('', __('button.save'));

@@ -50,15 +50,8 @@ class Model_mr_m234 extends Model
 				
 				
 			}
-			// добавляю нижнюю, заключительную, строку.
-		/* 	$query[]=array(
-					'234'=>'',
-					'567'=>'Всего зарегистрировано',
-					'890'=>890,
 			
-					); */
-			//echo Debug::vars('34', $query);exit;
-			$report->titleColumn=array('YEARFROM', 'MONTFROM', 'COUNT' );
+			$report->titleColumn=array('Год', 'Месяц', 'Количество' );
 			$report->rowData=$query;
 			//echo Debug::vars('48', $report);exit;
 			return $report;

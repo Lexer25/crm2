@@ -178,7 +178,7 @@ class Controller_mreports extends Controller_Template {
 					$width=10;
 					$canvas = $dompdf->get_canvas();
 					$canvas->page_text($pageWidth/2, $pageHeight - 40, $text, $font, $size, $color);
-					$dompdf->stream();
+					$dompdf->stream($reportData->fileName.'_'.date('Y-m-d_H_i_s'));
 				} else {
 //echo Debug::vars('49', $content);//exit;
 						$this->template->content = $content;
