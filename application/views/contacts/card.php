@@ -167,7 +167,7 @@
 								case 0:
 									$comment= __('contact.wait_hex8_number');
 									$patternValid=constants::HEX8_VALID;
-									$title='6-8 символов';
+									$title=constants::RFID_MIN_LENGTH.'-'.constants::RFID_MAX_LENGTH. ' символов';
 								break;
 								case 1://format 001A
 									$comment= __('contact.wait_001A_number');

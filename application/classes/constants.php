@@ -6,6 +6,7 @@
 	constants::MAX_VALUE,
 	constants::DANGER
 	constants::RFID.MAX_LENGTH
+	файл должен лежать тут: C:\xampp\htdocs\crm2\application\classes\constants.php
 */
 class constants
 {
@@ -16,8 +17,8 @@ class constants
 	
 	const MAX_VALUE = 10;
 	const DANGER = 'danger';
-	//const RFID_MAX_LENGTH = 8;
-	const RFID_MIN_LENGTH = 4;
+	const RFID_MAX_LENGTH = 8;
+	const RFID_MIN_LENGTH = 6;
 	const RFID_NOTE = 50;
 	
 	
@@ -47,15 +48,12 @@ class constants
 	
 	// максимальное количество иконок на экране при отображении количества идентификаторов
 	const maxCountImageForId = 3;
-	
-	
-	
-	
+
     
 	//условия валидации ФИО.  pattern="2-[0-9]{3}-[0-9]{3}"
 	const FIO_VALID = '^[a-zA-Zа-яА-ЯЁё0-9\s№*]+$';	
 	const IP_VALID = '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';	
-	const HEX8_VALID = '^[0-9ABCDEF]{4,6}$';	
+	const HEX8_VALID = '^[0-9ABCDEF]{'.constants::RFID_MIN_LENGTH.','.constants::RFID_MAX_LENGTH.'}$';	
 	const DEC10_VALID = '^[0-9]+$';	
 	const HEX001A_VALID = '[0-9ABCDEF]{6}001A$';	
 		
