@@ -336,12 +336,10 @@ class Controller_Cards extends Controller_Template
 		$cards = Model::factory('Card');
 		if(is_null($filter)){// если фильтра (списка) нет, то выбираю все, что разрешено авторизованному пользователю
 		
-		//$q = $cards->getCountUser(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'), iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
+		$q = $cards->getCountUser(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'), iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
 		
-		//$list = $cards->getListUser(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'), Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter), $this->id_type);
+		$list = $cards->getListUser(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'), Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter), $this->id_type);
 		
-		$q=0;
-		$list=array();
 		} else {
 
 			$q=count($filter);

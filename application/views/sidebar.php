@@ -14,9 +14,9 @@
 }
 </style>
 
-<a href="javascript:;" id="show_menu">&raquo;</a>
+<a href="javascript:;" id="show_menu">&nbsp;;</a>
 <div id="left_menu">
-	<a href="javascript:;" id="hide_menu">&laquo;</a>
+	<a href="javascript:;" id="hide_menu">&nbsp;;</a>
 	<ul id="main_menu">
 	
 	<?php 

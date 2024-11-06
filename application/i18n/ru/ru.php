@@ -293,7 +293,7 @@ return array
 	'contacts.company'				=> 'Организация',
 	'contacts.action'				=> 'Действия',
 	'contacts.phone'				=> 'Телефон',
-	'contacts.empty'				=> 'Контакты не найдены',
+	'contacts.empty'				=> 'Контакты не найдены. Укажите фамилию для поиска.',
 	'contacts.confirmdelete'		=> 'Вы действительно хотите удалить контакт?',
 	'contacts.confirmSetNotActive'	=> 'Контакт будет уволенный.\r\nКонтакт можно восстановить в разделе Контакты - Уволенные.',
 	'contacts.restore'				=> 'Вы действительно хотите восстановить контакт?',

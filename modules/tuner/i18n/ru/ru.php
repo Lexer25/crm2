@@ -22,5 +22,6 @@ return array
 	'setting.baseFormatRfid'	=> 'Формат хранение идентификатора в базе данных СКУД.',
 	'setting.regFormatRfid'		=> 'Формат RFID при регистрации.',
 	'setting.system'			=> 'Основные параметры системы',
+	'setting.constnant'			=> 'Список констант',
   
 );

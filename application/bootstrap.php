@@ -138,6 +138,7 @@ Kohana::modules(array(
 	'tuner' => MODPATH . 'tuner', // tuner настройки
 	'stat' => MODPATH . 'stat', // вспомогательные различные функции
 	'cards' => MODPATH . 'cards', // подключение модуля cards
+	'contacts' => MODPATH . 'contacts', // подключение модуля contacts
 	
 	'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
 	'kohana-acl' => MODPATH . 'kohana-acl', // подключение модуля Passoffice

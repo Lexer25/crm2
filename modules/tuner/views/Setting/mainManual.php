@@ -314,15 +314,7 @@ include Kohana::find_file('views','alert');
 	<fieldset>
 						<legend><?php echo __('setting.constnant'); ?></legend>
 						<div>
-	<?php
-		//echo Debug::vars('317', new constants);
-		echo '<p>constants::RFID_MAX_LENGTH='.constants::RFID_MAX_LENGTH().'</p>';
-		echo '<p>constants::RFID_MIN_LENGTH='.constants::RFID_MIN_LENGTH.'</p>';
-		
-	
-		
-		$countRow=0;
-	?>
+
 	<table class="tablesorter-blue">
 			<thead>
 			<tr>
@@ -333,22 +325,22 @@ include Kohana::find_file('views','alert');
 			</thead>
 			<tbody>
 				<?php
+				$reflectionClass = new ReflectionClass('constants');
+				$constants = $reflectionClass->getConstants();
+				foreach($constants as $key=>$value)
+				{
 				echo '<tr>';
 					echo '<td>'.++$countRow.'</td>';
-					echo '<td>constants::RFID_MAX_LENGTH</td>';
-					echo '<td>'.constants::RFID_MAX_LENGTH().'</td>';
+					echo '<td>'.$key.'</td>';
+					echo '<td>'.$value.'</td>';
 				echo '</tr>';
 				
-				echo '<tr>';
-					echo '<td>'.++$countRow.'</td>';
-					echo '<td>constants::RFID_MIN_LENGTH</td>';
-					echo '<td>'.constants::RFID_MIN_LENGTH.'</td>';
-				echo '</tr>';
+				}
 				
 				
 				?>
 			</tbody>
-						
+		</table>				
 				</div>
 		</fieldset>	
 
