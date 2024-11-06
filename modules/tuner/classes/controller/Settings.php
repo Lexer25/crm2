@@ -119,34 +119,6 @@ class Controller_Settings extends Controller_Template {
 	 {
 		
 		$data=$_POST;
-	//	echo debug::vars('122', $data, Arr::get($data, 'group'), Arr::get($data, 'key'));exit; 
-		
-		$post=Validation::factory($_POST);
-				$post->rule('group', 'not_empty')
-					->rule('key', 'not_empty')
-					->rule('key', 'is_array');
-			if($post->check())
-			{
-						foreach (Arr::get($post, 'key') as $key=>$value) {
-							Log::instance()->add(Log::DEBUG, '89 '.Debug::vars($key,$value));
-						
-							Kohana::$config->_write_config(Arr::get($post, 'group'), $key, $value);
-						
-					}
-				$this->session->set('alert', 'Конфигурация сохранена успешно');
-			} else {
-				Log::instance()->add(Log::DEBUG, '89 '.Debug::vars($post->errors('validation')));
-				$this->session->set('alert', $post->errors('validation'));
-				//$this->session->set('alert', 'bla');
-			}
-		$this->redirect('settings/main/'.Arr::get($post, 'group'));
-		 
-	 }
-	 
-	public function action_save_2()//исходный код сохранения конфигурации, где было по одному элементу
-	 {
-		
-		$data=$_POST;
 		//echo debug::vars('122', $data, Arr::get($data, 'group'), Arr::get($data, 'key'));exit; 
 		
 		$post=Validation::factory($_POST);
@@ -171,6 +143,7 @@ class Controller_Settings extends Controller_Template {
 		 
 	 }
 	 
+		 
 	/*
 	17.12.2023
 	Изменение key_config:
@@ -403,19 +376,18 @@ class Controller_Settings extends Controller_Template {
 	 */
 	 public function action_updateManual()
 	 {
-		// echo Debug::vars('405', $_POST); exit;
+		 //echo Debug::vars('405', $_POST); //exit;
 		 $post=Validation::factory($_POST);
 				$post->rule('group', 'not_empty')
 					->rule('key', 'not_empty')
 					->rule('key', 'is_array');
 			if($post->check())
 			{
+						
 						foreach (Arr::get($post, 'key') as $key=>$value) {
-						
-						Kohana::$config->_write_config(Arr::get($post, 'group'), $key, $value);
-						
-					}
-				//$this->session->set('alert', 'Конфигурация сохранена успешно');
+							Kohana::$config->_write_config(Arr::get($post, 'group'), $key, $value);
+						}
+			
 				$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>'Конфигурация сохранена успешно');
 				
 			} else {
@@ -424,9 +396,9 @@ class Controller_Settings extends Controller_Template {
 				//$this->session->set('alert', 'bla');
 				$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>implode(",", $post->errors('validation')));
 			}
-		//$this->redirect('settings/mainManual/');
+	
 		$fl = $this->session->get('alert', '');
-	//	$this->session->delete('alert');
+	
 		
 		$content = View::factory('setting/mainManual')
 			->bind('arrAlert', $arrAlert)

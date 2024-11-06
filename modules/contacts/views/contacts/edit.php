@@ -156,14 +156,23 @@ $tt=microtime(true);
 							} else { 
 							
 								echo HTML::image("images/nophoto.png", array('height' => 200, 'alt' => 'photo'));
-							}?>
+							}
+							
+							?>
 						</div>
 						
 						
 						<fieldset>
 						<legend>Персональные данные</legend>
+						<?php
+							$groupConfig=Kohana::$config->load('contact');
+						?>
 						<div>
-							<label for="surname"><?php echo __('contact.surname').'*'; ?></label>
+							<label for="surname"><?php echo __('contact.surname');
+								$key='surname';
+								echo array_key_exists($key, $groupConfig->fieldsRequired)? '*':''; 
+								?>
+							</label>
 							<br />
 							<input type="text" <?php echo $dis1; ?> size="50" 
 								name="surname" 
@@ -171,7 +180,9 @@ $tt=microtime(true);
 								value="<?php echo iconv('CP1251', 'UTF-8', $contact->surname); ?>" 
 								maxlength=<?php echo constants::SURNAME_LENGHT ;?>
 								pattern="<?php echo constants::FIO_VALID ;?>" 
-								required
+								<?php
+									echo array_key_exists($key, $groupConfig->fieldsRequired)? 'required':''; 
+								?>
 								/>
 							<br />
 							<span class="error" id="error1" style="color: red; display: none;"><?php echo __('contact.emptysurname'); ?></span>
@@ -181,7 +192,11 @@ $tt=microtime(true);
 							<table align="left">
 								<tr>
 									<td>
-										<label for="name"><?php echo __('contact.name'); ?></label>
+										<label for="name"><?php echo __('contact.name');
+											$key='name';
+											echo array_key_exists($key, $groupConfig->fieldsRequired)? '*':''; 
+										?>
+										</label>
 										<br />
 										<input type="text" <?php echo $dis1; ?> 
 											size="50" 
@@ -191,13 +206,19 @@ $tt=microtime(true);
 											style="width: 150px" 
 											maxlength=<?php echo constants::NAME_LENGHT ;?> 
 											pattern="<?php echo constants::FIO_VALID ;?>" 
-											required
+											<?php
+												echo array_key_exists($key, $groupConfig->fieldsRequired)? 'required':''; 
+												?>
 											/>
 										<br />
 										<span class="error" id="error2" style="color: red; display: none;"><?php echo __('contact.emptyname'); ?></span>
 									</td>
 									<td style="padding-left: 15px">
-										<label for="patronymic"><?php echo __('contact.patronymic'); ?></label>
+										<label for="patronymic"><?php echo __('contact.patronymic'); 
+											$key='patronymic';
+											echo array_key_exists($key, $groupConfig->fieldsRequired)? '*':'' 
+										?>
+											</label>
 										<br />
 										<input type="text" <?php echo $dis1; ?> 
 											size="50" 
@@ -207,7 +228,9 @@ $tt=microtime(true);
 											style="width: 150px" 
 											maxlength=<?php echo constants::PATRONYMIC_LENGHT ;?>
 											pattern="<?php echo constants::FIO_VALID ;?>" 
-											required
+											<?php
+												echo array_key_exists($key, $groupConfig->fieldsRequired)? 'required':''; 
+												?>
 											/>
 										<br />
 										<span class="error" id="error3" style="color: red; display: none;"><?php echo __('contact.emptypatronymic'); ?></span>
@@ -246,6 +269,7 @@ $tt=microtime(true);
 						</div>
 						<br style="clear: both;" />
 						</fieldset>
+						<?php echo Kohana::message('contact', 'fieldsMust') ?>
 					</td>
 					
 					<td style="padding-left: 80px; vertical-align: top;">
@@ -310,7 +334,10 @@ $tt=microtime(true);
 											
 						<div>
 					
-							<label for="post"><?php echo __('contact.post'); ?></label>
+							<label for="post"><?php echo __('contact.post'); 
+								$key='post';
+								echo array_key_exists($key, $groupConfig->fieldsRequired)? '*':'' 
+							?></label>
 							<br />
 							<input type="text" <?php echo $dis1; ?> 
 									size="50" 
@@ -320,7 +347,9 @@ $tt=microtime(true);
 									maxlength=<?php echo constants::POST_LENGHT ;?> 
 									pattern="<?php echo constants::FIO_VALID ;?>" 
 
-									required
+									<?php
+												echo array_key_exists($key, $groupConfig->fieldsRequired)? 'required':''; 
+												?>
 									/>
 									
 							<br />

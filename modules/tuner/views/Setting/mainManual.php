@@ -7,6 +7,7 @@ guest
 main
 rfid
 system
+6.11.2024 contact параметры, необходимые при регистрации контакта
 */
 //echo Debug::vars('11', $groupList);
 //$group='main';
@@ -15,6 +16,8 @@ $mainConfg=Kohana::$config->load('main');
 $system=Kohana::$config->load('system');
 $guest=Kohana::$config->load('guest');
 $rfid=Kohana::$config->load('rfid');
+$rfid=Kohana::$config->load('rfid');
+$contact=Kohana::$config->load('contact');
 
 /*
 echo Debug::vars('19', $acl);
@@ -303,6 +306,75 @@ include Kohana::find_file('views','alert');
 	<?php
 
 		echo Form::submit('saveConfig', 'main');
+		echo Form::close();	
+	?>		
+						</div>
+		</fieldset>	
+	
+		<fieldset>
+						<legend><?php echo __('setting.contact'); ?></legend>
+						<div>
+<?php
+
+		echo Form::open('settings/updateManual');
+
+
+		echo Form::hidden('group', 'contact');
+		$list=array(//список полей, для которых будет применяться правильно Обязателен
+		'surname'=>'Фамилия',
+		'name'=>'Имя',
+		'patronymic'=>'Отчество',
+		'post'=>'Должность',
+	
+		);
+?>									
+		<table class="tablesorter-blue">
+		<thead>
+		<tr>
+						<th>№ п/п</th>
+						<th>Группа</th>
+						<th>Параметр конфигурации</th>
+						<th>Значение</th>
+						<th>Выбор значения</th>
+						<th>Пояснения</th>
+						
+					</tr>
+		</thead>
+		<tbody>
+		<?php
+		$groupConfig=$contact;// объявление см. выше
+		$countRow=0;
+
+		echo '<tr>';
+        		echo '<td>'.++$countRow.'</td>';
+				echo '<td>Contact</td>';
+		        echo '<td>fieldsRequired</td>';
+				echo '<td>';
+					foreach($groupConfig->fieldsRequired as $key) {
+						echo $key;
+						};
+				echo '</td>';
+				echo '<td>';
+						foreach($list as $key=>$value){
+							//echo Debug::vars('354', $groupConfig->fieldsRequired, $key);
+							//echo Form::hidden('key[is_array]',false);
+							echo Form::checkbox('key[fieldsRequired]['.$key.']', $key, array_key_exists($key, $groupConfig->fieldsRequired)).$value.'<br>';
+						}
+				echo '</td>';
+				echo '<td>'.' '.Kohana::message('tunermess', 'fieldsRequired.'.$key).'</td>';
+				
+			echo '</tr>';
+		
+
+			
+
+	?>
+	</tbody>
+		</table>
+			
+	<?php
+
+		echo Form::submit('saveConfig', 'contact');
 		echo Form::close();	
 	?>		
 						</div>
