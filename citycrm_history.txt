@@ -1,5 +1,5 @@
 Crm2
-25.11.2024
+5.11.2024
 
 В валидацию RFID добавлены константы из constants::RFID_MIN_LENGTH и constants::RFID_MAX_LENGTH.
 
