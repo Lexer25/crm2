@@ -9,6 +9,7 @@ Class User {
 	public $id_pep;
 	public $id_org;
 	public $id_orgctrl;
+	public $id_devgroup;
 	public $login;
 	public $role;
 	
@@ -24,6 +25,7 @@ Class User {
 		$this->id_pep=Arr::get($ddd, 'ID_PEP');
 		$this->id_org=Arr::get($ddd, 'ID_ORG');
 		$this->id_orgctrl=Arr::get($ddd, 'ID_ORGCTRL');
+		$this->id_devgroup=Arr::get($ddd, 'ID_DEVGROUP');
 		$this->login=Arr::get($ddd, 'LOGIN');
 		$this->role=Arr::get($ddd, 'ROLE');
 	}

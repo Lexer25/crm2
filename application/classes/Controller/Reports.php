@@ -55,8 +55,6 @@ class Controller_Reports extends Controller_Template
 	    Cookie::set('reportdatestart', Arr::get($_POST, 'reportdatestart'));
 	    Cookie::set('reportdateend', Arr::get($_POST, 'reportdateend'));
 	    $data=$history->getFullHistory();// получил массив id событий за указанный период
-	    //$data=$history->getFullHistoryA1();// 20.09.2024 оптимизация для Акрихина, сразу получаю набор данных
-	    //echo Debug::vars('52', count($data)); exit;
 	    $content = View::factory('report/history', array(
 	        'data'=>$data,
         
@@ -275,23 +273,17 @@ class Controller_Reports extends Controller_Template
 				;
 				$reporttype='';
 		if($post->check()){
-			//echo Debug::vars('453', Arr::get($post, 'savecvs'), Arr::get($post, 'savexls'), Arr::get($post, 'savepdf'));
-			//echo Debug::vars('455', Kohana::find_file('classes\Controller\report','reportDoorListCVS'));
 			$huser=Arr::get(Session::instance()->get('auth_user_crm'), 'ID_PEP');
 			$id_pep=Arr::get($post, 'id_pep');
 			
-			//echo Debug::vars('439', Arr::get($post, 'id_pep'), $huser);exit;
 			if(Arr::get($post, 'savecvs')) include Kohana::find_file('classes\Controller\report','reportDoorListCVS') ;
 			if(Arr::get($post, 'savexls')) include Kohana::find_file('classes\Controller\report','reportDoorListXLSX') ;
-			//if(Arr::get($post, 'savepdf')) include Kohana::find_file('classes\Controller\report','reportDoorListPDF') ;
-			//if(Arr::get($post, 'savepdf')) include Kohana::find_file('classes\Controller\report','reportDomPDF') ;
 			if(Arr::get($post, 'savepdf') OR true){
-				//echo Debug::vars('244', unserialize(Arr::get($post, 'forsave')));exit;
+				
 				$forsave=unserialize(Arr::get($post, 'forsave'));
 				
 				$id_pep=Arr::get($post, 'id_pep');
-				
-
+		
 				 $content=View::Factory('\report\worktime\report')
 					->bind('dataForSave', $forsave)
 					->bind('id_pep', $id_pep)
@@ -695,8 +687,7 @@ $dompdf->stream();
 	{
 			
 		//echo Debug::vars('447', $_POST, Session::instance(), Arr::get($this->session->get('auth_user_crm', ''), 'ID_PEP'), Arr::get($this->session->get('auth_user_crm', ''), 'NAME')); exit;
-		//$dataReportTitle=
-		
+	
 		
 		$post=Validation::factory($_POST);
 		$post->rule('id_pep', 'not_empty')
@@ -704,52 +695,28 @@ $dompdf->stream();
 				;
 				$reporttype='';
 		if($post->check()){
-			//echo Debug::vars('453', Arr::get($post, 'savecvs'), Arr::get($post, 'savexls'), Arr::get($post, 'savepdf'));
-			//echo Debug::vars('455', Kohana::find_file('classes\Controller\report','reportDoorListCVS'));
+			
 			$huser=Arr::get(Session::instance()->get('auth_user_crm'), 'ID_PEP');
 			$id_pep=Arr::get($post, 'id_pep');
 			
-			//echo Debug::vars('439', Arr::get($post, 'id_pep'), $huser);exit;
 			if(Arr::get($post, 'savecvs')) include Kohana::find_file('classes\Controller\report','reportDoorListCVS') ;
 			if(Arr::get($post, 'savexls')) include Kohana::find_file('classes\Controller\report','reportDoorListXLSX') ;
-			//if(Arr::get($post, 'savepdf')) include Kohana::find_file('classes\Controller\report','reportDoorListPDF') ;
-			//if(Arr::get($post, 'savepdf')) include Kohana::find_file('classes\Controller\report','reportDomPDF') ;
 			if(Arr::get($post, 'savepdf')){
 				$forsave=unserialize(iconv('UTF-8', 'CP1251', Arr::get($post, 'outDoorList')));
 				
 				$id_pep=Arr::get($post, 'id_pep');
-				
-/* 				$dataHeader=View::Factory('report\doorlist\header');
-				$dataReport=View::Factory('\report\doorlist\report')
-					->bind('dataForSave', $forsave);
-				$dataFooter=View::Factory('\report\doorlist\footer');
-				//echo Debug::vars('462', $header, $report, $footer); exit;
-				$content=View::Factory('\report\doorlist\reportPDF')
-					->bind('dataHeader', $dataHeader)//заголово отчета
-					->bind('dataReport', $dataReport)//отчет (таблица или иные данные)
-					->bind('dataFooter', $dataFooter)//нижняя часть отчета */
 				;
 				 $content=View::Factory('\report\doorlist\reportdoorlist')
 					->bind('dataForSave', $forsave)
 					->bind('id_pep', $id_pep)
 					->bind('id_admin', $huser)
 					; 
-					
 
-				//$content=View::Factory('\report\doorlist\west_garden');	
 				//if(false){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
 				if(true){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
 				
-					//require_once APPPATH . 'vendor/dompdf/src/Autoloader.php';
 					require_once APPPATH . 'vendor/dompdf/autoload.inc.php';
-					//require_once APPPATH . 'vendor/dompdf/src/Dompdf.php';
 					Dompdf\Autoloader::register();
-			
-			/* $dompdf = new Dompdf\src\Dompdf();
-			$dompdf->set_option('isRemoteEnabled', TRUE);
-			$dompdf->setPaper('A4', 'portrait');
-			$dompdf->loadHtml($html, 'UTF-8');
-			$dompdf->render(); */
 								
 					$dompdf = new Dompdf\Dompdf();
 					$dompdf->setPaper("A4");				

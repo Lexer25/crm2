@@ -27,7 +27,7 @@ class Auth_City extends Auth {
 	protected function _login($username, $password, $remember)
 	{
 		
-		$sql='select p.id_pep, p.id_org, p.surname, p.name, p.patronymic, p.tabnum, p.login, p.flag, p.id_orgctrl  from people p
+		$sql='select p.id_pep, p.id_org, p.surname, p.name, p.patronymic, p.tabnum, p.login, p.flag, p.id_orgctrl , p.id_devgroup  from people p
 			where p.login=\''.$username.'\'
 			and p.pswd=\''.$password.'\'
 			and p."ACTIVE">0';

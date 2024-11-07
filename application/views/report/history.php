@@ -75,7 +75,7 @@
 		
 		echo Form::submit('savexlsx', __('button.savexlsx'));
 		echo Form::hidden('dateFrom', Cookie::get('reportdatestart', date('d.m.Y')));
-            echo Form::hidden('dateTo', Cookie::get('reportdateend', date('d.m.Y')));
+        echo Form::hidden('dateTo', Cookie::get('reportdateend', date('d.m.Y')));
 		
 		$titleTH=array();
 		//$titleTH[]= __('eventlog.event_id');

@@ -8,10 +8,12 @@ class History
 {
 	public $dateFrom; //с какой даты сделать выборку событий
 	public $dateTo; //по какую дату сделать выборку событий
-	public $id_pep; //по какому пользователю
+	public $id_pep; //по какому пользователю делать отчет
 	public $eventListNotView = array(); //события, которые не надо показывать
 	public $eventListForView = array(46, 50, 65); //события, которые надо показывать
-
+	
+	public $user=1;//информация о текущем пользователе системы. Необходимо для фильтрации событий
+	
     public $eventFromDate; //с какой даты имеются события для указанного сотрудника
     public $eventToDate; //по какую дату имеются события для указанного сотрудника.
 
@@ -89,16 +91,43 @@ class History
     
     public function getFullHistory()
     {
-        $sql=' SELECT first 10000
-                   e.id_event
-                   from events e
-            
-                WHERE e.id_eventtype in ('.implode(",", $this->eventListForView).')
-               
-					and e.datetime between \''.$this->dateFrom.'\' and \''.$this->dateTo.'\'
-				ORDER BY
-					e.datetime';
-       // echo Debug::vars('101', $sql);exit;
+       	//для ускорения выборки предварительно извлекаю список разрешенных организаций и список разрешенных точек прохода
+		$user=new User;
+		$org_list=array();
+		$dev_list=array();
+		
+		$sql='select distinct id_org from organization_getchild(1, '.$user->id_orgctrl.')';
+		$result = DB::query(Database::SELECT, $sql)
+        ->execute(Database::instance('fb'))
+		->as_array();
+		foreach($result as $key=>$value)
+		{
+			$org_list[]=Arr::get($value, 'ID_ORG');
+		}
+		
+		
+		
+		$sql='select distinct id_dev from DEVGROUP_GETCHILD(1, '.$user->id_devgroup.')';
+		$result = DB::query(Database::SELECT, $sql)
+        ->execute(Database::instance('fb'))
+		->as_array();
+		foreach($result as $key=>$value)
+		{
+			if(!is_Null(Arr::get($value, 'ID_DEV'))) $dev_list[]=Arr::get($value, 'ID_DEV');
+		}
+		
+			
+	
+		$sql='SELECT first 10000 e.id_event from events e
+        WHERE e.id_eventtype in ('.implode(",", $this->eventListForView).')
+		and e.ess2 in ('.implode(",", $org_list).')
+		and e.id_dev in ('.implode(",", $dev_list).')
+		and e.datetime between \''.$this->dateFrom.'\' and \''.$this->dateTo.'\'
+		ORDER BY e.datetime';
+       
+
+
+	  // echo Debug::vars('101', $sql);exit;
         $query = DB::query(Database::SELECT, $sql)
         ->execute(Database::instance('fb'));
      

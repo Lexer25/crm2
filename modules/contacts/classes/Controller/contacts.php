@@ -187,7 +187,7 @@ class Controller_Contacts extends Controller_Template
 			$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
 		}  
 		
-		//echo Debug::vars('186', $list);exit;
+		
 		$fl = $this->session->get('alert');
 		$this->session->delete('alert');
 		
@@ -207,7 +207,7 @@ class Controller_Contacts extends Controller_Template
 
 	$this->template->content =	$view;	
 		
-			//echo View::factory('profiler/stats');
+	//echo View::factory('profiler/stats');
 	}
 	
 	/*
