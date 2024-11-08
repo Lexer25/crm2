@@ -12,8 +12,7 @@
 	<div id="search">
 		<?php 
 		
-//		if(Kohana::$config->load('config_newcrm')->view_settings) echo HTML::anchor('settings/mainManual', HTML::image('images/shortcut/setting.png', array('width'=>20))) . ' | '. HTML::anchor('logout', __('logout'));
-		if(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_PEP') == 1) echo HTML::anchor('settings/mainManual', HTML::image('images/shortcut/setting.png', array('width'=>20)));
+		if(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_PEP') == 1) echo HTML::anchor('settings/mainManual', HTML::image('images/shortcut/setting.png', array('width'=>20, 'title'=>'Настройка')));
 		echo ' | '. HTML::anchor('logout', __('logout'));
 
 		?>

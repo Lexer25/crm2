@@ -54,33 +54,11 @@ class Controller_mreports extends Controller_Template {
         $this->template->content = $content;
 	}
 	
-	/*
-	18.10.2024 отчет для Щербинки статистика выданных карт
-	*/
-	
-	
-	/*
-	21.10.2024 отчет для Щербинки. Подготовка отчета
-	*/
-	
-	public function action_makeReport_0()
-	{
-	
-		echo Debug::vars('69', $_POST);exit;
-		$content = View::factory('reportSelect')
-			
-			;
-        $this->template->content = $content;
-	}
 	
 	/*
 	18.10.2024 отчет для Щербинки статистика выданных карт
 	*/
-	
-	
-	
-	
-	
+
 	
 	public function action_makeReport()
 	{

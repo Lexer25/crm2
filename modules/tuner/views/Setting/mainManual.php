@@ -25,7 +25,9 @@ echo Debug::vars('20', $mainConfg);
 echo Debug::vars('21', $system);
 echo Debug::vars('22', $guest);
 echo Debug::vars('23', $rfid);
-*/		
+*/	
+//вывод сообщения из сессии	
+
 include Kohana::find_file('views','alert');
  ?>
 <div class="onecolumn">
@@ -146,7 +148,7 @@ include Kohana::find_file('views','alert');
 		'2'=>'Выводить в формате DEC',
 		
 		);
-	
+	/*
 	echo '<tr>';
 				echo '<td>'.++$countRow.'</td>';
 				echo '<td>system</td>';
@@ -168,7 +170,7 @@ include Kohana::find_file('views','alert');
 		//'4'=>'ГРЗ A123BC45'
 		);
 	//При редактировании номера идентификатора показывать все его значения.
-			echo '<tr>';
+			 echo '<tr>';
 				echo '<td>'.++$countRow.'</td>';
 				echo '<td>system</td>';
 				echo '<td>viewFromatForEdit</td>';
@@ -180,14 +182,14 @@ include Kohana::find_file('views','alert');
 				echo '</td>';
 				echo '<td>'.' '.Kohana::message('tunermess', 'viewFromatForEdit').'</td>';
 				//echo '<td>'.Form::button('viewFromatForEdit', 'viewFromatForEdit').'</td>';
-			echo '</tr>';
+			echo '</tr>'; */
 		
 	?>
 	</tbody>
 		</table>
 	<?php
 
-		echo Form::submit('saveConfig', 'system');
+		echo Form::submit('saveConfig', 'Сохранить system');
 		echo Form::close();	
 	?>	
 		
@@ -238,8 +240,8 @@ include Kohana::find_file('views','alert');
 				echo '<td>'.' '.Kohana::message('tunermess', 'howDeletePeople.'.$key).'</td>';
 				//echo '<td>'.Form::button('howDeletePeople', 'howDeletePeople').'</td>';
 			echo '</tr>';
-		
-		echo '<tr>';
+		//8.11.2024 я закоментировал этот раздел, т.к. этот параметр лучше настраивать в файле config_newcrm
+		/* echo '<tr>';
         		echo '<td>'.++$countRow.'</td>';
 				echo '<td>mainConfg</td>';
 		        echo '<td>iphost</td>';
@@ -249,9 +251,9 @@ include Kohana::find_file('views','alert');
 				echo '</td>';
 				echo '<td>'.' '.Kohana::message('tunermess', 'descBaseFormatRfid.'.$key).'</td>';
 				//echo '<td>'.Form::button('iphost', 'iphost').'</td>';
-			echo '</tr>';
+			echo '</tr>'; */
 		
-			echo '<tr>';
+			/* echo '<tr>';
 				echo '<td>'.++$countRow.'</td>';
 				echo '<td>mainConfg</td>';
 				echo '<td>lic</td>';
@@ -261,9 +263,9 @@ include Kohana::find_file('views','alert');
 				echo '</td>';
 				echo '<td>'.' '.Kohana::message('lic', 'lic').'</td>';
 				//echo '<td>'.Form::button('lic', 'lic', array('disabled'=>'disabled')).'</td>';
-			echo '</tr>';
+			echo '</tr>'; */
 		
-		echo '<tr>';
+	/* 	echo '<tr>';
 				echo '<td>'.++$countRow.'</td>';
 				echo '<td>mainConfg</td>';
 				echo '<td>odbcname</td>';
@@ -273,7 +275,7 @@ include Kohana::find_file('views','alert');
 				echo '</td>';
 				echo '<td>'.' '.Kohana::message('tunermess', 'descBaseFormatRfid.'.$key).'</td>';
 				//echo '<td>'.Form::button('odbcname', 'odbcname').'</td>';
-			echo '</tr>';
+			echo '</tr>'; */
 			
 			echo '<tr>';
 				echo '<td>'.++$countRow.'</td>';
@@ -286,7 +288,7 @@ include Kohana::find_file('views','alert');
 				echo '<td>'.' '.Kohana::message('tunermess', 'descBaseFormatRfid.'.$key).'</td>';
 				//echo '<td>'.Form::button('orgname', 'orgname').'</td>';
 			echo '</tr>';
-			echo '<tr>';
+			/* echo '<tr>';
 				echo '<td>'.++$countRow.'</td>';
 				echo '<td>mainConfg</td>';
 				echo '<td>sysVer</td>';
@@ -296,7 +298,7 @@ include Kohana::find_file('views','alert');
 				echo '</td>';
 				echo '<td>'.' '.Kohana::message('tunermess', 'descBaseFormatRfid.'.$key).'</td>';
 				//echo '<td>'.Form::submit('sysVer1', 'sysVer2').'</td>';
-			echo '</tr>';
+			echo '</tr>'; */
 			
 
 	?>
@@ -305,7 +307,7 @@ include Kohana::find_file('views','alert');
 			
 	<?php
 
-		echo Form::submit('saveConfig', 'main');
+		echo Form::submit('saveConfig', 'Сохранить main');
 		echo Form::close();	
 	?>		
 						</div>
@@ -374,7 +376,7 @@ include Kohana::find_file('views','alert');
 			
 	<?php
 
-		echo Form::submit('saveConfig', 'contact');
+		echo Form::submit('saveConfig', 'Сохранить contact');
 		echo Form::close();	
 	?>		
 						</div>

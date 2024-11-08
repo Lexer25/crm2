@@ -2,11 +2,7 @@
 //echo Debug::vars('13',$people );exit;
 //echo Debug::vars('14',$company );exit;
 //echo Debug::vars('15', Session::instance()->get('viewDeletePeopleOnly'));//exit;
-if(count($people)>500){
-	$alert=__('contCount', array(':contCount'=>Kohana::$config->load('config_newcrm')->table_view_max_contact));
-	$people=array_slice($people, 0, 500);
-	
-}
+
 if ($alert) { ?>
 <div class="alert_success">
 	<p>
@@ -62,6 +58,7 @@ include Kohana::find_file('views','alert'); ?>
 		<?php if (count($people) <= 0) { ?>
 		<div style="margin: 100px 0; text-align: center;">
 			<?php echo __('contacts.empty');?><br /><br />
+			<?php echo HTML::anchor('contacts/disp/123', 'Показать что нибудь');?>
 		</div>
 		<?php } else { ?>
 		<?php
@@ -256,12 +253,6 @@ include Kohana::find_file('views','alert'); ?>
 					<?php } ?>
 				</tbody>
 			</table>
-			
-			
-			
-			
-			
-			
 			<div id="chart_wrapper" class="chart_wrapper"></div>
 		<!-- End bar chart table-->
 		</form>

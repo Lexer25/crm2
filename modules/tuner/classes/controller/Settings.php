@@ -351,7 +351,7 @@ class Controller_Settings extends Controller_Template {
 	
 	public function action_mainManual()
 	 {
-		
+		//echo Debug::vars('354', $this->session);//exit;
 		$group='main';
 		$mainConfg=Kohana::$config->load($group);
 		$groupList=Model::factory('setting')->getgrouplist();//список зарегистрированных групп конфигурации	
@@ -359,9 +359,10 @@ class Controller_Settings extends Controller_Template {
 		$fl = $this->session->get('alert', '');
 		$this->session->delete('alert');
 		
-		//echo Debug::vars('22', $this->session->get('alert', ''), $fl);exit;	
+		
 		$content = View::factory('setting/mainManual')
-			->bind('alert', $fl)
+			//->bind('alert', $fl)
+			->bind('arrAlert', $fl)
 			->bind('group', $group)
 			->bind('mainConfg', $mainConfg)
 			->bind('groupList', $groupList)
@@ -373,6 +374,7 @@ class Controller_Settings extends Controller_Template {
 	 
 	 /* 6.08.2024
 	 *прием и сохранение конфигурационных данных
+	 * это - основной метод обновления, именно его надо использовать при обновлении конфигураций.
 	 */
 	 public function action_updateManual()
 	 {
@@ -381,32 +383,34 @@ class Controller_Settings extends Controller_Template {
 				$post->rule('group', 'not_empty')
 					->rule('key', 'not_empty')
 					->rule('key', 'is_array');
+			$arrAlert=array();
 			if($post->check())
 			{
 						
 						foreach (Arr::get($post, 'key') as $key=>$value) {
 							Kohana::$config->_write_config(Arr::get($post, 'group'), $key, $value);
 						}
-			
+			//обновление прошло успешно
 				$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>'Конфигурация сохранена успешно');
 				
 			} else {
 				Log::instance()->add(Log::DEBUG, '89 '.Debug::vars($post->errors('validation')));
 				$this->session->set('alert', implode(",", $post->errors('validation')));
-				//$this->session->set('alert', 'bla');
+				//обновление конфигурации прошло с ошибкой из-за ошибки валидации данных.
 				$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>implode(",", $post->errors('validation')));
 			}
 	
-		$fl = $this->session->get('alert', '');
-	
+		$fl = $this->session->set('alert', $arrAlert);
 		
-		$content = View::factory('setting/mainManual')
+		$this->redirect('settings/mainManual/');
+		
+		/* $content = View::factory('setting/mainManual')
 			->bind('arrAlert', $arrAlert)
 			->bind('group', $group)
 			->bind('mainConfg', $mainConfg)
 			->bind('groupList', $groupList)
 			;
-        $this->template->content = $content;
+        $this->template->content = $content; */
 	
 	}
 	 

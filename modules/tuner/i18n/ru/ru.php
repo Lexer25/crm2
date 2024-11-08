@@ -8,7 +8,7 @@ return array
 	'setting.odbcname'			=> 'Источник данных ODBC',
 	'setting.sysVer'			=> 'Версия продукта',
 	'setting.mainConfig'		=> 'Основные параметры',
-	'setting.main'				=> 'Настройка основных параметров',
+	'setting.main'				=> 'Настройка mainConfg',
 	'setting.mainoptions'		=> 'Общие параметры',
 	'setting.main_title'		=> 'Конфигурация системы CityCRM',
 	
@@ -21,7 +21,8 @@ return array
 	'setting.addNewKey'			=> 'Добавить новый ключ',
 	'setting.baseFormatRfid'	=> 'Формат хранение идентификатора в базе данных СКУД.',
 	'setting.regFormatRfid'		=> 'Формат RFID при регистрации.',
-	'setting.system'			=> 'Основные параметры системы',
+	'setting.system'			=> 'Настройка system',
+	'setting.contact'			=> 'Настройка contact',
 	'setting.constnant'			=> 'Список констант',
   
 );

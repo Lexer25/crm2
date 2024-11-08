@@ -176,7 +176,6 @@ if (isset($alert)) { ?>
 												<input type="text" size="12" name="carddatestart" id="carddatestart" value="<?php 
 													if (isset($key->timestart)) 
 													{
-														
 														echo date("d.m.Y", strtotime($key->timestart));
 													} else {
 														echo date("d.m.Y");

@@ -5,8 +5,7 @@ class Controller_Contacts extends Controller_Template
 	public $template = 'template';
 	private $listsize;
 	private $session;
-	private $rfid_min_length;
-	private $rfid_max_length;
+	
 	
 	public function before()
 	{
@@ -16,10 +15,8 @@ class Controller_Contacts extends Controller_Template
 
 		$this->session = Session::instance();
 		I18n::$lang = $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->set('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact);
-		$this->listsize = $this->session->get('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact);
-		$this->rfid_min_length=Kohana::$config->load('rfid')->get('min_length');
-		$this->rfid_max_length=Kohana::$config->load('rfid')->get('max_length');
+		
+		
 		
 	}
 	
@@ -167,44 +164,46 @@ class Controller_Contacts extends Controller_Template
 		$list=array();// список контактов пока пуст.
 		
 		$id_orgctrl=Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL');
+		// если $this->session->get('is_host') == 1, то работаем в режиме быстрой регистрации. Для этого $id_orgctrl берется из настроек fastorder для текущего юзера
 		if($this->session->get('is_host') == 1) $id_orgctrl=Arr::get(Kohana::$config->load('system')->get('fastorder'), Arr::get(Auth::instance()->get_user(), 'ID_PEP'));
 		
+		//что отображать: Session::instance()->get('viewDeletePeopleOnly') == 1 - значит, отображать уволенных.
 		if(Session::instance()->get('viewDeletePeopleOnly') == 1) {
 			$contacts ->peopleIsActive=0;
 			$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
 			
 		} else {
+			//иначе - отображать Активных
 			$contacts ->peopleIsActive=1;
 		}
 		
-		if(!is_null($filter)){
+	
+			
+		$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
+	
+		//echo Debug::vars('190', count($list));exit;
 
-			//количество пиплов, доступные текущему авторизованному пользователю
-			$q = $contacts->getCountUser($id_orgctrl, iconv('UTF-8', 'CP1251', $filter));
-			//echo Debug::vars('128', $filter, $q); exit;
+		//контроль количества выводимых строк. если стро много - то будет заметное "торможение".
+		$alert='';
+		if(count($list)>Kohana::$config->load('config_newcrm')->get('table_view_max_contact')){
+			$alert=__('contCount', array(':contCount'=>Kohana::$config->load('config_newcrm')->table_view_max_contact, ':totalCount'=>count($list)));
+			$list=array_slice($list, 0, Kohana::$config->load('config_newcrm')->get('table_view_max_contact'));
 			
-			
-			$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
-		}  
+		}
 		
-		
-		$fl = $this->session->get('alert');
+		$fl = $this->session->get('alert'). $alert;
 		$this->session->delete('alert');
 		
 		$showphone = $this->session->get('showphone', 0);
-		
 		include Kohana::find_file('views\alerttest','testarralert');
-		
 		$view = View::factory('contacts/list')
-			->bind('total_items', $q)
+			
 			->bind('people', $list)
 			->bind('alert', $fl)
 			->bind('arrAlert[]', $arrAlert[])
 			->bind('showphone', $showphone)
 			->bind('filter', $filter)
 			;
-			
-
 	$this->template->content =	$view;	
 		
 	//echo View::factory('profiler/stats');
@@ -374,6 +373,8 @@ class Controller_Contacts extends Controller_Template
 	* основая задача - установка метки is_host в сессии $this->session->set('is_host', '0');
 	* is_host = 0, что означает работу по id_orgctrl
 	* is_host = 1, что означает работу по idOrhGuest.
+	* activeOnlyList - показывать актвные контакты,
+	* viewDeletePeopleOnly - показывать удалденные контакты,
 	* на основании этой метки будет выводится информация либо по все разрешенным организациям, либо только под одной, указанной как host
 	*/
 	public function action_disp()
@@ -418,6 +419,11 @@ class Controller_Contacts extends Controller_Template
 			break;
 			case 'hostSetup': // настройки для быстрой регистрации.
 				
+				$this->template->content = View::factory('contacts/hostSetup');
+			
+			break;
+			case '123': // показать что-нибудь на первой странице
+				echo Debug::vars('420');exit;
 				$this->template->content = View::factory('contacts/hostSetup');
 			
 			break;

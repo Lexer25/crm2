@@ -115,11 +115,7 @@ $catdTypelist = Model::factory('Card')->getcatdTypelist();//получил сп�
 						-->
 						<td><?php echo ++$sn; ?></td>
 						<td><?php 
-						//	$viewFromatForEdit = $key->id_card_on_screen;
-						//	if(Kohana::$config->load('system')->get('viewFromatForEdit') == 'DEC')$viewFromatForEdit = $key->id_card_on_screen;
-						//	if(Kohana::$config->load('system')->get('viewFromatForEdit') == '001A')$viewFromatForEdit = $key->id_card;
-
-				//	echo Debug::vars('109', Kohana::$config->load('system')->get('viewFromatForEdit'), $key, $viewFromatForEdit);exit;		
+						
 					
 							echo HTML::anchor('cards/edit/' . $key->id_card, $key->id_card_on_screen);
 							//echo HTML::anchor('cards/edit/' . $key->id_card, $key->id_card).' '.$key->id_card_on_screen;

@@ -16,10 +16,9 @@ class Model_mr_m234 extends Model
 			
 			// беру ФИО оператора
 			$pep=new Contact($user->id_pep);
-			//echo Debug::vars('16', $user);exit;
+			
 			$report->fromUser  = $pep->surname.' '.Text::limit_chars($pep->name, 1).'. '.Text::limit_chars($pep->patronymic, 1).'.';
-			//$report->fromUser  = $pep->surname.' '.Text::limit_chars($pep->surname, 1).'. '.Text::limit_chars($pep->patronymic, 1).'.';
-			//$report->fromUser  = 'bla';
+			
 			
 			//беру название департамента оператора
 			$org= new Company($user->id_orgctrl );
@@ -27,7 +26,7 @@ class Model_mr_m234 extends Model
 			
 			
 			$month=Arr::get($post, 'howManyMonce');
-			//echo Debug::vars('29',$post,  $month);exit;
+			
 			$ttime=time()-60*60*24*30*$month;
 			$timeFrom=date('Y-m-d', mktime(0, 0, 0, date('m', $ttime), 1, date('Y', $ttime)));
 
@@ -36,6 +35,16 @@ class Model_mr_m234 extends Model
 			where p.time_stamp>\''.$timeFrom.'\'
 				GROUP BY 1, 2
 				order by 1,2';
+			
+			$sql='SELECT EXTRACT(year from p.time_stamp) as yearFrom, EXTRACT(month from p.time_stamp) as montFrom, o.name, count(*) FROM people p
+			join organization_getchild(1, '.Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL').') og on og.id_org=p.id_org
+			join organization o on og.id_org=o.id_org
+			where p.time_stamp>\''.$timeFrom.'\'
+				 GROUP BY 1, 2, 3
+                order by 1,2, 3';
+			
+			
+			
 			//echo Debug::vars('21', $sql);exit;
 			$query = DB::query(Database::SELECT, $sql)
 			->execute(Database::instance('fb'))
@@ -44,16 +53,14 @@ class Model_mr_m234 extends Model
 			$monthes = array('NullMonth', 'Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь', 'Декабрь');
 			foreach ($query as $key=>$value)
 			{
-				
 				$query[$key]['MONTFROM']=Arr::get($monthes, $value['MONTFROM']).' ('.$value['MONTFROM'].')';
-
-				
+				$query[$key]['NAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'NAME'));
 				
 			}
 			
-			$report->titleColumn=array('Год', 'Месяц', 'Количество' );
+			$report->titleColumn=array('Год', 'Месяц (номер)', 'Организация (отдел)','Количество зарегистрированных сотрудников' );
 			$report->rowData=$query;
-			//echo Debug::vars('48', $report);exit;
+			
 			return $report;
 	}
 	
