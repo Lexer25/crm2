@@ -59,12 +59,13 @@ class constants
 		
 	
 	
+	//определение максимальной длины идентификатора RFID. Длина определяется исходя из настроек базового формата хранения данных в СКУДе.
 	
 	public static  function RFID_MAX_LENGTH()
 	{
 		$result=-1;
-		if(Kohana::$config->load('system')->get('baseFormatRfid') == 0)	$result= 8;
-		if(Kohana::$config->load('system')->get('baseFormatRfid') == 1)	$result=  10;
+		if(Kohana::$config->load('system')->get('baseFormatRfid', 0) == 0)	$result= 8;
+		if(Kohana::$config->load('system')->get('baseFormatRfid', 0) == 1)	$result=  10;
 		return $result;
 		
 	}

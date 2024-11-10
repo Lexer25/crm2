@@ -30,7 +30,25 @@ Class User {
 		$this->role=Arr::get($ddd, 'ROLE');
 	}
 
+	/*10.11.2024 Список организаций, которыми может управлять текущий авторизованный пользователь.
 	
-	
+	*/
+	public function getChildOrg()
+	{
+		
+		$sql='select  id_org from organization_getchild (1, '.$this->id_orgctrl.')';
+		try {
+			$query = DB::query(Database::SELECT, $sql)
+				->execute(Database::instance('fb'))
+				->as_array()
+				;
+				
+				
+		} catch (Exception $e) {
+			Log::instance()->add(Log::DEBUG, $e->getMessage());//логирование ошибки в файл
+		}	
+		
+		return $query;
+	}
 
 } // End User

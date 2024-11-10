@@ -27,7 +27,7 @@
 			<table class="" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
 					<tr>
-						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<th>'.__('contacts.id_pep').'</th>'?>
+						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView', true)) echo '<th>'.__('contacts.id_pep').'</th>'?>
 						<th><?php echo __('contact.active'); ?></th>
 						<th><?php echo __('contacts.compareacl'); ?></th>
 						<?php if(Kohana::$config->load('config_newcrm')->get('contactListTabNumView')) echo '<th>'.__('contacts.code').'</th>'?>
@@ -50,7 +50,7 @@
 							<input type="checkbox" />
 						</td>
 						-->
-						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<td>'.$peppep->id_pep.'</td>'?>
+						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView', true)) echo '<td>'.$peppep->id_pep.'</td>'?>
 						
 						<td><?php echo Arr::get($pep,'IS_ACTIVE')? 'Да':'Нет'; ?></td>
 						

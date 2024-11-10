@@ -58,8 +58,8 @@ class Model_Stat extends Model
 			->rule('key', 'regex', array(':value', '/[A-F0-9]+/'));//'/[a-fA-F0-9]++$/iD'
 		if($post->check())
 			{
-			 //echo Debug::vars('31', Kohana::$config->load('system')->get('baseFormatRfid')); //exit;	
-			if(Kohana::$config->load('system')->get('baseFormatRfid')==1)//если номер карты хранится в формате 001A, то делаем такие преобразования:
+			 
+			if(Kohana::$config->load('system')->get('baseFormatRfid', 0)==1)//если номер карты хранится в формате 001A, то делаем такие преобразования:
 			{
 				$key=substr(Arr::get($post,'key'),0, 6);
 				
@@ -89,7 +89,7 @@ class Model_Stat extends Model
 			//$result=$result2.', '.$result1;
 			}
 			
-			if(Kohana::$config->load('system')->get('baseFormatRfid')==0)//если же номер карты хранится в формате hex 8 байт
+			if(Kohana::$config->load('system')->get('baseFormatRfid', 0)==0)//если же номер карты хранится в формате hex 8 байт
 			{
 					
 			$result2=str_pad(hexdec(Arr::get($post, 'key')), 10, '0', STR_PAD_LEFT) .', '

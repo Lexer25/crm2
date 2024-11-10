@@ -333,7 +333,7 @@ if ($alert) { ?>
 												 
 					switch (Kohana::$config->load('system')->get('regFormatRfid')){
 						case 0:
-							switch (Kohana::$config->load('system')->get('baseFormatRfid')){
+							switch (Kohana::$config->load('system')->get('baseFormatRfid', 0)){
 								case 0:
 									echo __('contact.wait_hex8_number');
 								break;

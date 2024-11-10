@@ -49,7 +49,7 @@ include Kohana::find_file('views','alert');
 						<legend><?php echo __('setting.system'); ?></legend>
 						<div>
 	<?php
-
+		
 		echo Form::open('settings/updateManual');
 
 		echo Form::hidden('group', 'system');
@@ -86,7 +86,7 @@ include Kohana::find_file('views','alert');
 				echo '<td>';
 					foreach($list as $key=>$value){
 					    echo Form::radio('key[baseFormatRfid]', $key, $system->baseFormatRfid==$key, array('disabled'=>'disabled')).$value.' '.$key.'<br>';
-					    //echo Form::radio('key[baseFormatRfid]', $key, $system->baseFormatRfid==$key).$value.' '.$key.'<br>';
+					   
 					}
 				echo '</td>';
 				echo '<td>'.' '.Kohana::message('tunermess', 'descBaseFormatRfid').'</td>';
@@ -125,7 +125,7 @@ include Kohana::find_file('views','alert');
 		);
 		$list=array(
 		'0'=>'baseFormatRfid',
-		'2'=>'Выводить в формате DEC',
+		'2'=>'Вводить в формате DEC',
 		
 		);
 	
@@ -189,7 +189,8 @@ include Kohana::find_file('views','alert');
 		</table>
 	<?php
 
-		echo Form::submit('saveConfig', 'Сохранить system');
+		//echo Form::submit('saveConfig', 'Сохранить system');
+		echo 'Параметры недоступны для удаленной настройки';
 		echo Form::close();	
 	?>	
 		
@@ -230,11 +231,11 @@ include Kohana::find_file('views','alert');
         		echo '<td>'.++$countRow.'</td>';
 				echo '<td>mainConfg</td>';
 		        echo '<td>howDeletePeople</td>';
-				echo '<td>'.$mainConfg->howDeletePeople.'</td>';
+				echo '<td>'.$mainConfg->get('howDeletePeople', 0).'</td>';
 				echo '<td>';
 					//echo Form::input('key[howDeletePeople]', $mainConfg->howDeletePeople);
 						foreach($list as $key=>$value){
-					    echo Form::radio('key[howDeletePeople]', $key, $mainConfg->howDeletePeople==$key).$value.'<br>';
+					    echo Form::radio('key[howDeletePeople]', $key, $mainConfg->get('howDeletePeople', 0)==$key).$value.'<br>';
 					}
 				echo '</td>';
 				echo '<td>'.' '.Kohana::message('tunermess', 'howDeletePeople.'.$key).'</td>';

@@ -5,7 +5,7 @@ return array(
     'dir_compare' => 'C:\xampp\htdocs\city',
     'stat_day_befor' => 2,
     'name_device_fro_test' => 'л251 к45 калитка в л254',
-	'city_name' => Arr::get(Arr::get(Arr::get(Kohana::$config->load('skud'),'skud_list'), Session::instance()->get('skud_number')), 'name'), //'Балчуг Вьюпоинт',
+	//'city_name' => Arr::get(Arr::get(Arr::get(Kohana::$config->load('skud'),'skud_list'), Session::instance()->get('skud_number')), 'name'), //'Балчуг Вьюпоинт',
 	'ver'=>'1.2.7',//добавлена аналитика и подсказки
 	'developer'=>'www.artonit.ru',
 		'main_windows'=>array(

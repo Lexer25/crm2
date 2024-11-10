@@ -75,7 +75,7 @@ include Kohana::find_file('views','alert'); ?>
 						</th>
 						-->
 						<th class="filter-false sorter-false"><?php echo __('sn'); ?></th>
-						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<th>'.__('contacts.id_pep').'</th>'?>
+						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView', true)) echo '<th>'.__('contacts.id_pep').'</th>'?>
 						
 						<th class="filter-false"><?php echo __('contacts.count_identificator_rfid'); ?></th>
 						<th class="filter-false"><?php echo __('contacts.count_identificator_grz'); ?></th>
@@ -102,7 +102,7 @@ include Kohana::find_file('views','alert'); ?>
 						</td>
 						-->
 						<td><?php echo ++$sn; ?></td>
-						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView')) echo '<td>'.$peppep->id_pep.'</td>'?>
+						<?php if(Kohana::$config->load('config_newcrm')->get('contactListIdView', true)) echo '<td>'.$peppep->id_pep.'</td>'?>
 						
 						<td><?php //вывод символов идентификаторов RFID
 								

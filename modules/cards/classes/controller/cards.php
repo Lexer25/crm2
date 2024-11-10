@@ -116,11 +116,11 @@ class Controller_Cards extends Controller_Template
 						->rule('q', 'range', array(':value', 100, pow(2,32)))
 						;
 					if($post->check()){//если проверка на целое десятичное DEC выполнена, то преобразовываю его к формату базы данных
-						if (Kohana::$config->load('system')->get('baseFormatRfid') == 0){ //преобразование DEC к HEX8
+						if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 0){ //преобразование DEC к HEX8
 							$_key=Model::Factory('Stat')->decDigitToHEX8(Arr::get($post, 'q'));//привожу формат DEC к HEX8
 						}
 
-						if (Kohana::$config->load('system')->get('baseFormatRfid') == 1){ //преобразование DEC к 001A
+						if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 1){ //преобразование DEC к 001A
 							$_key=$idcard=Model::Factory('Stat')->decDigitTo001A(Arr::get($post, 'q'));//привожу формат HEX8 к 001A
 						}
 					
@@ -249,7 +249,7 @@ class Controller_Cards extends Controller_Template
 						//если входной формат HEX, то преобразования делать не надо, т.к. форматы совпадают. 
 						//если же входной формат DEC, то требуется преобразование DEC->HEX
 						
-						if (Kohana::$config->load('system')->get('baseFormatRfid') == 0){ //преобразование номера к формату базы к HEX8
+						if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 0){ //преобразование номера к формату базы к HEX8
 						//echo Debug::vars('252',Arr::get($post, 'q'),  $_keyNormal, $_keys, ctype_digit($_keyNormal)); exit;
 							if(ctype_digit($_keyNormal)) $_keys[]=Model::Factory('Stat')->decDigitToHEX8($_keyNormal);//привожу формат DEC к HEX8
 						}
@@ -259,7 +259,7 @@ class Controller_Cards extends Controller_Template
 						//строка поиска может быть или DEC, или HEX.
 						//если входной формат DEC, то требуется преобразование DEC->001A
 						//если входной формат HEX, то требуется преобразование HEX->001A
-						if (Kohana::$config->load('system')->get('baseFormatRfid') == 1){ //преобразование DEC к 001A
+						if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 1){ //преобразование DEC к 001A
 							//$_keys[]=$idcard=Model::Factory('Stat')->decDigitTo001A($_keyNormal);//привожу формат HEX8 к 001A
 							//$_keys[]=$idcard=Model::Factory('Stat')->hexTo001A($_keyNormal);//привожу формат HEX8 к 001A
 							$_keys[]=$idcard=Model::Factory('Stat')->decDigitTo001A($_keyNormal);//привожу формат HEX8 к 001A

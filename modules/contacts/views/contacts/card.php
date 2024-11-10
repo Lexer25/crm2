@@ -163,7 +163,7 @@
 											<?php 
 					switch (Kohana::$config->load('system')->get('regFormatRfid')){//проверка настройки регистрационного считывателя
 						case 0://format 8HEX
-							switch (Kohana::$config->load('system')->get('baseFormatRfid')){
+							switch (Kohana::$config->load('system')->get('baseFormatRfid', 0)){
 								case 0:
 									$comment= __('contact.wait_hex8_number');
 									$patternValid=constants::HEX8_VALID;

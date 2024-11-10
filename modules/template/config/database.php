@@ -3,10 +3,10 @@
 return array
 (
 	
-	'cdb' => array(
+	'config_module' => array(
 		'type'       => 'pdo',
 		'connection' => array(
-       		'dsn'        => 'sqlite:'.MODPATH .'\\tuner\\classes\\Kohana\\Config\\config.sqlite',
+       		'dsn'        => 'sqlite:'.MODPATH .'\\<modules>\\Config\\<config_file_name>.sqlite',
 			'persistent' => FALSE,
     )),
 

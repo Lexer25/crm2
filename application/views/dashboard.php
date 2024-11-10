@@ -24,16 +24,18 @@ if (false)
 
 	echo 'Test';
 
-
+	echo Debug::vars('27', Kohana::$config->load('config_newcrm_')->get('contactListIdView_', '123-321'));//exit;
+	echo Debug::vars('28', Kohana::$config->load('config_newcrm')->contactListIdView);//exit;
+	
 
 //$acl=new ACL(true);// создаю 
-$acl=new ACL();// создаю 
+/* $acl=new ACL();// создаю 
 $acl->load();
 echo Debug::vars('31', $acl);
 
 
 
-echo Debug::vars('32', Auth::instance()->get_user());
+echo Debug::vars('32', Auth::instance()->get_user()); */
 
 
 //echo Debug::vars('36', $acl->allowed('acl', 'read')); //не смог я запустить это дело... придется с собой такать указать на id_pep

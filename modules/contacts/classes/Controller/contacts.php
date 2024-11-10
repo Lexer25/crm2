@@ -5,6 +5,8 @@ class Controller_Contacts extends Controller_Template
 	public $template = 'template';
 	private $listsize;
 	private $session;
+	private $user;
+	private $orgFastOrder=null;
 	
 	
 	public function before()
@@ -15,7 +17,7 @@ class Controller_Contacts extends Controller_Template
 
 		$this->session = Session::instance();
 		I18n::$lang = $this->session->get('language', 'en-us');
-		
+		$this->user=new User;
 		
 		
 	}
@@ -163,10 +165,23 @@ class Controller_Contacts extends Controller_Template
 		$q=0;// количество доступных контактов пока 0.
 		$list=array();// список контактов пока пуст.
 		
-		$id_orgctrl=Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL');
+		$id_orgctrl=$this->user->id_orgctrl;
 		// если $this->session->get('is_host') == 1, то работаем в режиме быстрой регистрации. Для этого $id_orgctrl берется из настроек fastorder для текущего юзера
-		if($this->session->get('is_host') == 1) $id_orgctrl=Arr::get(Kohana::$config->load('system')->get('fastorder'), Arr::get(Auth::instance()->get_user(), 'ID_PEP'));
-		
+		if($this->session->get('is_host') == 1) {
+		//предстоит работа с быстрой регистрацией. Для этого:
+			//проверяю наличие настроек для текущего юзера
+			$id_orgctrl=Arr::get(Kohana::$config->load('system')->get('fastorder'), $this->user->id_pep);
+			
+			//если настройки нет, то перевожу оператора на настройку
+			if(is_null($id_orgctrl)) $this->redirect('contacts/disp/hostSetup');
+			
+			//если же настройка имеется, то надо убедиться, что эта организация разрешена текущему пользователю. Его права доступа могли измениться с 
+			//момента предыдущей настройки.
+			
+			if(!in_array(array('ID_ORG'=>$id_orgctrl), $this->user->getChildOrg())) $this->redirect('contacts/disp/hostSetup');
+			
+			//если все в порядке - работаем дальше
+		}
 		//что отображать: Session::instance()->get('viewDeletePeopleOnly') == 1 - значит, отображать уволенных.
 		if(Session::instance()->get('viewDeletePeopleOnly') == 1) {
 			$contacts ->peopleIsActive=0;
@@ -195,7 +210,7 @@ class Controller_Contacts extends Controller_Template
 		$this->session->delete('alert');
 		
 		$showphone = $this->session->get('showphone', 0);
-		include Kohana::find_file('views\alerttest','testarralert');
+		//include Kohana::find_file('views\alerttest','testarralert');
 		$view = View::factory('contacts/list')
 			
 			->bind('people', $list)
@@ -400,34 +415,35 @@ class Controller_Contacts extends Controller_Template
 				$this->redirect('contacts/deletedList');
 			break;
 			
-			case 'HostOnlyList': // показать только host контакты
-			$this->session->set('viewDeletePeopleOnly', '0');
+			case 'HostOnlyList': // показать только host контакты (быстрая регистрация)
+				$this->session->set('viewDeletePeopleOnly', '0');
 				$this->session->set('is_host', '1');
+				$this->checkFastRegOrg();
 				$this->redirect('contacts');
 			
 			break;
 			case 'hostAddContact'://добавление нового контакта строго в организацию host
-			
 				$this->session->set('is_host', '1');
+				$this->checkFastRegOrg();
 				$this->redirect('contacts/edit/0');
 			
 			break;
 			case 'hostDeletedList': // показать удаленные контакты орагизации host.
 				$this->session->set('is_host', '1');
+				$this->checkFastRegOrg();
 				$this->redirect('contacts/deletedList');
 			
 			break;
 			case 'hostSetup': // настройки для быстрой регистрации.
 				
-				$this->template->content = View::factory('contacts/hostSetup');
+				$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
+				$this->session->delete('arrAlert');//очистить алерт в сессии
+
+				$this->template->content = View::factory('contacts/hostSetup')
+					->bind('arrAlert', $arrAlert);
 			
 			break;
-			case '123': // показать что-нибудь на первой странице
-				echo Debug::vars('420');exit;
-				$this->template->content = View::factory('contacts/hostSetup');
-			
-			break;
-			
+				
 		}
 		
 	}
@@ -467,10 +483,9 @@ class Controller_Contacts extends Controller_Template
 		$force_org=$this->request->query('id_org');//наличие этого параметра означает, что надо выбрать именно указанную организацию для правильной работы дерева организаций.
 		
 		//выбор головной организации
-		$id_orgctrl=Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL');
-		//if($this->session->get('is_host') == 1) $id_orgctrl=754;
+		$id_orgctrl=$this->user->id_orgctrl;
 		//выбираю организацию для быстрой регистрации из параметров настройки 'system' для текущего авторизованного пипла
-		if($this->session->get('is_host') == 1) $id_orgctrl=Arr::get(Kohana::$config->load('system')->get('fastorder'), Arr::get(Auth::instance()->get_user(), 'ID_PEP'));
+		if($this->session->get('is_host') == 1) $id_orgctrl=Arr::get(Kohana::$config->load('system')->get('fastorder'), $this->user->id_pep);
 		
 		$contact= new Contact($id);// сразу формирую контакт (т.к. он один, то объем данных сравнительно маленький). Фото в контакте нет!
 		
@@ -859,6 +874,39 @@ class Controller_Contacts extends Controller_Template
 	}
 	
 	
+	/*10.11.2024 проверка настройки организации для быстрой регистрации.
+	* если $this->session->get('is_host'), то $this->orgFastOrder должен быть установлен.
+	* если $this->orgFastOrder не установлен, то надо сделать переход на конфигурирование orgFastOrder
+	*/
+	private function checkFastRegOrg()
+	{
+		//echo Debug::vars('881', $this->session->get('is_host'), $this->orgFastOrder);exit;
+		//если предстоит работать с быстрой регистрацией, то надо убедиться, что выполнена его настройка
+		if(($this->session->get('is_host')==1) and ($this->orgFastOrder==null)){
+		
+		$this->orgFastOrder=Arr::get(Kohana::$config->load('system')->get('fastorder'), $this->user->id_pep, null);
+		
+			//если же настройка имеется, то надо убедиться, что эта организация разрешена текущему пользователю. Его права доступа могли измениться с 
+			//момента предыдущей настройки.
+			
+			if(!in_array(array('ID_ORG'=>$this->orgFastOrder), $this->user->getChildOrg())) {
+				
+				
+				$arrAlert[]=array('actionResult'=> constants::ALERT_INFO, 'actionDesc'=>'Требуется настройка быстрой регистрации.');	
+				
+				Session::instance()->set('arrAlert',$arrAlert);
+				$this->redirect('contacts/disp/hostSetup');
+			} else {
+				
+				//echo Debug::vars('896');exit;
+				
+			}
+			
+			
+		}
+		
+	}
+	
 	/*
 	17.08.2023
 	Проверка категорий доступа для контакта
@@ -1050,7 +1098,7 @@ class Controller_Contacts extends Controller_Template
 						//все условия выполнениы, можно сохранять RFID
 						
 						//выбор вариантов преобразования номера от регкомплекта к формату базы данных
-						switch(Kohana::$config->load('system')->get('baseFormatRfid') ) {// формат базы данных
+						switch(Kohana::$config->load('system')->get('baseFormatRfid', 0) ) {// формат базы данных
 							case 0:	//если формат базы данных 0 (HEX8)
 								switch(Kohana::$config->load('system')->get('regFormatRfid')){//варианты преобразования в зависимости от формата регистрационного считывателя
 									case 0://формат как у базы данных.

@@ -224,7 +224,7 @@ class Keyk
 	*/
 	public function __construct($card = null)
 	{
-		if(!is_null(Kohana::$config->load('system')->get('baseFormatRfid'))) $this->baseFormatRfid=Kohana::$config->load('system')->get('baseFormatRfid');
+		if(!is_null(Kohana::$config->load('system')->get('baseFormatRfid', 0))) $this->baseFormatRfid=Kohana::$config->load('system')->get('baseFormatRfid', 0);
 		if(!is_null(Kohana::$config->load('system')->get('screenFormatRFID'))) $this->screenFormatRFID=Kohana::$config->load('system')->get('screenFormatRFID');
 		
 		if(!is_null($card)){

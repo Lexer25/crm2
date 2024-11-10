@@ -24,8 +24,6 @@ class Contact
 	public $post;// должность
 	public $cardlist;// время создания записи контакта
 	public $count_identificator;// количество идентификаторв
-	//public $grz;// ГРЗ
-	
 	public $id_pep = 0;// id_pep контакта
 	
 	
@@ -611,9 +609,7 @@ class Contact
 	}
 	
 	
-	
-	
-	
+
 	/*
 	25.12.2023 Отметка о выходе вручную
 	*/

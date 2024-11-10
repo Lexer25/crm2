@@ -169,8 +169,9 @@ $tt=microtime(true);
 						?>
 						<div>
 							<label for="surname"><?php echo __('contact.surname');
-								$key='surname';
-								echo array_key_exists($key, $groupConfig->fieldsRequired)? '*':''; 
+								$key='surname';//фамилия
+								//echo array_key_exists($key, $groupConfig->fieldsRequired)? '*':''; 
+								echo '*';//Поле Фамилия обязательно для заполнения всегда 
 								?>
 							</label>
 							<br />

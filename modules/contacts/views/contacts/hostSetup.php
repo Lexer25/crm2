@@ -1,3 +1,6 @@
+<?php
+include Kohana::find_file('views','alert');
+?>
 <div class="onecolumn">
 	<div class="header">
 		<span><?php echo __('Выбор организации для быстрой регистрации') ?></span>
