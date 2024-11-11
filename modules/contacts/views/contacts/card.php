@@ -161,6 +161,9 @@
 										<td>
 											<div style="padding-bottom: 10px;">
 											<?php 
+											
+					$minlength=constants::RFID_MIN_LENGTH;
+					$maxlength=constants::RFID_MAX_LENGTH;						
 					switch (Kohana::$config->load('system')->get('regFormatRfid')){//проверка настройки регистрационного считывателя
 						case 0://format 8HEX
 							switch (Kohana::$config->load('system')->get('baseFormatRfid', 0)){
@@ -168,11 +171,15 @@
 									$comment= __('contact.wait_hex8_number');
 									$patternValid=constants::HEX8_VALID;
 									$title=constants::RFID_MIN_LENGTH.'-'.constants::RFID_MAX_LENGTH. ' символов';
+									$minlength=constants::RFID_MIN_LENGTH;
+									$maxlength=constants::RFID_MAX_LENGTH;
 								break;
 								case 1://format 001A
 									$comment= __('contact.wait_001A_number');
 									$patternValid=constants::HEX001A_VALID;
-									$title='10 символов';
+									$title=constants::MAX_VALUE_001A.' символов';
+									$minlength=constants::MAX_VALUE_001A;
+									$maxlength=constants::MAX_VALUE_001A;
 								break;
 								default:
 									$comment= __('contact.wait_not_point_number');
@@ -183,7 +190,10 @@
 						case 2://format dec10
 							$comment= __('contact.wait_dec10_number');
 							$patternValid=constants::DEC10_VALID;
-							$title='12 символов';
+							$title='номер идентификатора';
+							
+							$minlength=constants::RFID_DEC_MIN_LENGTH;
+							$maxlength=constants::RFID_DEC_MAX_LENGTH;
 						break;
 						default:
 							$comment= __('contact.check_reg_device_setting');
@@ -202,12 +212,11 @@
 											?>
 												Добавить новую карту
 												<input type="text" 
-													size="12" 
-													maxlength="10" 
+													
 													id="idcard" 
 													name="idcard"  
 													value="<?php if (isset($card)) echo Arr::get($card, 'ID_CARD'); ?>"
-													pattern="<?php echo $patternValid ;?>" 
+													pattern="<?php echo $patternValid;?>" 
 													title="<?php echo $title ;?>" 
 													
 													required

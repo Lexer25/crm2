@@ -16,9 +16,15 @@ class constants
 	
 	
 	const MAX_VALUE = 10;
+	const MAX_VALUE_001A = 10;
 	const DANGER = 'danger';
+	
 	const RFID_MAX_LENGTH = 8;
 	const RFID_MIN_LENGTH = 6;
+	
+	const RFID_DEC_MAX_LENGTH = 10;
+	const RFID_DEC_MIN_LENGTH = 6;
+	
 	const RFID_NOTE = 50;
 	
 	

@@ -1084,10 +1084,9 @@ class Controller_Contacts extends Controller_Template
 			switch(Arr::get($post, 'id_cardtype')){// обработка карт RFID
 				case 1://обработка RFID
 					$validRfid=Validation::factory(array('idcard'=>Arr::get($post, 'idcard')));
-					
 					$validRfid->rule('idcard', 'not_empty')
-								->rule('idcard', 'min_length', array(':value', $this->rfid_min_length))
-								->rule('idcard', 'max_length', array(':value', $this->rfid_max_length))
+								->rule('idcard', 'min_length', array(':value', constants::RFID_MIN_LENGTH))
+								->rule('idcard', 'max_length', array(':value', constants::RFID_MAX_LENGTH))
 								;
 					if(Kohana::$config->load('system')->get('regFormatRfid') == 0)	$validRfid->rule('idcard', 'regex', array(':value', '/^[A-F0-9]+$/'));//проверка, что входной формат HEX
 					if(Kohana::$config->load('system')->get('regFormatRfid') == 2)	$validRfid->rule('idcard', 'digit');//проверка, что входной формат - десятичное число
