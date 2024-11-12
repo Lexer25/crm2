@@ -125,7 +125,7 @@ if ($alert) { ?>
 						echo '<td>'; 
 						
 						echo $is_allowed? HTML::anchor('cards/edit/' . $key->id_card, $key->id_card_on_screen) : $key->id_card_on_screen .' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
-		//echo Debug::vars('119', $key); exit;
+		
 			//если включен показ кода идентификатора, то показывю его в формате DEC				
 			if((Arr::get($cardtype, 'id') == 1) AND (Kohana::$config->load('system')->get('formatViewAll') == 1)){
 				echo ' ('.$key->id_card_on_DEC.')';
@@ -155,8 +155,8 @@ if ($alert) { ?>
 
 
 						if($is_allowed){?>
-						    <a href="javascript:" onclick="if (confirm('<?php echo __('cards.confirmdelete'); ?>')) location.href='<?php echo URL::base() . 'cards/delete/' . $key->id_card; ?>';"></a>
-						    <?php echo HTML::image('images/icon_delete.png', array('title' => __('cards.delete'), 'class' => 'help'));
+						    <a href="javascript:" onclick="if (confirm('<?php echo __('cards.confirmdelete'); ?>')) location.href='<?php echo URL::base() . 'cards/delete/' . $key->id_card; ?>';"><?php echo HTML::image('images/icon_delete.png', array('title' => __('cards.delete'), 'class' => 'help'));?></a>
+							<?php
 						    
 						} else {
 						    echo HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
