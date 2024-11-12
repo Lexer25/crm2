@@ -569,6 +569,11 @@ class Controller_Contacts extends Controller_Template
 		//$data = History::getHistory($id);// беру историю для указанного контакта историю (контроллер History.php, метод getHistory($user))
 		$hist=new History();
 		$hist->id_pep=$id;
+		$hist->dateFrom='2000-01-01';
+		$hist->eventListForView=array(46, 50, 65, 70, 71, 47, 48, 31, 32, 33, 34, 47, 48, 17, 18);
+
+		//echo Debug::vars('573', $hist); exit;
+		
 		$data = $hist->getHistory();
 		//echo Debug::vars('381', $id, $data); exit;
 		

@@ -44,10 +44,11 @@ class History
                     p.name,
                     p.patronymic,
                     et.name  AS eventname,
+                    et.color,
                     e.datetime,
                     COALESCE (e.id_card, e.ESS2) as id_card,
                     d.name AS devicename
-                              FROM
+                    FROM
                    events e
                    INNER JOIN eventtype et ON e.id_eventtype = et.id_eventtype
                    join people p on p.id_pep=e.ess1
