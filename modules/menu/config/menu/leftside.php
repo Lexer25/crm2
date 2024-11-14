@@ -105,23 +105,26 @@ return [
 									'icon'    => '',
 									'title'   => 'sidebar.contactslist',
 									'tooltip' => 'sidebar.contactslist',
+									'visible' => false,
 								],
 						'hostAddContact'=>[
 								'url'     => 'contacts/disp/hostAddContact',
 								'icon'    => '',
 								'title'   => 'sidebar.addcontact',
-								'tooltip' => 'sidebar.addcontact'
+								'tooltip' => 'sidebar.addcontact',
+								'visible' => true,
 							],
 						'hostDeletedList'=>[
 								'url'     => 'contacts/disp/hostDeletedList',
 								'icon'    => '',
 								'title'   => 'sidebar.deletedcontact',
-								'tooltip' => 'sidebar.deletedcontact'
+								'tooltip' => 'sidebar.deletedcontact',
+								'visible' => false,
 							],
 						'hostSetup'=>[
 								'url'     => 'contacts/disp/hostSetup',
 								'icon'    => '',
-								'title'   => 'setup',
+								'title'   => 'Настройка',
 								'tooltip' => 'setup',
 								'visible' => true,
 							]
