@@ -613,6 +613,20 @@ class Controller_Contacts extends Controller_Template
 		switch (ConfigType::howDeletePeople()) {
 			case 0://делать неактивным
 			if($contact->setNotActiveOnIdPep() == 0){
+					$cards = Model::factory('Card')->getListByPeople($contact->id_pep);
+				//echo Debug::vars('617', $cards); exit;
+		
+				if(count($cards)>0)
+				{
+					foreach ($cards as $key=>$value)
+					{
+						$key=new Keyk(Arr::get($value, 'ID_CARD'));
+						$key->delCard();
+						
+					}
+				
+				}
+				
 				$alert.='<br>'.__('contact.setNotActiveOK', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
 				$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>$alert);	
 			} else {
