@@ -4,6 +4,10 @@
 		echo Kohana::message('report234', 'aboutReport234');
 		echo Form::open('mreports/makeReport');
 		?>
+		
+		 <input type="text" size="12" name="monthselet55" id="monthselet" value="<?php
+                            echo Cookie::get('reportdatestart', Date::formatted_time('now', "d.m.Y"));														?>" />
+                            <br />
 			<fieldset>
 				<legend><?php echo __('Месяцы'); ?></legend>
 				<?php
