@@ -292,8 +292,8 @@ $(function(){
                 isRTL: false,
                 showMonthAfterYear: false,
                 yearSuffix: '',
-		nextText: '&raquo;',
-		prevText: '&laquo;',
+		nextText: '>',
+		prevText: '<',
 		dateFormat: 'dd.mm.yy',
 		showAnim: 'slideDown'
 	});
