@@ -105,7 +105,7 @@ return [
 									'icon'    => '',
 									'title'   => 'sidebar.contactslist',
 									'tooltip' => 'sidebar.contactslist',
-									'visible' => false,
+									'visible' => true,
 								],
 						'hostAddContact'=>[
 								'url'     => 'contacts/disp/hostAddContact',
@@ -119,7 +119,7 @@ return [
 								'icon'    => '',
 								'title'   => 'sidebar.deletedcontact',
 								'tooltip' => 'sidebar.deletedcontact',
-								'visible' => false,
+								'visible' => true,
 							],
 						'hostSetup'=>[
 								'url'     => 'contacts/disp/hostSetup',
@@ -220,7 +220,7 @@ return [
 									'visible' => false,
 								],
 						'report1'=>[
-									'url'     => 'mreports/reportSelect',
+									'url'     => 'mreports/reportSelect/234',
 									'icon'    => '',
 									'title'   => 'mreport.report1',
 									'tooltip' => 'mreport.report1',

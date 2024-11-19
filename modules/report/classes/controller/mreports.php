@@ -15,6 +15,7 @@ class Controller_mreports extends Controller_Template {
 			parent::before();
 			$this->session = Session::instance();
 			$this->user = new User();
+			//echo Debug::vars('18', $this->user);// exit;
 			
 	}
 	
@@ -41,22 +42,26 @@ class Controller_mreports extends Controller_Template {
 	
 	
 	/*
-	21.10.2024 отчет для Щербинки. Выбор параметров
+	21.10.2024 отчет для Щербинки. Вывод окна с выбором параметров.
 	*/
 	
 	public function action_reportSelect()
 	{
-	
-		
-		$content = View::factory('reportSelect')
-			
-			;
+		//echo Debug::vars('49', $this->request->param('id'));exit;
+		//$content = View::factory('reportSelect');
+		$content = View::factory($this->request->param('id').'/report');
         $this->template->content = $content;
 	}
 	
 	
 	/*
 	18.10.2024 отчет для Щербинки статистика выданных карт
+	*Report Unic ID, далее RUID
+	*Модель отчета формируется как RUID_report
+	*Модель должна лежать в папке Model/RUID/report.php 
+	*Метод подготовки отчета имеет фиксированное название getReport.
+	* в метод передаются все данные POST и id текущего авторизованного пользователя
+	*вывод результат происходит в view view/RUID/result.php 
 	*/
 
 	
@@ -70,11 +75,13 @@ class Controller_mreports extends Controller_Template {
 			
 		if($post->check()){
 		//номер 234 следует брать из post, где этот номер - фиксированный.	
-			$report=Model::factory('mr_m234')->getReport1($post,$this->user);
+			//echo Debug::vars('71', Arr::get($post, 'id_report'), $this);exit;
+			$ruid=Arr::get($post, 'id_report');
+			$report=Model::factory($ruid.'_report')->getReport($post,$this->user);
 		
 			Session::instance()->set('report', $report);
 			
-			$content = View::factory('report1')
+			$content = View::factory($ruid.'/result')
 				->bind('report', $report)
 				;
 		} else {

@@ -4,6 +4,9 @@
 
 var chartWidth = '650px';
 var chartHeight = '240px';
+var currentYear = new Date().getFullYear();
+var currentMonth = new Date().getMonth();
+var monthSelect=currentYear + '-' + currentMonth;
 
 
 /*
@@ -298,7 +301,7 @@ $(function(){
 		showAnim: 'slideDown'
 	});
 	
-	$('#monthselet').datepicker({
+	$('#monthselect1').datepicker({
 			changeMonth: true,
             changeYear: true,
             showButtonPanel: true,
@@ -324,6 +327,15 @@ $(function(){
 		dateFormat: 'dd.mm.yy',
 		showAnim: 'slideDown'
 	});
+	
+	 $('#monthselect').multiMonthPicker({
+                //monthFormat: 'yyyy-mmm',
+                monthFormat: 'yyyy-mm',
+                //value: ['2023-Feb','2023-Mar']
+                value: [monthSelect],
+            });
+			
+	
 	
 	// Setup minimize and maximize window
 	//$('.onecolumn .header span').click(function(){

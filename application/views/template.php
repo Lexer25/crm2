@@ -9,6 +9,7 @@
 	<link rel="stylesheet" type="text/css" media="all" href="css/theme.blue.css">
 	<link rel="stylesheet" type="text/css" media="all" href="css/jquery.dataTables.min.css">
 	<link rel="stylesheet" type="text/css" media="all" href="css/theme.default.min.css">
+	<link rel="stylesheet" type="text/css" media="all" href="css/multi-month-picker.css">
 	
 	 <?php // echo HTML::style('static/css/bootstrap.css'); ?>
 	<?php //echo HTML::style('static/css/modal.css'); ?>
@@ -33,6 +34,7 @@
 	<script type="text/javascript" src="js/jquery.tablesorter.pager.js"></script>
 	<script type="text/javascript" src="js/crm2_custom_blue.js"></script>
 	<script type="text/javascript" src="js/crm2_template_tablesorter.js"></script>
+	<script type="text/javascript" src="js/multi-month-picker.js"></script>
 
 	<style>
 	/*
@@ -101,7 +103,7 @@
 					echo $content;
 
 //вывод строки статуса					
-				if (true) include Kohana::find_file('views', 'bottom_status_table');	
+				if (Kohana::$config->load('config_newcrm')->bottom_status_table) include Kohana::find_file('views', 'bottom_status_table');	
 								?>
 				</div>
 			</div>

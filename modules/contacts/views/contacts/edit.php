@@ -127,8 +127,8 @@ $tt=microtime(true);
 				<form action="<?php echo Route::url('default', array('controller' => 'contacts', 'action' => 'upload')) ?>" method="post" enctype="multipart/form-data">
 				<label for="image_control">Для загрузки изображения выберите файл и нажмите кнопку Загрузить</label>
 				<div class="row">
-					<input type="file"  <?php echo $dis1?> name="image" id="image_control">
-					<input type="submit" <?php echo $dis1?>  value="Загрузить">
+					<input type="file"  <?php echo $dis1;?> name="image" id="image_control">
+					<input type="submit" <?php echo $dis1;?>  value="Загрузить">
 					<input type="hidden" name="id_pep" value="<?php echo $contact->id_pep; ?>" />
 				</div>
 			</form>
