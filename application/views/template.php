@@ -104,6 +104,9 @@
 
 //вывод строки статуса					
 				if (Kohana::$config->load('config_newcrm')->bottom_status_table) include Kohana::find_file('views', 'bottom_status_table');	
+				
+				//echo Debug::vars('108', Session::instance());//exit;
+				
 								?>
 				</div>
 			</div>

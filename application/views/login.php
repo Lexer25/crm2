@@ -67,7 +67,8 @@
       					'connection'
       					),
 						'dsn')
-						.' PHP '.phpversion();?>
+						.' PHP '.phpversion();
+					//	echo Debug::vars('108', Session::instance());//exit;?>
 									
 					</p>
 					
