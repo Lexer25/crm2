@@ -4,10 +4,10 @@
 
 */
 class Controller_Settings extends Controller_Template { 
-		private $session;
+		
 	
 
-	public function before()
+	/* public function before()
 	{
 			
 			parent::before();
@@ -16,7 +16,7 @@ class Controller_Settings extends Controller_Template {
 			
 			
 	}
-	
+	 */
 	/*
 	17.12.2023 Доступ к изменению конфигурационных данных возможен только после ввода пароля.
 	Сам пароль пока константа.

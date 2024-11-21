@@ -59,9 +59,6 @@ class Controller_Passoffices extends Controller_Template
 		
 		$this->idOrgGuest=Arr::get($query, 'id_org_guest');
 		$this->idOrgGuestArchive=Arr::get($query, 'id_org_archive');
-		
-	
-		
 	}
 	
 	

@@ -6,7 +6,7 @@ if (isset($arrAlert)) {
 	if(!empty($arrAlert)){
 		include Kohana::find_file('views', 'alertState');
 		
-		foreach($arrAlert as $key=>$value){
+		foreach($arrAlert as $_key=>$value){
 			
 			echo '<div class="'.Arr::get($arrayType, Arr::get($value, 'actionResult')).'"><p>';
 			echo HTML::image(Arr::get($arrayImage, Arr::get($value, 'actionResult')), array('class'=>'mid_align',  'alt'=>Arr::get($arrayAlt, Arr::get($value, 'actionResult'))));

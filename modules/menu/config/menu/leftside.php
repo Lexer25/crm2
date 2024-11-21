@@ -211,6 +211,7 @@ return [
 									'icon'    => '',
 									'title'   => 'report.history',
 									'tooltip' => 'report.history',
+									'visible' => false,
 								],
 						'stat'=>[
 									'url'     => 'mreports/stat',
@@ -226,6 +227,15 @@ return [
 									'tooltip' => 'mreport.report1',
 									'visible' => true,
 								],
+						
+						'history2'=>[
+									'url'     => 'mreports/reportSelect/history2',
+									'icon'    => '',
+									'title'   => 'report.history',
+									'tooltip' => 'report.history',
+									'visible' => true,
+								],
+						
 						'peopleRegStat'=>[
 									'url'     => 'reports/peopleRegStat',
 									'icon'    => '',

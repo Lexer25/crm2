@@ -4,7 +4,7 @@
 *Класс exportCSV - Класс для создания файла csv.
 *вход - массив класса Report
 *выход - ссылка на подготовленный файл.
-*все входные данные должны быть в формате utf-8
+*все входные данные должны быть в формате utf-8!!!
 */
 
 class exportCSV
@@ -45,11 +45,10 @@ class exportCSV
 				//echo Debug::vars('38',$value,  $key2, $value2);exit;
 				$value[$key2]=iconv('UTF-8','CP1251', $value2);
 				
+				
 			}
 			fputcsv ($fp, $value,';');
 		}
-			
-		
 	
 		fclose($fp); //Закрытие файла
 		$content = Model::Factory('ReportWorkTime')->send_file($file_name);
@@ -59,9 +58,6 @@ class exportCSV
 		
 		
 	}
-	
-	
-	
 	
 	
 	

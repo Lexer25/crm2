@@ -3,8 +3,8 @@
 class Controller_Companies extends Controller_Template
 {
 	public $template = 'template';
-	private $listsize;
-	private $session;
+	//private $listsize;
+	//private $session;
 	
 	public function before()
 	{

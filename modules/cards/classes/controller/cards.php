@@ -2,21 +2,21 @@
 
 class Controller_Cards extends Controller_Template
 {
-	public $template = 'template';
-	private $listsize;
-	private $session;
-	private $id_type;
-	public $arrAlert;
+	//public $template = 'template';
+	public $listsize;
+	//public $session;
+	public $id_type;
+	//public $arrAlert;
 	
 	public function before()
 	{
 		parent::before();
-		if (!Auth::instance()->logged_in()) $this->redirect('/');
+		//if (!Auth::instance()->logged_in()) $this->redirect('/');
 
-		$this->session = Session::instance();
-		I18n::$lang = $this->session->get('language', 'en-us');
+		//$this->session = Session::instance();
+		//I18n::$lang = $this->session->get('language', 'en-us');
 		$this->listsize = $this->session->get('listsize', 10);
-		$this->id_type = $this->session->get('identifier', 1);
+		//$this->id_type = $this->session->get('identifier', 1);
 		
 	}
 	
@@ -394,6 +394,7 @@ class Controller_Cards extends Controller_Template
 	{
 		
 		$id=trim($this->request->param('id'));
+
 		$mode='edit';
 		$key=new Keyk($id);
 
@@ -405,7 +406,7 @@ class Controller_Cards extends Controller_Template
 		
 		$arrAlert = $this->session->get('arrAlert');
 		$this->session->delete('arrAlert');
-		
+		Log::instance()->add(Log::NOTICE, '408'. Debug::vars($key));
 		$this->template->content = View::factory('cards/card')
 			->bind('key', $key)//передаю key как класс
 			->bind('catdTypelist', $catdTypelist)
@@ -413,8 +414,8 @@ class Controller_Cards extends Controller_Template
 			->bind('arrAlert', $arrAlert)
 			->bind('mode', $mode)
 			->bind('filter', $filter)
-			//->bind('loads', $loads)//данные о заргузке карты в контроллеры
-			->bind('pagination', $pagination);
+			//->bind('pagination', $pagination)
+			;
 	}
 	
 	

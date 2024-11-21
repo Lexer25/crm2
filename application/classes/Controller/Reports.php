@@ -8,7 +8,7 @@ class Controller_Reports extends Controller_Template
 {
 	public $template = 'template';
 
-	private $session;
+	//private $session;
 	
 	public function before()
 	{

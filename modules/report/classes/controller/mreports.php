@@ -4,12 +4,13 @@
 
 */
 class Controller_mreports extends Controller_Template { 
-		private $session;
-		private $user;
+		//private $session;
+		public $user;
 		public $template = 'template';
+		public $view = 'result';//view для показа результата
 	
 
-	public function before()
+	/* public function before()
 	{
 			
 			parent::before();
@@ -17,7 +18,7 @@ class Controller_mreports extends Controller_Template {
 			$this->user = new User();
 			//echo Debug::vars('18', $this->user);// exit;
 			
-	}
+	} */
 	
 	
 	
@@ -71,7 +72,8 @@ class Controller_mreports extends Controller_Template {
 		//echo Debug::vars('29 report stat', $_POST);exit;
 		$post=Validation::factory(Arr::get($_POST, 'dataReport'))
 			->rule('id_report', 'not_empty')
-			->rule('id_report', 'digit');
+			//->rule('id_report', 'digit')
+			;
 			
 		if($post->check()){
 		//номер 234 следует брать из post, где этот номер - фиксированный.	
@@ -81,7 +83,9 @@ class Controller_mreports extends Controller_Template {
 		
 			Session::instance()->set('report', $report);
 			
-			$content = View::factory($ruid.'/result')
+			if(isset($report->view)) $this->view=$report->view;
+			
+			$content = View::factory($ruid.'/'.$this->view)
 				->bind('report', $report)
 				;
 		} else {
@@ -108,16 +112,12 @@ class Controller_mreports extends Controller_Template {
 			$csv=new ExportCsv(Session::instance()->get('report'));
 			//$csv->makeReport();
 			//$csv->sendFile();
-			
-			
 		};
 		if(Arr::get($_POST, 'savexls'))
 		{
 			$csv=new ExportXlsx(Session::instance()->get('report'));
 			//$csv->makeReport();
 			//$csv->sendFile();
-			
-			
 		}
 		if(Arr::get($_POST, 'savepdf')) 
 		{
@@ -134,8 +134,6 @@ class Controller_mreports extends Controller_Template {
 				$content=View::Factory('exportpdf')
 					->bind('reportData', $reportData)
 				 ; 
-				
-				
 				} else {
 					throw new  Exception('Нет файла view!');
 				}

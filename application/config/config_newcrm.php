@@ -9,7 +9,7 @@ return array(
 
 	'version' => array(
 		'minor' => '3',
-		'major' => '6.13'),
+		'major' => '6.14'),
 	
 	'use_acl'=>false,//использовать ли роли. Если указан false, то у всех авторизованных пользователей будет роль role_default. Если 'use_acl'=>true, то роль берется из Auth
 	'role_default'=>'admin',//роль для авторизованных пользовалей если 'use_acl'=>false
@@ -22,8 +22,7 @@ return array(
 	/**20.11.2024 Включение - отключение строки состояния в нижней части экрана
 	*
 	*/
-	
-	'bottom_status_table'=>true,
+	'bottom_status_table'=>false,
 	
 	
 	//набор левого меню, которое надо показывать по левому краю.

@@ -490,7 +490,7 @@ return array
 	'button.report1'				=> 'Подготовить отчет Рабочего времени',
 	'button.reportEvents'			=> 'Подготовить отчет Журнал событий',
 	'Reports'						=> 'Отчеты',
-	'report.history'				=> 'Единый журнал событий',
+	'report.history'				=> 'Отчет журнал событий',
 	'report.reports'					=> 'Отчеты',
 	
 

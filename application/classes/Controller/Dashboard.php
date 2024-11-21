@@ -7,28 +7,22 @@ newcrm
 
 class Controller_Dashboard extends Controller_Template {
 
-   public $template = 'template';
-   private $session;
+   //public $template = 'template';
+   //public $session;
 	
 	public function before()
 	{
-		
-		
-			//Log::instance()->add(Log::NOTICE, 'Получил запрос в dashboard');
-			parent::before();
-		
-			if (!Auth::instance()->logged_in()) $this->redirect('login'); 
+		parent::before();
+		/* 
+		if (!Auth::instance()->logged_in()) $this->redirect('login'); 
 		$session = Session::instance();
 		$this->user = Auth::instance()->get_user();
 		I18n::$lang = $session->get('language', 'en-us');
 		$this->session = Session::instance();
 		
-			//$session = Session::instance();
-			
-		
-			//Log::instance()->add(Log::NOTICE, 'База данных вот какая: '.Session::instance()->get('skud_number'));
-			include Kohana::find_file('classes/controller','check_db_connect');
-			
+		//Log::instance()->add(Log::NOTICE, 'База данных вот какая: '.Session::instance()->get('skud_number'));
+		include Kohana::find_file('classes/controller','check_db_connect');
+			 */
 
 	}
 	
@@ -48,7 +42,8 @@ class Controller_Dashboard extends Controller_Template {
 	public function action_index()
 	{	
 		$t1=microtime(1);
-		//echo Debug::vars('47', $_SESSION);	exit;
+		//echo Debug::vars('47', $_SESSION);
+		//echo Debug::vars('48', $this);	exit;
 		//Проверка авторизации
 		$this->session->set('mode', 'home_page');
 		if (!empty($_POST)) {
