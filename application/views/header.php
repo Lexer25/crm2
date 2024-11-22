@@ -26,7 +26,7 @@
 		<?php 
 			$huser=Session::instance()->get('auth_user_crm');
 			$userAdmin=new Contact(Arr::get($huser, 'ID_PEP'));
-			//echo Debug::vars($huser, Arr::get($huser, 'ID_PEP'), iconv('CP1251', 'UTF-8', $userAdmin->surname));
+			
 			echo __('welcome') . ', <strong><i>' . iconv('CP1251', 'UTF-8', 
 				$userAdmin->name. ' '
 				.$userAdmin->surname. ' '

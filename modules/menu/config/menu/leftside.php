@@ -231,8 +231,16 @@ return [
 						'history2'=>[
 									'url'     => 'mreports/reportSelect/history2',
 									'icon'    => '',
-									'title'   => 'report.history',
-									'tooltip' => 'report.history',
+									'title'   => 'mreport.history',
+									'tooltip' => 'mreport.history',
+									'visible' => true,
+								],
+						
+						'exportAllContact'=>[
+									'url'     => 'mreports/reportSelect/allContactsExport',
+									'icon'    => '',
+									'title'   => 'mreport.allcontact',
+									'tooltip' => 'mreport.allcontact',
 									'visible' => true,
 								],
 						

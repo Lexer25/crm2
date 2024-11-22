@@ -13,5 +13,8 @@ return array
 	'depatment'=>'Подразделение',
 	'dateCreated'=>'Дата подготовки отчета',
 	'mreport.history'=> 'Отчет журнал событий',
+	'mreport.allcontact'=> 'Список всех контактов',
+	'contact.allContactsExport'=> 'Просмотр и экспорт контактов',
+	'button.allContactsExport'=> 'Подготовить отчет Просмотр и экспорт контактов',
   
 );

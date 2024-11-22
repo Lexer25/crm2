@@ -76,11 +76,13 @@ class Controller_mreports extends Controller_Template {
 			;
 			
 		if($post->check()){
-		//номер 234 следует брать из post, где этот номер - фиксированный.	
+		
 			//echo Debug::vars('71', Arr::get($post, 'id_report'), $this);exit;
 			$ruid=Arr::get($post, 'id_report');
 			$report=Model::factory($ruid.'_report')->getReport($post,$this->user);
 		
+			//сохраняю отчет в сессию. Результат должен быть записан в файл сессии на сервере http
+			Session::instance()->delete('report');
 			Session::instance()->set('report', $report);
 			
 			if(isset($report->view)) $this->view=$report->view;
