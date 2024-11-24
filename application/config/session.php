@@ -2,13 +2,13 @@
 
 return array(
 
-   'cookie_0' => array(
-        'name' => 'cookie_name_333',
+   'cookie' => array(
+        'name' => 'cookie_name_crm2',
         'encrypted' => false,
         'lifetime' => 43200,
     ),
-	  'native_0' => array(
-        'name' => 'session_name_333',
+	  'native' => array(
+        'name' => 'session_name_crm2',
         'lifetime' => 43200,
 		),
 		'default'=>'native',

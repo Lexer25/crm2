@@ -50,7 +50,9 @@ class Controller_mreports extends Controller_Template {
 	{
 		//echo Debug::vars('49', $this->request->param('id'));exit;
 		//$content = View::factory('reportSelect');
-		$content = View::factory($this->request->param('id').'/report');
+		$content = View::factory($this->request->param('id').'/report')
+			->bind('user', $this->user)
+			;
         $this->template->content = $content;
 	}
 	
@@ -81,6 +83,7 @@ class Controller_mreports extends Controller_Template {
 			$ruid=Arr::get($post, 'id_report');
 			$report=Model::factory($ruid.'_report')->getReport($post,$this->user);
 		
+			//echo Debug::vars('84', $report);exit;
 			//сохраняю отчет в сессию. Результат должен быть записан в файл сессии на сервере http
 			Session::instance()->delete('report');
 			Session::instance()->set('report', $report);
@@ -108,10 +111,11 @@ class Controller_mreports extends Controller_Template {
 	public function action_export()
 	{
 		//echo Debug::vars('76',$_POST);exit;
-		Log::instance()->add(Log::DEBUG, '63 '.Debug::vars($_POST));
+
 		if(Arr::get($_POST, 'savecsv'))
 		{
 			$csv=new ExportCsv(Session::instance()->get('report'));
+			
 			//$csv->makeReport();
 			//$csv->sendFile();
 		};

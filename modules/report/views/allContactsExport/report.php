@@ -1,11 +1,20 @@
+<?php
+//echo $topbuttonbar;
+    //echo Debug::vars('6', $report); exit;
+   // echo Debug::vars('7', $user->id_orgctrl);// exit;
+	
+	$org=new Company($user->id_orgctrl);
+	
+?>
+
 <div class="onecolumn">
 	<div class="header">
-		<span><?php echo __('contact.allContactsExport') ; ?></span>
+		<span><?php echo __('Отчет Экспорт контактов организации "'.iconv('CP1251', 'UTF-8',$org->name).'".');
+		?></span>
 <?php
-	//echo $topbuttonbar;
-    //echo Debug::vars('6', ::get('reportdatestart'));
-    //echo Debug::vars('6', ::get('reportdateend'));
-    //echo Debug::vars('6', $data); exit;
+	
+	//echo Debug::vars('11', $org);//exit;
+	
 $data=array();
 if(isset($report)) $data=$report;
 $ruid='allContactsExport';
@@ -23,6 +32,7 @@ $ruid='allContactsExport';
 			
 			
 			echo Form::hidden('dataReport[id_report]', $ruid);
+			echo Form::hidden('dataReport[fileName]', 'Список контактов');
             
            echo Form::submit(NULL, __('button.allContactsExport'));
             echo Form::close();
@@ -50,7 +60,16 @@ $ruid='allContactsExport';
 		$t1=microtime(true);
 		if (count($data) > 0) { 
 		//echo Debug::vars('52', $data);exit;
-		echo __('<p>Надено :count записей.</p>', array(':count'=>count($data->rowData)));
+		$showRowCount=10;
+		$rowCount=count($data->rowData);
+		echo __('<p>Отчет содержит :count записей.</p>', array(':count'=>$rowCount));
+		if($rowCount>$showRowCount){
+			echo __('Будут показаны первые :showRowCount записей. Нажмите Экспорт чтобы получить весь отчет.', array(':showRowCount'=>$showRowCount));
+			$dataRow=array_slice($data->rowData,0, $showRowCount);
+			
+		}
+		
+		
 		?>
 		<table class="data" width="100%" cellpadding="0" cellspacing="0">
 			<thead>
@@ -70,7 +89,7 @@ $ruid='allContactsExport';
 			<tbody>
 				<?php 
 				
-				foreach ($data->rowData as $h) {
+				foreach ($dataRow as $h) {
                 // echo Debug::vars('74', $h);exit;
 				
 				

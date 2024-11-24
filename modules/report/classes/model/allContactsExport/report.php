@@ -29,7 +29,7 @@ class Model_allContactsExport_report extends Model
 			$report->org=Kohana::$config->load('main')->get('orgname');
 			$report->titleReport='Список сотрудников';
 			$report->dateCreated=date('d.m.Y H:i:s');;
-			$report->fileName='crm_history1_'.Arr::get($post, 'reportdatestart').'-'.Arr::get($post, 'reportdateend');
+			$report->fileName='crm2_contact_list';
 			
 			// беру ФИО оператора
 			$pep=new Contact($user->id_pep);
