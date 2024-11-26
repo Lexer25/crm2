@@ -3,12 +3,12 @@
 class Controller_Cards extends Controller_Template
 {
 	//public $template = 'template';
-	public $listsize;
+	//public $listsize;
 	//public $session;
 	public $id_type;
 	//public $arrAlert;
 	
-	public function before()
+	/* public function before()
 	{
 		parent::before();
 		//if (!Auth::instance()->logged_in()) $this->redirect('/');
@@ -18,7 +18,7 @@ class Controller_Cards extends Controller_Template
 		$this->listsize = $this->session->get('listsize', 10);
 		//$this->id_type = $this->session->get('identifier', 1);
 		
-	}
+	} */
 	
 	/**
 	*9.04.2024 диспетчер режима отображения данных: какие карты отображать? (RFID, ГРЗ, или еще что-то там....)

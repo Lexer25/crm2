@@ -1,19 +1,11 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 class Controller_Devices extends Controller_Template { 
 
-public $template = 'template';
-	private $listsize;
-	private $session;
-
+	public $template = 'template';
+	
 	public function before()
 	{
-			
-			parent::before();
-			$session = Session::instance();
-				$this->session = Session::instance();
-		I18n::$lang		= $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->get('listsize', 10);
-		//echo Debug::vars('16', $_SESSION);
+		parent::before();
 	}
 	
 	/*

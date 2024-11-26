@@ -1,13 +1,13 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 class Controller_People extends Controller_Template { 
 
+	public $template = 'template';
+	
 	public function before()
 	{
-			
-			parent::before();
-			$session = Session::instance();
-			
+		parent::before();
 	}
+
 	
 	
 	

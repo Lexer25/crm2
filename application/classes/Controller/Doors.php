@@ -1,13 +1,11 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 class Controller_Doors extends Controller_Template { 
 
+	public $template = 'template';
+	
 	public function before()
 	{
-			
-			parent::before();
-			$session = Session::instance();
-			//echo Debug::vars('9controller', $_POST, $_GET);
-			
+		parent::before();
 	}
 	
 	

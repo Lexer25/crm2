@@ -3,21 +3,12 @@
 class Controller_Stats extends Controller_Template
 {
 	public $template = 'template';
-	private $listsize;
-	private $session;
 	
 	public function before()
 	{
 		parent::before();
-
-		//if (!Auth::instance()->logged_in('admin') || !Auth::instance()->logged_in('owner') || !Auth::instance()->logged_in('user')) $this->request->redirect('/');
-		
-		$this->session = Session::instance();
-		$name = $this->session->get('username', false);
-		
-		I18n::$lang = $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->get('listsize', 10);
 	}
+
 	public function action_index($filter = null)
 	{
 		$this->request->redirect('stats/about');

@@ -9,20 +9,12 @@ class Controller_Guests extends Controller_Template
 	public $issue = 2;// регистрация нового гостя
 	public $mode;// текущий режим работы 
 	
-	private $listsize;
-	private $session;
 	
 	public function before()
 	{
 		parent::before();
-		//echo Kohana::Debug(Auth::instance()->get_user());
-		if (!Auth::instance()->logged_in()) $this->redirect('/');
-
-		$this->session = Session::instance();
-		I18n::$lang = $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->get('listsize', 10);
 	}
-	
+
 	
 	
 	/*

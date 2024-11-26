@@ -11,18 +11,15 @@ abstract class Controller_Template extends Kohana_Controller_Template {
 		 public $session;
 		 public $user;
 		 public $arrAlert;
+		 public $listsize=100;
 	
 	 
     public function before() {
         parent::before();
      		
 		if (!Auth::instance()->logged_in()) $this->redirect('login'); 
-		//$session = Session::instance();
-		//$this->user = Auth::instance()->get_user();
 		$this->session = Session::instance();
-		I18n::$lang = $this->session->get('language', 'en-us');
 		$this->user=new User;
-		
 		include Kohana::find_file('classes/controller','check_db_connect');
 		
 		

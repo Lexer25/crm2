@@ -2,25 +2,25 @@
 
 class Controller_Contacts extends Controller_Template
 {
-	public $template = 'template';
-	 private $listsize;
+	// public $template = 'template';
+	 // private $listsize;
 	// private $session;
 	// private $user;
-	private $orgFastOrder=null;
+	public $orgFastOrder=null;
 	
 	
-	public function before()
+	/* public function before()
 	{
 		parent::before();
 		//echo Kohana::Debug(Auth::instance()->get_user());
-		/* if (!Auth::instance()->logged_in()) $this->redirect('/');
+		 if (!Auth::instance()->logged_in()) $this->redirect('/');
 
 		$this->session = Session::instance();
 		I18n::$lang = $this->session->get('language', 'en-us');
-		$this->user=new User; */
+		$this->user=new User; 
 		
 		
-	}
+	} */
 	
 	
 	/**04.09.2024 сохранение настроек для быстрой регистрации

@@ -14,7 +14,7 @@ class Controller_Objects extends Controller_Template {
         $this->session = Session::instance();
         $name          = $this->session->get('username', false);
 
-        I18n::$lang     = $this->session->get('language', 'en-us');
+        //I18n::$lang     = $this->session->get('language', 'en-us');
         $this->listsize = $this->session->get('listsize', 10);
     }
 

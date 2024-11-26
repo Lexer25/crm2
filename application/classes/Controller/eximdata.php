@@ -8,7 +8,6 @@ class Controller_eximdata extends Controller_Template{
 	public function before()
 	{
 			parent::before();
-			$session = Session::instance();
 			if(!Session::instance()->get('skud_number')) $this->redirect('errorpage?err=no SKUD select.');
 	}
 	

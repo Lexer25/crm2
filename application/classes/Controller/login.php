@@ -1,20 +1,18 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-    class Controller_Login
-        extends Controller {
+    class Controller_Login extends Controller {
 			
 	public function before()
 	{
-			
+			  if (Auth::instance()->logged_in()) {$this->redirect('/');
+            }
 	}
 	
 
         public function action_index() {
 			
 		
-            if (Auth::instance()->logged_in()) {
-                $this->redirect('/');
-            }
+          
 	
             if (Arr::get($_POST, 'hidden') == 'form_sent') {
 				
@@ -25,11 +23,11 @@
                 ) {
                    $user = Auth::instance()->get_user();
                 
-                   Session::instance()
+                  /*  Session::instance()
 						->set('language', 'ru-ru')
 						->set('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact)
 						->set('org_control', Arr::get($user, 'ID_PEP'));
-						;
+						; */
 						
 						//ACL::instance();
 						//echo Debug::vars('32', ACL::instance()); exit;	

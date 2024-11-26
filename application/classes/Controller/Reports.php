@@ -7,19 +7,12 @@
 class Controller_Reports extends Controller_Template
 {
 	public $template = 'template';
-
-	//private $session;
 	
 	public function before()
 	{
 		parent::before();
-		if (!Auth::instance()->logged_in()) $this->redirect('/');
-
-		$this->session = Session::instance();
-		I18n::$lang = $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->get('listsize', 10);
 	}
-	
+
 	
 	/**
 	 * 10.06.2024 подготовка единого отчета по всем событиям за указанный период времени.

@@ -2,20 +2,7 @@
 
 class Controller_Companies extends Controller_Template
 {
-	public $template = 'template';
-	//private $listsize;
-	//private $session;
-	
-	public function before()
-	{
-		parent::before();
-		if (!Auth::instance()->logged_in()) $this->redirect('/');
-		
-		$this->session = Session::instance();
-		I18n::$lang		= $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->get('listsize', 10);
-	}
-	
+
 	/**
 	5.12.2023
 	при переходе на search данные из POST записываются в 
@@ -105,9 +92,8 @@ class Controller_Companies extends Controller_Template
 		
 		$contacts = Model::factory('Contact');
 		$contacts->peopleIsActive=1;;
-		
+	
 		$q = $contacts->getCountByOrg($id);
-
 		$list = $contacts->getListByOrg(Arr::get($_GET, 'page', 1), $this->listsize, $id);
 		$fl = null;
 		

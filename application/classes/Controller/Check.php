@@ -1,11 +1,10 @@
 <?
 class Controller_check extends Controller_Template {
 
-public function before()
+ public function before()
 	{
-			parent::before();
-			$session = Session::instance();
-	}
+		parent::before();
+	} 
 
 
 

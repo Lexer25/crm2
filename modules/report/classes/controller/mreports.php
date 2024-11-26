@@ -6,7 +6,7 @@
 class Controller_mreports extends Controller_Template { 
 		//private $session;
 		public $user;
-		public $template = 'template';
+		//public $template = 'template';
 		public $view = 'result';//view для показа результата
 	
 
