@@ -11,15 +11,9 @@ class Controller_Acls extends Controller_Template {
 	
 	public function before()
 	{
-		//Log::instance()->add(Log::NOTICE, 'Получил запрос в dashboard');
+
 		parent::before();
-			
-		//	if (!Auth::instance()->logged_in()) $this->redirect('login'); 
-		//$session = Session::instance();
-		//$this->user = Auth::instance()->get_user();
-		I18n::$lang = $session->get('language', 'en-us');
-		//echo Debug::vars('23',$_POST);exit;
-		$user=new User();
+
 		$acl=new Acl(true);
 		$resource='acl';
 		if(!$acl->is_allowed($user->role,$resource, 'read')){

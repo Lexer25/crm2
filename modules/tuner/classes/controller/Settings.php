@@ -5,18 +5,13 @@
 */
 class Controller_Settings extends Controller_Template { 
 		
+	public $template = 'template';
 	
-
-	/* public function before()
+	public function before()
 	{
-			
-			parent::before();
-			$this->session = Session::instance();
-			//echo Debug::vars('9controller', $_POST, $_GET);
-			
-			
+		parent::before();
 	}
-	 */
+
 	/*
 	17.12.2023 Доступ к изменению конфигурационных данных возможен только после ввода пароля.
 	Сам пароль пока константа.

@@ -4,21 +4,16 @@
 
 */
 class Controller_mreports extends Controller_Template { 
-		//private $session;
-		public $user;
-		//public $template = 'template';
-		public $view = 'result';//view для показа результата
+		
+	public $view = 'result';//view для показа результата
+	public $template = 'template';
 	
-
-	/* public function before()
+	public function before()
 	{
-			
-			parent::before();
-			$this->session = Session::instance();
-			$this->user = new User();
-			//echo Debug::vars('18', $this->user);// exit;
-			
-	} */
+		parent::before();
+	}
+
+
 	
 	
 	
@@ -48,8 +43,9 @@ class Controller_mreports extends Controller_Template {
 	
 	public function action_reportSelect()
 	{
-		//echo Debug::vars('49', $this->request->param('id'));exit;
-		//$content = View::factory('reportSelect');
+		//echo Debug::vars('46', $this->request->param('id'));exit;
+		//echo Debug::vars('47', $this->user);exit;
+
 		$content = View::factory($this->request->param('id').'/report')
 			->bind('user', $this->user)
 			;
@@ -74,7 +70,7 @@ class Controller_mreports extends Controller_Template {
 		//echo Debug::vars('29 report stat', $_POST);exit;
 		$post=Validation::factory(Arr::get($_POST, 'dataReport'))
 			->rule('id_report', 'not_empty')
-			//->rule('id_report', 'digit')
+			
 			;
 			
 		if($post->check()){
@@ -92,6 +88,7 @@ class Controller_mreports extends Controller_Template {
 			
 			$content = View::factory($ruid.'/'.$this->view)
 				->bind('report', $report)
+				->bind('user', $this->user)
 				;
 		} else {
 			

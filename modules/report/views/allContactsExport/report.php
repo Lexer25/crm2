@@ -1,7 +1,7 @@
 <?php
 //echo $topbuttonbar;
     //echo Debug::vars('6', $report); exit;
-   // echo Debug::vars('7', $user->id_orgctrl);// exit;
+   // echo Debug::vars('7', $user);// exit;
 	
 	$org=new Company($user->id_orgctrl);
 	

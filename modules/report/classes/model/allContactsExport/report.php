@@ -70,6 +70,7 @@ class Model_allContactsExport_report extends Model
 					$query[$key]['PATRONYMIC']=iconv('CP1251', 'UTF-8', Arr::get($value,'PATRONYMIC'));
 					$query[$key]['ORGNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'ORGNAME'));
 					$query[$key]['ACNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'ACNAME'));
+					$query[$key]['ID_CARD']=iconv('CP1251', 'UTF-8', Arr::get($value,'ID_CARD'));
 										
 				}
 				

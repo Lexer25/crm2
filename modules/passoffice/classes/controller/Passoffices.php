@@ -40,13 +40,7 @@ class Controller_Passoffices extends Controller_Template
 						};
 						
 			
-		//echo Kohana::Debug(Auth::instance()->get_user());
-		if (!Auth::instance()->logged_in()) $this->redirect('/');
-
-		$this->session = Session::instance();
-		I18n::$lang = $this->session->get('language', 'en-us');
-		$this->listsize = $this->session->get('listsize', 10);
-		
+				
 		//$configcdf=Kohana::$config->load('guest');//загрузка данных из вспомогательной базы данных, хотя надо будет брать данные из настоящей БД СКУД
 		$sql='select poc.id, poc.name, poc.id_org_guest, poc.id_org_archive, poc.is_active from po_config poc
             join po_user pou on poc.id=pou.id_po
