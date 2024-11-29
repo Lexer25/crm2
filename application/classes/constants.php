@@ -19,15 +19,17 @@ class constants
 	const MAX_VALUE_001A = 10;
 	const DANGER = 'danger';
 	
+	//допустимая длина идентификаторов
 	const RFID_MAX_LENGTH = 8;
 	const RFID_MIN_LENGTH = 6;
 	
 	const RFID_DEC_MAX_LENGTH = 10;
 	const RFID_DEC_MIN_LENGTH = 6;
 	
+	//длина пояснения к идентификатору
 	const RFID_NOTE = 50;
 	
-	
+	//коды сообщений
 	const ALERT_SUCCESS = 0;
 	const ALERT_INFO = 1;
 	const ALERT_WARNING = 2;

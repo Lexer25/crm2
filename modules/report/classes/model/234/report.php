@@ -15,7 +15,7 @@ class Model_234_report extends Model
 			//echo Debug::vars('12', $post, $user);exit;
 			$report=new Report();
 			$report->org=Kohana::$config->load('main')->get('orgname');
-			$report->titleReport='Количество зарегистрированных сотрудников за последние '.Arr::get($post, 'howManyMonce').' месяцев';
+			$report->titleReport='Количество зарегистрированных сотрудников за '.Arr::get($post, 'monceList');
 			$report->fileName='crm_report_'.Arr::get($post, 'howManyMonce').'_month';
 			
 			// беру ФИО оператора
@@ -32,11 +32,6 @@ class Model_234_report extends Model
 			//валидация данных.
 
 			$var1=Arr::get($post, 'monceList');
-			//echo Debug::vars('35', $var1); exit;
-			//echo Debug::vars('36', date('Y-m-01', strtotime($var1)), date('Y-m-t', strtotime($var1)));
-			//echo Debug::vars('37', date('Y-m-01', strtotime($var1)), date('Y-m-01', strtotime("+1 month", strtotime($var1))));
-
-			//echo Debug::vars('30', $this->chekSelectDate($var1), $this->selectYear, $this->selectMonth); //exit;
 			
 			if($this->chekSelectDate($var1)){
 			

@@ -8,19 +8,6 @@ newcrm
 class Controller_Dashboard extends Controller_Template {
 
    
-	public function action_services()
-	{
-		
-		$serverList=Model::factory('Check')->getServerList();// получили список транспортных серверов
-		$content = View::factory('services', array(
-			'serverList'=>$serverList,
-			));
-		$this->template->content = $content;
-		
-	}
-
-	
-	
 	public function action_index()
 	{	
 		$t1=microtime(1);

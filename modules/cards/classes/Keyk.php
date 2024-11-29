@@ -238,7 +238,8 @@ class Keyk
 			} catch (Exception $e) {
 					Log::instance()->add(Log::DEBUG, $e->getMessage());
 					$this->actionDesc=$e->getMessage();
-				}
+			
+			}
 			
 			//echo Debug::vars('29', $sql, $query); exit;
 			$this->id_card=$card;
@@ -258,10 +259,6 @@ class Keyk
 			$this->convertFormat($card, $this->baseFormatRfid, $this->screenFormatRFID);//подготовил формат для показа на экран
 			//echo Debug::vars('259', $this); exit;
 		}
-		
-		
-		//if(!is_null(Kohana::$config->load('system')->get('regFormatRfid'))) $this->screenFormatRFID=Kohana::$config->load('system')->get('regFormatRfid');
-		//$this->convertFormat($this->id_card, $this->baseFormatRfid, $this->screenFormatRFID);//подготовил формат для показа на экран
 	
 		
 	}

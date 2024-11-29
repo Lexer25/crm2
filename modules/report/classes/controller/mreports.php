@@ -111,10 +111,11 @@ class Controller_mreports extends Controller_Template {
 
 		if(Arr::get($_POST, 'savecsv'))
 		{
-			$csv=new ExportCsv(Session::instance()->get('report'));
+			$report=Session::instance()->get('report');
+			Session::instance()->delete('report');
+			$csv=new ExportCsv($report);
 			
-			//$csv->makeReport();
-			//$csv->sendFile();
+			
 		};
 		if(Arr::get($_POST, 'savexls'))
 		{

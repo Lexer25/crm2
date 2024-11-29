@@ -45,10 +45,8 @@ class Model_allContactsExport_report extends Model
 	
 			
 			if(true){
-				$sql='select * from people p
-				join organization_getchild(1, '.$user->id_orgctrl .') og on og.id_org=p.id_org';
-			
-				$sql='select o.name as orgname, p.surname, p.name, p.patronymic, c.id_card, an.name as acname, p.time_stamp  from people p
+							
+				$sql='select o.name as orgname, p.surname||\' \'|| p.name ||\' \'|| p.patronymic as FIO, c.id_card, an.name as acname, p.time_stamp  from people p
 					join organization o on p.id_org=o.id_org
 					left join card c on c.id_pep=p.id_pep
 					left join ss_accessuser ssa on ssa.id_pep=p.id_pep
@@ -57,20 +55,19 @@ class Model_allContactsExport_report extends Model
 					 join accessuser au on au.id_accessname=ssa.id_accessname and au.id_pep='.$user->id_pep.'
 					where p."ACTIVE">0';
 			
-						
+									
 						
 				//echo Debug::vars('21', $sql);exit;
 				$query = DB::query(Database::SELECT, $sql)
 				->execute(Database::instance('fb'))
 				->as_array();
+				//все данные, кроме метки времени, преобразую в UTF-8
 				foreach ($query as $key=>$value)
 				{
-					$query[$key]['SURNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'SURNAME'));
-					$query[$key]['NAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'NAME'));
-					$query[$key]['PATRONYMIC']=iconv('CP1251', 'UTF-8', Arr::get($value,'PATRONYMIC'));
 					$query[$key]['ORGNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'ORGNAME'));
-					$query[$key]['ACNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'ACNAME'));
+					$query[$key]['FIO']=iconv('CP1251', 'UTF-8' , Arr::get($value,'FIO'));
 					$query[$key]['ID_CARD']=iconv('CP1251', 'UTF-8', Arr::get($value,'ID_CARD'));
+					$query[$key]['ACNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'ACNAME'));
 										
 				}
 				
@@ -78,6 +75,7 @@ class Model_allContactsExport_report extends Model
 
 				$query=array();
 			}
+			//echo Debug::vars('87', $query);exit;
 			$report->titleColumn=array('Орагнизация', 'ФИО сотрудника', 'Код карточки', 'Категория','Дата регистрации');
 			
 			$report->rowData=$query;

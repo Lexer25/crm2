@@ -365,6 +365,10 @@ class Controller_Cards extends Controller_Template
 			//echo View::factory('profiler/stats');
 	}
 
+	/**Удаление идентификатора
+	*@input id - номер RFID или ГРЗ
+	*/
+	
 	public function action_delete()
 	{
 		//echo Debug::vars('72', $this->request->param('id')); exit;
@@ -378,19 +382,28 @@ class Controller_Cards extends Controller_Template
 	}
 	
 	
-	/*
-	11.02.2024 
-	Просмотр свойств идентификатора
+	/**	11.02.2024 Просмотр свойств идентификатора
+	*@input id - номер RFID или ГРЗ 
 	*/
 	public function action_edit()
 	{
 		
-		$id=trim($this->request->param('id'));
-
+		//$id=trim($this->request->param('id'));
+		
+		 $post=Validation::factory(array('key_type'=>trim($this->request->param('id'))));//определяю тип идентификатора, который надо выводить
+		 $post->rule('key_type', 'not_empty')
+				->rule('key_type', 'alpha_numeric')
+				->rule('key_type', 'max_length', array(':value', constants::RFID_MAX_LENGTH))//не более 10 знаков
+				;
+		if($post->check())
+		{
 		$mode='edit';
-		$key=new Keyk($id);
+		$key=new Keyk(Arr::get($post, 'key_type'));
+		//echo Debug::vars('402', $key->check(constants::idRfid));
+		//echo Debug::vars('403', $key->check(constants::idGrz));exit;
+		if(!($key->check(constants::idRfid) OR $key->check(constants::idGrz))) $this->redirect('cards');
 
-		$loads = Model::factory('Card')->getLoads($id);
+		$loads = Model::factory('Card')->getLoads(Arr::get($post, 'key_type'));
 				
 		
 		$fl = $this->session->get('alert');
@@ -408,6 +421,11 @@ class Controller_Cards extends Controller_Template
 			->bind('filter', $filter)
 			//->bind('pagination', $pagination)
 			;
+		} else {
+			
+			$this->redirect('cards');
+			
+		}
 	}
 	
 	

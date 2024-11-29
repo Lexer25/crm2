@@ -71,8 +71,31 @@ class Auth_City extends Auth {
 	 */
 	public function force_login($username)
 	{
-		// Complete the login
-		return $this->complete_login($username);
+		$sql='select p.id_pep, p.id_org, p.surname, p.name, p.patronymic, p.tabnum, p.login, p.flag, p.id_orgctrl , p.id_devgroup  from people p
+			where p.id_pep=1';
+		//echo Debug::vars('36', $sql); exit;	
+		try 
+		{
+			$query = DB::query(Database::SELECT, iconv('UTF-8','windows-1251',$sql))
+			->execute(Database::instance('fb'))
+			->as_array();
+				
+		} catch (Exception $e) { 
+		
+		//throw new Exception('Ошибка с базой данных при авторизации', 64);
+		
+		// Login failed
+		return FALSE;
+		}
+		//echo Debug::vars('48', $query );exit;
+
+			$user=Arr::flatten($query);
+			
+				
+				$user['ROLE']=$this->get_role(Arr::get($user, 'ID_PEP'));
+	
+				$this->complete_login($user);
+		
 	}
 	
 	/**
@@ -148,3 +171,4 @@ class Auth_City extends Auth {
 	
 	
 } // End Auth City
+

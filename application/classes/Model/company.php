@@ -503,22 +503,16 @@ where ssa.id_org='. $id_org;
 		return $query->current();
 	}
 	
+	
 	public function getCompany($id)
 	{
+		//echo Debug::vars('509', $id);exit;
 		if (!is_numeric($id)) return false;
 		
 		if (Auth::instance()->logged_in('admin'))
 			$sql = 'SELECT o.*, 1 AS canedit FROM organization o WHERE o.id_org = ' . $id;
 		else
-			/*
-			$sql =	'SELECT o.*, ug."O_EDIT" AS canedit ' .
-					'FROM usersgroups ug ' .
-	    			'INNER JOIN organizationgroup og ON (ug.id_group = og.id_group) ' .
-	    			'INNER JOIN organization o ON (og.id_org = o.id_org) ' .
-	    			'WHERE ug.id_user = ' . Auth::instance()->get_user() . 
-	    			' AND (ug."O_VIEW" + ug."O_EDIT" + ug."O_ADD" + ug."O_DELETE" > 0) ' .
-					'AND o.id_org = ' . $id;
-			*/
+			
 			$sql = 'SELECT o.*, 1 AS canedit FROM organization o WHERE o.id_org = ' . $id;
 		
 		$query = DB::query(Database::SELECT, $sql)

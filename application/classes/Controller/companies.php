@@ -33,10 +33,7 @@ class Controller_Companies extends Controller_Template
 		$companies = Model::factory('Company');
 		
 		$count_q = Model::factory('Company')->getCountUser(Arr::get(Auth::instance()->get_user(), 'ID_PEP'), $parent_org, $filter);// сколько всего организаций для авторизованного пользователя?
-		
-		
-		
-		
+						
 		$list = $companies->getListAdmin(// получение списка организаций, удовлетворяющего фильтру
 				Arr::get(Auth::instance()->get_user(), 'ID_PEP'),
 				Arr::get($_GET, 'page', 1),
@@ -357,12 +354,15 @@ class Controller_Companies extends Controller_Template
 	
 	public function action_edit()
 	{
-		Log::instance()->add(Log::DEBUG, '324 '. Debug::vars($_POST)); //exit;
+		//Log::instance()->add(Log::DEBUG, '324 '. Debug::vars($_POST)); exit;
+		//echo Debug::vars('358', Debug::vars($_GET), Debug::vars($_POST));//exit;
+		//echo Debug::vars('359', $this->request->param('id'));exit;
 		$id=$this->request->param('id');
-		//$isAdmin = Auth::instance()->logged_in('admin');
+		
 		
 		$company = Model::factory('company');
 		$data = $company->getCompany($id);
+		
 		if ($id != "0" && !$data) $this->redirect('companies');
 		$list = $company->getNames(null);
 		

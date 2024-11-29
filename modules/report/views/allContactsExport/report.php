@@ -59,17 +59,20 @@ $ruid='allContactsExport';
 		//echo Debug::vars('96', $data);//exit;
 		$t1=microtime(true);
 		if (count($data) > 0) { 
-		//echo Debug::vars('52', $data);exit;
-		$showRowCount=10;
+		
+		$showRowCount=200;
 		$rowCount=count($data->rowData);
 		echo __('<p>Отчет содержит :count записей.</p>', array(':count'=>$rowCount));
+		
+		$dataRow=array();
+		$dataRow=$data->rowData;
+		// если количество записей большое, то на экран вывожу только первые showRowCount записей
 		if($rowCount>$showRowCount){
 			echo __('Будут показаны первые :showRowCount записей. Нажмите Экспорт чтобы получить весь отчет.', array(':showRowCount'=>$showRowCount));
-			$dataRow=array_slice($data->rowData,0, $showRowCount);
-			
+			$dataRow=array_slice($dataRow,0, $showRowCount);
 		}
 		
-		
+		//echo Debug::vars('72', $dataRow);exit;
 		?>
 		<table class="data" width="100%" cellpadding="0" cellspacing="0">
 			<thead>
@@ -95,7 +98,8 @@ $ruid='allContactsExport';
 				
 				  echo '<tr>'; 
 				   echo '<td>'. Arr::get($h, 'ORGNAME').'</td>';
-					echo '<td>'. Arr::get($h, 'NAME').' '.Arr::get($h, 'SURNAME').' '.Arr::get($h, 'PATRONYMIC').'</td>';
+					//echo '<td>'. Arr::get($h, 'NAME').' '.Arr::get($h, 'SURNAME').' '.Arr::get($h, 'PATRONYMIC').'</td>';
+					echo '<td>'. Arr::get($h, 'FIO').'</td>';
 					echo '<td>'. Arr::get($h, 'ID_CARD').'</td>';
 					echo '<td>'. Arr::get($h, 'ACNAME').'</td>';
 					echo '<td>'. Arr::get($h, 'TIME_STAMP').'</td>';
