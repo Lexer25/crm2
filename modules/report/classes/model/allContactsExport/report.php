@@ -46,11 +46,14 @@ class Model_allContactsExport_report extends Model
 			
 			if(true){
 							
-				$sql='select o.name as orgname, p.surname||\' \'|| p.name ||\' \'|| p.patronymic as FIO, c.id_card, an.name as acname, p.time_stamp  from people p
-					join organization o on p.id_org=o.id_org
-					left join card c on c.id_pep=p.id_pep
-					left join ss_accessuser ssa on ssa.id_pep=p.id_pep
-					left join accessname an on an.id_accessname=ssa.id_accessname
+				$sql='select o.name as orgname, p.surname||\' \'|| p.name ||\' \'|| p.patronymic as FIO, p.time_stamp,an.name as acname,\'\', 
+						c.id_card, ct.smallname, c."ACTIVE", c.timestart, c.timeend
+						 from people p
+                    join organization o on p.id_org=o.id_org
+                    left join card c on c.id_pep=p.id_pep
+                    join cardtype ct on c.id_cardtype=ct.id
+                    left join ss_accessuser ssa on ssa.id_pep=p.id_pep
+                    left join accessname an on an.id_accessname=ssa.id_accessname
 					join organization_getchild(1, '.$user->id_orgctrl .') og on og.id_org=p.id_org
 					 join accessuser au on au.id_accessname=ssa.id_accessname and au.id_pep='.$user->id_pep.'
 					where p."ACTIVE">0';
@@ -62,23 +65,27 @@ class Model_allContactsExport_report extends Model
 				->execute(Database::instance('fb'))
 				->as_array();
 				//все данные, кроме метки времени, преобразую в UTF-8
+				$result=array();
 				foreach ($query as $key=>$value)
 				{
-					$query[$key]['ORGNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'ORGNAME'));
-					$query[$key]['FIO']=iconv('CP1251', 'UTF-8' , Arr::get($value,'FIO'));
-					$query[$key]['ID_CARD']=iconv('CP1251', 'UTF-8', Arr::get($value,'ID_CARD'));
-					$query[$key]['ACNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'ACNAME'));
-										
+					//преобразую все к UTF-8					
+					foreach($value as $key2=>$value2)
+					{
+						
+						$result[$key][Arr::get($value,$key2)]=iconv('CP1251', 'UTF-8', $value2);
+						
+					}
+								
 				}
 				
 			} else {
 
-				$query=array();
+				$result=array();
 			}
-			//echo Debug::vars('87', $query);exit;
-			$report->titleColumn=array('Орагнизация', 'ФИО сотрудника', 'Код карточки', 'Категория','Дата регистрации');
+			//echo Debug::vars('87', $result);exit;
+			$report->titleColumn=array('Орагнизация', 'ФИО сотрудника','Дата регистрации контакта', 'Категория доступа','', 'Код идентификатора','Тип идентификатора', 'Активность идентификатора', 'Дата начала идентификатора', 'Дата завершения идентификатора');
 			
-			$report->rowData=$query;
+			$report->rowData=$result;
 			$report->view='report';//указание куда выводить отчет на экран
 			
 			return $report;

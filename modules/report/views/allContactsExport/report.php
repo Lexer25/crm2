@@ -97,12 +97,16 @@ $ruid='allContactsExport';
 				
 				
 				  echo '<tr>'; 
-				   echo '<td>'. Arr::get($h, 'ORGNAME').'</td>';
+				  /*  echo '<td>'. Arr::get($h, 'ORGNAME').'</td>';
 					//echo '<td>'. Arr::get($h, 'NAME').' '.Arr::get($h, 'SURNAME').' '.Arr::get($h, 'PATRONYMIC').'</td>';
 					echo '<td>'. Arr::get($h, 'FIO').'</td>';
 					echo '<td>'. Arr::get($h, 'ID_CARD').'</td>';
 					echo '<td>'. Arr::get($h, 'ACNAME').'</td>';
-					echo '<td>'. Arr::get($h, 'TIME_STAMP').'</td>';
+					echo '<td>'. Arr::get($h, 'TIME_STAMP').'</td>'; */
+					foreach($h as $key2=>$value2)
+					{
+						echo '<td>'. $value2.'</td>';
+					}
 				echo '</tr>';
 			
 				

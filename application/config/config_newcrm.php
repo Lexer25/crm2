@@ -9,7 +9,7 @@ return array(
 
 	'version' => array(
 		'minor' => '3',
-		'major' => '6.15'),
+		'major' => '6.16'),
 	
 	'use_acl'=>false,//использовать ли роли. Если указан false, то у всех авторизованных пользователей будет роль role_default. Если 'use_acl'=>true, то роль берется из Auth
 	'role_default'=>'admin',//роль для авторизованных пользовалей если 'use_acl'=>false
