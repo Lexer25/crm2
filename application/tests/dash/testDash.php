@@ -21,7 +21,7 @@ Class TestCompany_step2 extends Unittest_TestCase
 	
 
 	
-	 public function testLogin()//проверка добавления организаций в родителя 723 (это Артсек)
+	 public function test_24_Login()//проверка добавления организаций в родителя 723 (это Артсек)
 	{
 		$url = 'http://localhost/crm2/login';
 			$request = Request::factory($url)
@@ -37,7 +37,7 @@ Class TestCompany_step2 extends Unittest_TestCase
 	} 
 		
 		
-	public function testDash()//проверка добавления организаций в родителя 723 (это Артсек)
+	public function test_40_Dash()//
 	{
 		$url = 'http://localhost/crm2/dashboard';
 			$request = Request::factory($url);
@@ -122,7 +122,7 @@ Class TestCompany_step2 extends Unittest_TestCase
             array('ABCDEF00', 302),//этого идентификатора нет в базе, поэтому переход на 302
             array('9876543210', 302),//длина строго 10, но его нет в БД
             array('98765432107777777', 302),// 302 - это значит, что ошибка обработана и в ответ получено перенаправление на другой ресурс.
-            array('Дорога передача!', 302),
+            array('Дорога передача!', 400),//код 400 - синтаксическая ошибка в запросе
             array('', 302),
             array('!@#$%^&**(', 302),
         );
@@ -156,10 +156,11 @@ Class TestCompany_step2 extends Unittest_TestCase
             array('ABCDEF00', 302),//этого идентификатора нет в базе, поэтому переход на 302
             array('9876543210', 302),//длина строго 10, но его нет в БД
             array('98765432107777777', 302),// 302 - это значит, что ошибка обработана и в ответ получено перенаправление на другой ресурс.
-            array('Дорога передача!', 302),
+            array('Дорога передача!', 400), //набор 4
             array('', 302),
             array('!@#$%^&**(', 302),
             array('570', 200),
+            array('760', 200),
         );
     }
  
@@ -171,7 +172,7 @@ Class TestCompany_step2 extends Unittest_TestCase
 	public function testSelectCompaniesEdit($key, $result)//проверка 
 	{
 		//$url = 'http://127.0.0.1/crm2/cards/edit/-11111111';
-		$url = 'http://127.0.0.1/crm2/companies/edit/632'.$key;
+		$url = 'http://127.0.0.1/crm2/companies/edit/'.$key;
 			$request = Request::factory($url);
 			$response = $request->execute();
 							
@@ -204,6 +205,19 @@ Class TestCompany_step2 extends Unittest_TestCase
 			//echo Debug::vars('46', $response->status());exit;
 				
 		$this->assertEquals(200, $response->status());
+
+	
+	}
+	
+	
+	public function test_213_end()//выход из авторизации
+	{
+		$url = 'http://127.0.0.1/crm2/logout';
+			$request = Request::factory($url);
+			$response = $request->execute();
+			//echo Debug::vars('46', $response->status());exit;
+				
+		$this->assertEquals(302, $response->status());
 
 	
 	}

@@ -69,16 +69,23 @@ class Auth_City extends Auth {
 	 * @param   mixed    $username  Username
 	 * @return  boolean
 	 */
-	public function force_login($username)
+	
+	public function force_login($id_pep=1)
 	{
-		$sql='select p.id_pep, p.id_org, p.surname, p.name, p.patronymic, p.tabnum, p.login, p.flag, p.id_orgctrl , p.id_devgroup  from people p
-			where p.id_pep=1';
+		$sql='select p.id_pep, p.id_org, p.surname, p.name, p.patronymic, p.tabnum, p.login, p.pswd, p.flag, p.id_orgctrl , p.id_devgroup  from people p
+		where p.id_pep='.$id_pep;
 		//echo Debug::vars('36', $sql); exit;	
 		try 
 		{
-			$query = DB::query(Database::SELECT, iconv('UTF-8','windows-1251',$sql))
+			$query = Arr::flatten(DB::query(Database::SELECT, iconv('UTF-8','windows-1251',$sql))
 			->execute(Database::instance('fb'))
-			->as_array();
+			->as_array());
+			
+			//echo Debug::vars('84', Arr::get($query, 'LOGIN'), Arr::get($query, 'PSWD'));exit;
+			
+			//$this->_login(Arr::get($query, 'LOGIN'), Arr::get($query, 'PSWD'));
+			
+			Auth::instance()->login(Arr::get($query, 'LOGIN'), Arr::get($query, 'PSWD'));
 				
 		} catch (Exception $e) { 
 		

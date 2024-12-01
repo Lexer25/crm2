@@ -190,26 +190,7 @@ where ssa.id_org='. $id_org;
 		return $res;
 	}
 	
-	public function getListF($user, $page = 1, $perpage = 10,  $filter)
-	{
-		$g = array();
-		$s = "SELECT DISTINCT id_group FROM users_groups WHERE id_user = $user";
-		$q = DB::query(Database::SELECT, $s)
-			->execute(Database::instance('default'));
-		foreach ($q->as_array() as $key => $value) {
-			$g[] = $value['id_group'];
-		}
-
-		$sql =  'SELECT  o.*, p.name AS parent, a.name AS accessname ' .
-				'FROM organization o INNER JOIN organization p ON o.id_parent = p.id_org LEFT OUTER JOIN accessname a ON o.id_def_accessname = a.id_accessname ' .
-				'WHERE o.id_group IN (' . join(',', $g) . ')' . ($filter ? " AND o.name containing '$filter' " : '') .
-				'ORDER BY o.id_org';
-		
-		$query = DB::query(Database::SELECT, $sql)
-			->execute(Database::instance('fb'));
-		
-		return $query->as_array();
-	}
+	
 	
 	public static function getListAccessName()//
 	{

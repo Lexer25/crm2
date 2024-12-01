@@ -354,38 +354,48 @@ class Controller_Companies extends Controller_Template
 	
 	public function action_edit()
 	{
-		//Log::instance()->add(Log::DEBUG, '324 '. Debug::vars($_POST)); exit;
+		//127.0.0.1/crm2/companies/edit/98765432107777777
+		//Log::instance()->add(Log::DEBUG, '324 '. Debug::vars($_POST), $this->request->param('id')); exit;
+		//echo Debug::vars('359', $_POST, $this->request->param('id')); exit;
 		//echo Debug::vars('358', Debug::vars($_GET), Debug::vars($_POST));//exit;
 		//echo Debug::vars('359', $this->request->param('id'));exit;
 		$id=$this->request->param('id');
+		$var=Validation::factory(array('test'=>$id));
 		
-		
-		$company = Model::factory('company');
-		$data = $company->getCompany($id);
-		
-		if ($id != "0" && !$data) $this->redirect('companies');
-		$list = $company->getNames(null);
-		
-		$acls = $company->getListAccessName();//получить список всех категорий доступа
-		//$org_tree = Model::Factory('Company')->getOrgList();// получить список организаций.
-		$org_tree = Model::Factory('Company')->getOrgListForOnce(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'));
-		
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
-		
-		$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
-		$this->session->delete('arrAlert');//очистить алерт в сессии
-
-		
-		$this->template->content = View::factory('companies/edit')
-			->bind('company', $data)
-			->bind('parents', $list)
-			->bind('org_tree', $org_tree)
-			//->bind('groups', $grps)
-			->bind('alert', $fl)
-			->bind('arrAlert', $arrAlert)
+		$var->rule('test','not_empty') 
+					->rule('test','digit')
+						;
+		if($var->check())
+		{
+			$company = Model::factory('company');
+			$data = $company->getCompany($id);
 			
-			->bind('acl', $acls);
+			if ($id != "0" && !$data) $this->redirect('companies');
+			$list = $company->getNames(null);
+			
+			$acls = $company->getListAccessName();//получить список всех категорий доступа
+			//$org_tree = Model::Factory('Company')->getOrgList();// получить список организаций.
+			$org_tree = Model::Factory('Company')->getOrgListForOnce(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'));
+			
+			$fl = $this->session->get('alert');
+			$this->session->delete('alert');
+			
+			$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
+			$this->session->delete('arrAlert');//очистить алерт в сессии
+
+			
+			$this->template->content = View::factory('companies/edit')
+				->bind('company', $data)
+				->bind('parents', $list)
+				->bind('org_tree', $org_tree)
+				//->bind('groups', $grps)
+				->bind('alert', $fl)
+				->bind('arrAlert', $arrAlert)
+				
+				->bind('acl', $acls);
+		} else {
+			$this->redirect('companies');
+		}
 			
 	}
 	
