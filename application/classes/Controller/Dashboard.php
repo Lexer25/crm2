@@ -8,6 +8,10 @@ newcrm
 class Controller_Dashboard extends Controller_Template {
 
    
+	 public function before() {
+        parent::before();
+     	
+    }
 	public function action_index()
 	{	
 		$t1=microtime(1);
