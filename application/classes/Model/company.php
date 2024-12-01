@@ -221,7 +221,7 @@ where ssa.id_org='. $id_org;
 	
 	
 	
-
+/* 
 	public function getListUser($user, $page = 1, $perpage = 10, $filter)
 	{
 		$sql = '
@@ -253,9 +253,9 @@ where ssa.id_org='. $id_org;
 			->execute(Database::instance('fb'));
 			
 		return $res->as_array();
-	}
+	} */
 	
-	public function getListUser1($user, $page = 1, $perpage = 10, $filter)
+/* 	public function getListUser1($user, $page = 1, $perpage = 10, $filter)
 	{
 		$g = array();
 		$a = array();
@@ -309,7 +309,7 @@ where ssa.id_org='. $id_org;
 		}
 		
 		return $res;
-	}
+	} */
 	
 	/**
 	5.12.2023 
@@ -461,7 +461,7 @@ where ssa.id_org='. $id_org;
 		return $query->as_array();
 	}
 	
-	public function deleteGroup($id)
+	/* public function deleteGroup($id)
 	{
 		$query = DB::query(Database::DELETE,
 			'DELETE FROM organizationgroup WHERE id_group = :id')
@@ -482,7 +482,7 @@ where ssa.id_org='. $id_org;
 			
 		if ($query->count() == 0) return FALSE;
 		return $query->current();
-	}
+	} */
 	
 	
 	public function getCompany($id)
@@ -544,7 +544,7 @@ where ssa.id_org='. $id_org;
 		
 	}
 	
-	public function saveGroup($name, $desc)
+	/* public function saveGroup($name, $desc)
 	{
 		$query = DB::query(Database::SELECT,
 			'SELECT gen_id(gen_group_id, 1) FROM rdb$database')
@@ -558,7 +558,7 @@ where ssa.id_org='. $id_org;
 				':desc'		=> $desc))
 			->execute(Database::instance('fb'));
 		return $result['GEN_ID'];
-	}
+	} */
 	
 	public function update($id, $name, $parent, $code, $access, $group)
 	{
@@ -573,7 +573,7 @@ where ssa.id_org='. $id_org;
 			->execute(Database::instance('fb'));
 	}
 
-	public function updateGroup($id, $name, $desc)
+/* 	public function updateGroup($id, $name, $desc)
 	{
 		$query = DB::query(Database::UPDATE,
 			'UPDATE "GROUP" SET name = :name, description = :desc WHERE id_group = :id')
@@ -582,15 +582,15 @@ where ssa.id_org='. $id_org;
 				':desc'		=> $desc,
 				':id'		=> $id))
 			->execute(Database::instance('fb'));
-	}
+	} */
 	
-	public function _delete($id)
+/* 	public function _delete($id)
 	{
 		$query = DB::query(Database::DELETE,
 			'DELETE FROM organization WHERE id_org = :id')
 			->param(':id', $id)
 			->execute(Database::instance('fb'));
-	}
+	} */
 	
 	/*
 	Изменение родительской организации для дочерних

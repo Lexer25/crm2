@@ -21,6 +21,9 @@ class Controller_Companies extends Controller_Template
 		$this->action_index($pattern);
 	}
 	
+	/** 2024
+	*
+	*/
 	public function action_index($filter = null)
 	{
 		//смотрю указание на родительскую организацию для вывода списка организаций.
@@ -308,8 +311,6 @@ class Controller_Companies extends Controller_Template
 	
 	/*
 	8.01.2024 удаление организации.
-	в процесс удаления выполняется следующие действия:
-	
 	
 	*/
 	public function action_delete()
@@ -352,6 +353,10 @@ class Controller_Companies extends Controller_Template
 		$this->redirect('companies/?parent='.$id_parent);
 	}
 	
+	
+	/** 1.12.2024 вывод информации для редактирования организации
+	*
+	*/
 	public function action_edit()
 	{
 		//127.0.0.1/crm2/companies/edit/98765432107777777
@@ -415,7 +420,7 @@ class Controller_Companies extends Controller_Template
 			->bind('acl', $acls);
 	}
 	
-	public function action_groups()
+	/* public function action_groups()
 	{
 		if (!Auth::instance()->logged_in('admin')) $this->redirect('/');
 		
@@ -428,7 +433,7 @@ class Controller_Companies extends Controller_Template
 		$this->template->content = View::factory('groups/list')
 			->bind('groups', $list)
 			->bind('alert', $fl);
-	}
+	} 
 	
 	public function action_groupdelete()
 	{
@@ -455,8 +460,8 @@ class Controller_Companies extends Controller_Template
 			->bind('alert', $fl)
 			->bind('group', $group);
 	}
-	
-	public function action_groupsave()
+	*/
+/* 	public function action_groupsave()
 	{
 		if (!Auth::instance()->logged_in('admin')) $this->redirect('/');
 		
@@ -473,9 +478,9 @@ class Controller_Companies extends Controller_Template
 			$this->session->set('alert', __('group.updated'));
 		}
 		$this->redirect('companies/groupedit/' . $id);
-	}
+	} */
 	
-	public function action_grouplist()
+	/* public function action_grouplist()
 	{
 		$id=$this->request->param('id');
 		if (!(preg_match("/^\d+$/", $id))) $this->redirect('companies/groups');
@@ -562,7 +567,7 @@ class Controller_Companies extends Controller_Template
 			->bind('alert', $fl)
 			->bind('users', $list)
 			->bind('group', $data);
-	}
+	} */
 	
 	public function addpeople()
 	{
