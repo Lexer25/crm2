@@ -39,7 +39,8 @@ Class TestCompany_step2 extends Unittest_TestCase
 		
 	public function test_40_Dash()//
 	{
-		$url = 'http://localhost/crm2/dashboard';
+				
+			$url = 'http://localhost/crm2/dashboard';
 			$request = Request::factory($url);
 			$response = $request->execute();
 			//echo Debug::vars('46', $response->status());exit;
@@ -181,10 +182,6 @@ Class TestCompany_step2 extends Unittest_TestCase
 	
 	}
 	
-	
-	
-	
-	
 	public function testContactsEdit()//проверка 
 	{
 		$url = 'http://127.0.0.1/crm2/contacts/edit/0';
@@ -222,6 +219,39 @@ Class TestCompany_step2 extends Unittest_TestCase
 	
 	}
 	
+	
+	public function provider3()
+    {
+        //массив для проверки удаления карты
+		return array(
+            array('11111111-', 302),//этот идентификатор есть в БД, должна открыться панель редактирования
+            array('ABCDEF00', 302),//этого идентификатора нет в базе, поэтому переход на 302
+            array('9876543210', 302),//длина строго 10, но его нет в БД
+            array('98765432107777777', 302),// 302 - это значит, что ошибка обработана и в ответ получено перенаправление на другой ресурс.
+            array('Дорога передача!', 400), //набор 4
+            array('', 302),
+            array('!@#$%^&**(', 302),
+            array('\'select *\'', 400),//http://127.0.0.1/crm2/cards/delete/'select *'
+            array('570', 302),
+            array('760', 302),
+        );
+    }
+ 
+    /**
+     * @dataProvider provider3
+     */
+	 
+	
+	public function testCardsDelete($key, $result)//проверка 
+	{
+			$url = 'http://127.0.0.1/crm2/cards/delete/'.$key;
+			$request = Request::factory($url);
+			$response = $request->execute();
+							
+		$this->assertEquals($result, $response->status());
+
+	
+	}
 	
 
 

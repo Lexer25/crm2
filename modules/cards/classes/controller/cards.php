@@ -53,10 +53,12 @@ class Controller_Cards extends Controller_Template
 	}
 
 
-
+	/** 2024 получить список карт с истекшим сроком дейсвтия
+	*
+	*/
 	public function action_expired()
 	{
-		$cards = Model::factory('Card')->getExpired(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'));
+		$cards = Model::factory('Card')->getExpired($this->user->id_orgctrl);
 					//echo Debug::vars('51', $cards);//exit;
 		$this->action_index($cards);
 		
@@ -123,6 +125,7 @@ class Controller_Cards extends Controller_Template
 						$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>$alert);
 						Session::instance()->set('arrAlert',$arrAlert);
 						//echo Debug::vars('115', $arrAlert);//exit;
+						Session::instance()->set('arrAlert',$arrAlert);
 						$this->redirect('cards');
 					}
 				}
@@ -321,16 +324,16 @@ class Controller_Cards extends Controller_Template
 	*/
 	public function action_index($filter = null)
 	{
-		
+		//echo Debug::vars('326', $this->user);//exit;
 		//echo Debug::vars('46', $filter); exit;
 		$this->id_type = $this->session->get('identifier', 1);//получил тип идентификатора для отображения
 
 		$cards = Model::factory('Card');
 		if(is_null($filter)){// если фильтра (списка) нет, то выбираю все, что разрешено авторизованному пользователю
 		
-		$q = $cards->getCountUser(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'), iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
+		$q = $cards->getCountUser($this->user->id_orgctrl, iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
 		
-		$list = $cards->getListUser(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'), Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter), $this->id_type);
+		$list = $cards->getListUser($this->user->id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter), $this->id_type);
 		
 		//$q=0;
 		//$list=array();
@@ -365,19 +368,38 @@ class Controller_Cards extends Controller_Template
 			//echo View::factory('profiler/stats');
 	}
 
-	/**Удаление идентификатора
+	/**2.12.2024 Удаление идентификатора
 	*@input id - номер RFID или ГРЗ
 	*/
 	
 	public function action_delete()
 	{
 		//echo Debug::vars('72', $this->request->param('id')); exit;
-		$key=new Keyk($this->request->param('id'));
-		if($key->delCard()){
+		 $post=Validation::factory(array('key'=>trim($this->request->param('id'))));//провожу валидацию номера карты, который надо удалить
+		 $post->rule('key', 'not_empty')
+				->rule('key', 'alpha_numeric')
+				->rule('key', 'min_length', array(':value', constants::RFID_MIN_LENGTH))
+				->rule('key', 'max_length', array(':value', constants::RFID_MAX_LENGTH))
+				;
+			//->rule('key', 'regex', array(':value', '/^[A-F0-9]+$/'))
+		if($post->check()){
+			$key=new Keyk(Arr::get($post, 'key'));
+			if($key->delCard()==0){
 				$alert=__('cards.deletedOk', array(':id_card'=>$this->request->param('id')));
+				$arrAlert[]=array('actionResult'=>constants::ALERT_SUCCESS, 'actionDesc'=>$alert);
+			} else {
+				$alert=__('cards.deletedErr', array(':id_card'=>$this->request->param('id')));
+				$arrAlert[]=array('actionResult'=>constants::ALERT_ERROR, 'actionDesc'=>$alert);
+			}
 		} else {
-			$alert=__('cards.deletedErr', array(':id_card'=>$this->request->param('id')));
+			
+			$alert=__('cards.deletedErr', array(':id_card'=>Arr::get($post, 'key'), ':mess'=>implode(",", $post->errors('validateCard'))));
+			$arrAlert[]=array('actionResult'=>constants::ALERT_WARNING, 'actionDesc'=>$alert);
+			Session::instance()->set('arrAlert',$arrAlert);
 		}
+		Session::instance()->set('arrAlert',$arrAlert);
+		//echo Debug::vars('401', $arrAlert);exit;
+		//echo Debug::vars('402', $post);exit;
 		$this->redirect('cards');
 	}
 	
@@ -393,7 +415,8 @@ class Controller_Cards extends Controller_Template
 		 $post=Validation::factory(array('key_type'=>trim($this->request->param('id'))));//определяю тип идентификатора, который надо выводить
 		 $post->rule('key_type', 'not_empty')
 				->rule('key_type', 'alpha_numeric')
-				->rule('key_type', 'max_length', array(':value', constants::RFID_MAX_LENGTH))//не более 10 знаков
+				->rule('key', 'min_length', array(':value', constants::RFID_MIN_LENGTH))
+				->rule('key', 'max_length', array(':value', constants::RFID_MAX_LENGTH))
 				;
 		if($post->check())
 		{
@@ -436,23 +459,38 @@ class Controller_Cards extends Controller_Template
 	public function action_load()
 	{
 		$id=$this->request->param('id');
+		$post=Validation::factory(array('key'=>trim($this->request->param('id'))));//провожу валидацию номера карты, информацию по которой необходимо вывести
+		 $post->rule('key', 'not_empty')
+				->rule('key', 'alpha_numeric')
+				->rule('key', 'min_length', array(':value', constants::RFID_MIN_LENGTH))
+				->rule('key', 'max_length', array(':value', constants::RFID_MAX_LENGTH))
+				;
+			//->rule('key', 'regex', array(':value', '/^[A-F0-9]+$/'))
+		if($post->check()){
 		
-		$mode='edit';
-		$key=new Keyk($id);
+			$mode='edit';
+			$key=new Keyk($id);
+			
+			$loads = Model::factory('Card')->getLoads($id);
+			
+			$fl = $this->session->get('alert');
+			$this->session->delete('alert');
+			
+			$this->template->content = View::factory('cards/load')
+				->bind('key', $key)
+				->bind('catdTypelist', $catdTypelist)
+				->bind('alert', $fl)
+				->bind('mode', $mode)
+				->bind('filter', $filter)
+				->bind('loads', $loads)//данные о заргузке карты в контроллеры
+				->bind('pagination', $pagination);
+		} else {
+			$alert=__('card.errDataForUpdate', array(':mess'=>implode(",", $post->errors('upload'))));
+			$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>$alert);
+			Session::instance()->set('arrAlert',$arrAlert);
+			$this->redirect('cards');
+		}
 		
-		$loads = Model::factory('Card')->getLoads($id);
-		
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
-		
-		$this->template->content = View::factory('cards/load')
-			->bind('key', $key)
-			->bind('catdTypelist', $catdTypelist)
-			->bind('alert', $fl)
-			->bind('mode', $mode)
-			->bind('filter', $filter)
-			->bind('loads', $loads)//данные о заргузке карты в контроллеры
-			->bind('pagination', $pagination);
 	}
 	
 	
@@ -462,24 +500,35 @@ class Controller_Cards extends Controller_Template
 	*/
 	public function action_history()
 	{
-		$id=$this->request->param('id');
-		
-		$mode='edit';
-		$key=new Keyk($id);
-		
-		$loads = Model::factory('Card')->getLoads($id);
-		
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
-		
-		$this->template->content = View::factory('cards/history')
-			->bind('key', $key)
-			->bind('catdTypelist', $catdTypelist)
-			->bind('alert', $fl)
-			->bind('mode', $mode)
-			->bind('filter', $filter)
-			->bind('loads', $loads)//данные о заргузке карты в контроллеры
-			->bind('pagination', $pagination);
+		 $post->rule('key', 'not_empty')
+				->rule('key', 'alpha_numeric')
+				->rule('key', 'min_length', array(':value', constants::RFID_MIN_LENGTH))
+				->rule('key', 'max_length', array(':value', constants::RFID_MAX_LENGTH))
+				;
+			//->rule('key', 'regex', array(':value', '/^[A-F0-9]+$/'))
+		if($post->check()){
+			$id=$this->request->param('id');
+			
+			$mode='edit';
+			$key=new Keyk($id);
+			
+			$loads = Model::factory('Card')->getLoads($id);
+			
+			$fl = $this->session->get('alert');
+			$this->session->delete('alert');
+			
+			$this->template->content = View::factory('cards/history')
+				->bind('key', $key)
+				->bind('catdTypelist', $catdTypelist)
+				->bind('alert', $fl)
+				->bind('mode', $mode)
+				->bind('filter', $filter)
+				->bind('loads', $loads)//данные о заргузке карты в контроллеры
+				->bind('pagination', $pagination);
+		} else {
+			
+			$this->redirect('cards');
+		}
 	}
 	
 	
@@ -493,7 +542,7 @@ class Controller_Cards extends Controller_Template
 	*/
 	public function action_savecard()
 	{
-		//echo Debug::vars('106', $_POST); exit;
+		echo Debug::vars('106', $_POST); exit;
 		$validation=Validation::factory($_POST);
 		
 		$validation->rule('idcard','not_empty') 

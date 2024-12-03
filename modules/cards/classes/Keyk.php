@@ -383,19 +383,20 @@ class Keyk
 	public function delCard()
 	{
 		$sql='delete from card where id_card=\''.$this->id_card.'\'';
+		//echo Debug::vars('386', $sql);//exit;
 		try {
 				DB::query(Database::DELETE,$sql)	
 				->execute(Database::instance('fb'));
-				return 0;	
+				$result= 0;	
 				
 			} catch (Exception $e) {
 				Log::instance()->add(Log::DEBUG, $e->getMessage());
 				
-				return 3;
+				$result= 3;
 			}
 		
-		
-		return true;
+		//echo Debug::vars('398', $result);exit;
+		return $result;
 	}
 	
 	

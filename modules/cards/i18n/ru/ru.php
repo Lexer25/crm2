@@ -30,7 +30,7 @@ return array
 	'cards.updated'					=> 'Карта обновлена',
 	'cards.deleted'					=> 'Карта удалена',
 	'cards.deletedOk'				=> 'Идентификатор :id_card удалена успешно',
-	'cards.deletedErr'				=> 'Ошибка при удалении идентификатора :id_card. Подробности см. в лог-файле.',
+	'cards.deletedErr'				=> 'Ошибка при удалении идентификатора :id_card. :mess.',
 	'card.emptyid'					=> 'Введите код карты',
 	'card.emptystarttime'			=> 'Укажите дату начала действия карты',
 	'card.wrongendtime'				=> 'Дата окончания не может быть раньше даты начала',

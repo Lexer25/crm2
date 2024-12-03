@@ -239,13 +239,6 @@ class Model_Card extends Model
 	public function getLoads($id)
 	{
 		
-		$sql='select c.id_card, d.name, cd.load_time, cd.load_result, d."ACTIVE"  from card c
-			join access ac on ac.id_accessname=c.id_accessname
-			left join cardidx cd on (cd.id_dev=ac.id_dev and cd.id_card=c.id_card)
-			join device d on d.id_dev=ac.id_dev
-			where c.id_card=\''.$id.'\' 
-			ORDER BY cd.load_time DESC';
-			
 		$sql='select distinct c.id_card,d.id_dev, d.name, cd.load_time, cd.load_result, d."ACTIVE", cd.time_stamp, cdv.operation, cdv.attempts from card c
 				join ss_accessuser ssa on ssa.id_pep=c.id_pep
 				left join access a on a.id_accessname=ssa.id_accessname

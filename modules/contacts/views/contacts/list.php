@@ -58,7 +58,7 @@ include Kohana::find_file('views','alert'); ?>
 		<?php if (count($people) <= 0) { ?>
 		<div style="margin: 100px 0; text-align: center;">
 			<?php echo __('contacts.empty');?><br /><br />
-			<?php echo HTML::anchor('contacts/disp/123', 'Показать что нибудь');?>
+			
 		</div>
 		<?php } else { ?>
 		<?php

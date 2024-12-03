@@ -17,9 +17,9 @@ abstract class Controller_Template extends Kohana_Controller_Template {
     public function before() {
         parent::before();
      	
-		//Если раскомментировать следующую строку, то возможен вход без авторизации. Это необходимо для тестирования.
-		//Auth::instance()->force_login('ADMIN', 19144);
+		//Для тестирования необходимо раскоментировать строку.		
 		//Auth::instance()->force_login(19144);
+		//Auth::instance()->force_login(1);
 		if (!Auth::instance()->logged_in()) $this->redirect('login'); 
 		$this->session = Session::instance();
 		$this->user=new User;
