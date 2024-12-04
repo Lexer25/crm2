@@ -140,7 +140,7 @@ Kohana::modules(array(
 	'cards' => MODPATH . 'cards', // подключение модуля cards
 	'contacts' => MODPATH . 'contacts', // подключение модуля contacts
 	
-	//'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
+	'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
 	'kohana-acl' => MODPATH . 'kohana-acl', // подключение модуля Passoffice
 	'menu' => MODPATH.'menu',
 	'mreports' => MODPATH.'report',
