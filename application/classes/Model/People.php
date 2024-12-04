@@ -150,11 +150,6 @@ class Model_People extends Model
 		{
 			
 				// Check if the username already exists in the database
-				
-
-		
-		
-		
 		return $id_pep == DB::select('ID_PEP')
         ->from('PEOPLE')
         ->where('ID_PEP', '=', $id_pep)

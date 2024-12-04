@@ -1,11 +1,11 @@
 <?php
 //этот файла должен выводить список сообщений (alert), которые передаются как массив.
+//include Kohana::find_file('views','alert');
 
 if (isset($arrAlert)) { 
-//echo Debug::vars('5-5', $arrAlert, !empty($arrAlert));exit;
+//echo Debug::vars('5-5', $arrAlert, !empty($arrAlert));//exit;
 	if(!empty($arrAlert)){
 		include Kohana::find_file('views', 'alertState');
-		
 		foreach($arrAlert as $_key=>$value){
 			
 			echo '<div class="'.Arr::get($arrayType, Arr::get($value, 'actionResult')).'"><p>';
@@ -13,6 +13,7 @@ if (isset($arrAlert)) {
 			echo Arr::get($value, 'actionDesc');
 			echo '</p></div>';
 		}
+		
 	}
 } else {
 	

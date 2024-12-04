@@ -18,8 +18,8 @@ abstract class Controller_Template extends Kohana_Controller_Template {
         parent::before();
      	
 		//Для тестирования необходимо раскоментировать строку.		
-		//Auth::instance()->force_login(19144);
-		//Auth::instance()->force_login(1);
+		//Auth::instance()->force_login(19144);// авторизация как бюро пропусков Щербинка
+		//Auth::instance()->force_login(1);//авторизация как Админ
 		if (!Auth::instance()->logged_in()) $this->redirect('login'); 
 		$this->session = Session::instance();
 		$this->user=new User;

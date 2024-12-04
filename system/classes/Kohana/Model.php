@@ -22,7 +22,6 @@ abstract class Kohana_Model {
 	{
 		// Add the model prefix
 		$class = 'Model_'.$name;
-
 		return new $class;
 	}
 

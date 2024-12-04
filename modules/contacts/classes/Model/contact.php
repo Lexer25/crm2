@@ -5,11 +5,6 @@ class Model_Contact extends Model
 	
 	public $peopleIsActive = 1;
 	
-	
-	
-	
-	
-	
 	public function getCountByOrg($org)
 	{
 		$sql = 'SELECT COUNT (*) FROM people WHERE "ACTIVE"='.$this->peopleIsActive.' and id_org = ' . $org;
@@ -292,8 +287,7 @@ class Model_Contact extends Model
 	
 	public function getListUser($id_org, $page = 1, $perpage = 10, $filter)
 	{
-		
-				
+						
 		if(is_null($filter) or $filter=='' or $filter=='*') {// если фильтра нет, то выбираем всех пиплов из родительской и подчиненной организаций
 		$sql='select  
 				o.id_org,
@@ -464,4 +458,37 @@ class Model_Contact extends Model
 			DB::query(Database::UPDATE,$sql)	
 				->execute(Database::instance('fb'));
 	}
+	
+	
+	/** 4.12.2024 Проверка на уникальность id_pep
+	*
+	*/
+	public static function unique_idpep($id_pep)
+		{
+			
+		// Check if the username already exists in the database
+		//создаю user тут, в процедуре, локально, т.к.
+		//метод static реализуется без создания экземпляра класса, а значит наследование не работает.
+		$user=new User();
+		
+		
+		$sql='select count(id_pep) from people p
+		join organization_getchild(1, '.$user->id_orgctrl .') og on og.id_org=p.id_org
+		where p.id_pep='.$id_pep;
+		
+	
+		
+		$res = DB::query(Database::SELECT, $sql)
+			->execute(Database::instance('fb'))
+			->get('COUNT');
+		//echo Debug::vars('492', $res, $sql);exit;
+		if($res>0) return true;
+			
+			return false;
+		
+		}
+	
+	
+	
+	
 }

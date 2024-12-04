@@ -374,6 +374,7 @@ return array
 	'contact.wait_not_point_number'	=>'Ошибка! Проверьте настройки формата регистрационного считывателя.',
 	'contact.check_reg_device_setting'		=>'Проверьте настройки регистрационного комплекта. Ожидается настройка HEX либо DEC',
 	'contact.addRfidOk'				=>'Регистрация карты :id_card выполнена успешно',
+	'contact.validKeyErr'			=>'Ошибка валидации пользователя с id_pep :id_pep. :desc',
 	
 	
 	'contacts.id_pep'				=>'id_pep',

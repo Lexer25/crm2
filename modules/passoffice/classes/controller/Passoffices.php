@@ -20,8 +20,8 @@ class Controller_Passoffices extends Controller_Template
 	
 	public $id_of;// id бюро пропусков. Исходя из этого определяются все остальные параметры.
 	
-	private $listsize;
-	private $session;
+	//private $listsize;
+	//private $session;
 	
 	public function before()
 	{

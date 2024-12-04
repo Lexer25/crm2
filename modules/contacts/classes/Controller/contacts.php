@@ -196,10 +196,11 @@ class Controller_Contacts extends Controller_Template
 			$list=array_slice($list, 0, Kohana::$config->load('config_newcrm')->get('table_view_max_contact'));
 			
 		}
-		
-		$fl = $this->session->get('alert'). $alert;
-		$this->session->delete('alert');
-		
+		$fl=$alert;
+			
+		$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
+		$this->session->delete('arrAlert');//очистить алерт в сессии
+
 		$showphone = $this->session->get('showphone', 0);
 		//include Kohana::find_file('views\alerttest','testarralert');
 		$view = View::factory('contacts/list')
@@ -209,6 +210,7 @@ class Controller_Contacts extends Controller_Template
 			->bind('arrAlert[]', $arrAlert[])
 			->bind('showphone', $showphone)
 			->bind('filter', $filter)
+			->bind('arrAlert', $arrAlert)
 			;
 	$this->template->content =	$view;	
 		
@@ -471,6 +473,22 @@ class Controller_Contacts extends Controller_Template
 	public function action_edit()
 	{
 		$id=$this->request->param('id');//это id_pep
+		$post=Validation::factory(array('id_pep'=>trim($this->request->param('id'))));//определяю тип идентификатора, который надо выводить
+		 $post->rule('id_pep', 'not_empty')
+				->rule('id_pep', 'digit')
+				->rule('id_pep', 'Model_Contact::unique_idpep')
+				;
+				
+		if(!$post->check())
+		{
+			//echo Debug::vars('486');exit;
+			$alert=__('contact.validKeyErr', array(':id_pep'=>Arr::get($post, 'id_pep'), ':desc'=>implode(",", $post->errors('validation'))));
+			$arrAlert[]=array('actionResult'=>constants::ALERT_WARNING, 'actionDesc'=>$alert);
+			Session::instance()->set('arrAlert', $arrAlert);
+			$this->redirect('contacts');
+						
+			
+		} 
 		$force_org=$this->request->query('id_org');//наличие этого параметра означает, что надо выбрать именно указанную организацию для правильной работы дерева организаций.
 		
 		//выбор головной организации
@@ -1187,7 +1205,7 @@ class Controller_Contacts extends Controller_Template
 						}
 					} else {
 						//echo Debug::vars('886 validRfid ERR ', $validRfid->errors()); exit;
-						$alert=__('contact.validKeyErr :desc', array(':desc'=>implode(",", $validRfid->errors('upload1'))));
+						$alert=__('contact.validKeyErr :desc', array(':desc'=>implode(",", $validRfid->errors('upload'))));
 						
 		
 						$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>$alert);
@@ -1219,6 +1237,7 @@ class Controller_Contacts extends Controller_Template
 		
 		$this->redirect('contacts/cardlist/' . Arr::get($post, 'id'));
 	}
+	
 	
 	
 
