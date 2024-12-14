@@ -77,6 +77,7 @@ if ($alert) { ?>
 						<th><?php echo __('cards.dateend'); ?></th>
 						<th><?php echo __('cards.active'); ?></th>
 						<th><?php echo __('cards.holder'); ?></th>
+						<th><?php echo __('Должность'); ?></th>
 						<th><?php echo __('cards.company'); ?></th>
 						<th class="filter-false sorter-false"><?php echo __('cards.action'); ?></th>
 					</tr>
@@ -144,8 +145,14 @@ if ($alert) { ?>
 							    echo $is_allowed? HTML::anchor('contacts/edit/' . $contact->id_pep, iconv('CP1251', 'UTF-8', $contact->name . ' ' . $contact->surname)) : iconv('CP1251', 'UTF-8', $contact->name . ' ' . $contact->surname).' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
 							else 
 								echo HTML::anchor('contacts/view/' . $contact->id_pep, iconv('CP1251', 'UTF-8', $contact->name . ' ' . $contact->surname)); 
-						echo '</td>
-						<td>'; 
+						echo '</td>';
+						echo '<td>';
+							echo iconv('CP1251', 'UTF-8', $contact->post );
+						echo '</td>';
+						
+						
+						echo '<td>';
+						
 							if (Auth::instance()->logged_in('admin'))
 							    echo $is_allowed? HTML::anchor('companies/edit/' . $org->id_org, iconv('CP1251', 'UTF-8', $org->name)) : iconv('CP1251', 'UTF-8', $org->name).' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
 							else 

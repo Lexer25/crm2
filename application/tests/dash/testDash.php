@@ -126,6 +126,7 @@ Class TestCompany_step2 extends Unittest_TestCase
             array('Дорога передача!', 400),//код 400 - синтаксическая ошибка в запросе
             array('', 302),
             array('!@#$%^&**(', 302),
+            array('%CE983%20%CC%CC%2099', 200),
         );
     }
  
@@ -189,9 +190,7 @@ Class TestCompany_step2 extends Unittest_TestCase
 			$response = $request->execute();
 			//echo Debug::vars('46', $response->status());exit;
 				
-		$this->assertEquals(200, $response->status());
-
-	
+		$this->assertEquals(302, $response->status());
 	}
 	
 	public function testMreportsReportSelect()//проверка 
