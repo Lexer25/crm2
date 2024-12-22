@@ -49,6 +49,12 @@
 	?>
 	<br class="clear"/>
 	<div class="content">
+	<?php
+	
+	
+	include Kohana::find_file('views', 'paginatoion_controller_template'); 
+	
+	?>
 		<form id="form_data" name="form_data" action="" method="post">
 		<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
 				<thead>
@@ -78,6 +84,7 @@
 						
 							<?php 
 							$door=new Door($device);
+							$door->getContactCount();
 							//echo Debug::vars('78', $device, $door->getContactList());exit;
 							echo '<td align="center">' . $i . '</td>';
 							echo '<td align="center">' . $door->id. '</td>';

@@ -111,7 +111,7 @@ class Door
 			$this->is_active=Arr::get($query, 'IS_ACTIVE');
 			$this->parent=Arr::get($query, 'PARENT');
 			$this->is_present = (Arr::get($query, 'ID_DEV'))? TRUE : FALSE;
-			$this->getContactCount();// подсчитал количество контактов в точке прохода
+			//$this->getContactCount();// подсчитал количество контактов в точке прохода
 		
 		} catch (Exception $e) {
 

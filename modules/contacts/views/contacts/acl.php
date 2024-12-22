@@ -174,16 +174,18 @@ if ($alert) { ?>
 </div>
 Таблица точек прохода и категорий доступа
 <?php
-$doorAll=array();
+$doorAll=array();//перечень всех точек прохода, через которые может ходить контакт. Этот список затем можно вывести на печать.
 $outDoorList=array();//массив для вывода на печать
+
+//$contact_acl - список категорий доступа, разрешенных контакту.
 foreach($contact_acl as $key=>$value){
 	$access=new Access(Arr::get($value,'ID_ACCESSNAME'));
-	$result=$access->getDoorIdList();
+	$result=$access->getDoorIdList();//список точек прохода для указанной категории доступа.
 	
-	if( $result== 0){
+	if( $result== 0){//если запрос выполнен успешно, то собираю массивы
 		$doorList[Arr::get($value,'ID_ACCESSNAME')]=$access->dataResult;
-		$doorAll=array_merge($doorAll, $access->dataResult);
-		//echo Debug::vars('238', $doorList); //exit;
+		$doorAll=array_merge($doorAll, $access->dataResult);//формирую список все точек прохода путем слияния массивов. Предполагаю, что должны остаться только уникальные id точек прохода.
+	//	echo Debug::vars('238', $doorList, $doorAll); //exit;
 	} else {
 		echo Debug::vars('242',$result, $access->actionDesc); exit;
 	}
@@ -210,7 +212,7 @@ echo Form::open('reports/doorList');
 					<th>№</th>
 					<th>Название двери</th>
 					<?php
-						foreach($contact_acl as $key=>$value){
+						foreach($contact_acl as $key=>$value){//названия категорий доступа в заголовке таблицы
 							echo '<th>';
 							$an=new Access(Arr::get($value,'ID_ACCESSNAME'));
 								echo iconv('CP1251', 'UTF-8',$an->name);

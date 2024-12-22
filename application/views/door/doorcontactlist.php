@@ -54,6 +54,7 @@ $forsave=array();
 	<br class="clear"/>
 	<div class="content">
 	<?php
+	include Kohana::find_file('views', 'paginatoion_controller_template'); 
 	echo Form::open('doors/export');
 				//echo __('doors.KeyCount', array(':count'=>count($enable_card_list))).'<br>';
 				echo Form::hidden('id_door', $door->id ); 

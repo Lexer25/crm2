@@ -184,14 +184,7 @@ class Controller_Doors extends Controller_Template {
 	{
 			$id_door = $this->request->param('id');
 			if ($id_door == NULL) $this->redirect('door/find');
-			//$door_data=Model::Factory('Door')->getDoor($id_door);//информация о точке прохода
-			//$key_for_door=Model::Factory('Door') -> getKeysForDoor($id_door);//карты для точки прохода, ФИО, сроки действия
-			//$card_type=Model::Factory('Door')->getCardType();// получить список типов карт
-			//$enable_card_type=Model::Factory('Door')->getEnableCardType(Arr::get($door_data, 'ID_DEVTYPE'));// получить список обслуживаемых типов карт
-			//$enable_card_list=Model::Factory('Door')->getkeyListForDoor($id_door);// получить список обслуживаемых типов карт
-			
-			$doorContactList=
-			
+						
 			$topbuttonbar=View::factory('door/topbuttonbar', array(
 			'id_door'=> $id_door,
 			'_is_active'=> 'doorcontactlist',
@@ -201,14 +194,8 @@ class Controller_Doors extends Controller_Template {
 		//echo Debug::vars('109', $id_door, count($enable_card_list), $enable_card_list);exit;
 		$content=View::Factory('door/doorcontactlist', array(
 			'id_door'	=> $id_door,
-		//	'id_door'	=> $id_door,
 			'topbuttonbar'	=> $topbuttonbar,
-		//	'people_add'	=> $door_load_order,
-		//	'people_del'	=> $door_delete_order,
-		//	'events'	=> $door_events,
-		//	'keys'=>$key_for_door,
-		//	'card_type'=>$card_type,
-		//	'enable_card_list'=>$enable_card_list,
+		
 			));
 			
 		$this->template->content = $content;
