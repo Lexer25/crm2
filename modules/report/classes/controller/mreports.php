@@ -43,8 +43,8 @@ class Controller_mreports extends Controller_Template {
 	
 	public function action_reportSelect()
 	{
-		//echo Debug::vars('46', $this->request->param('id'));exit;
-		//echo Debug::vars('47', $this->user);exit;
+		echo Debug::vars('46', $this->request->param('id'));exit;
+		echo Debug::vars('47', $this->user);exit;
 
 		$content = View::factory($this->request->param('id').'/report')
 			->bind('user', $this->user)

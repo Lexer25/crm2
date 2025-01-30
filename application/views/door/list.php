@@ -83,10 +83,11 @@
 						<tr>
 						
 							<?php 
+							$tt=microtime(true);
 							$door=new Door($device);
-							$door->getContactCount();
+							//$door->getContactCount();
 							//echo Debug::vars('78', $device, $door->getContactList());exit;
-							echo '<td align="center">' . $i . '</td>';
+							echo '<td align="center">' . $i .'</td>';
 							echo '<td align="center">' . $door->id. '</td>';
 							echo '<td align="center">' . HTML::anchor('doors/doorInfo/'.$door->id, iconv('windows-1251','UTF-8',$door->name)) . '</td>';
 							echo '<td align="center">' . HTML::anchor('doors/doorcontactlist/'.$door->id, $door->contactCount) . '</td>';
