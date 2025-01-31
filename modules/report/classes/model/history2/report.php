@@ -47,15 +47,18 @@ class Model_history2_report extends Model
 			if(true){
 				//выбираю разрешенные организации.
 				$sql='select distinct og.id_org from organization_getchild(1, '.$user->id_orgctrl. ') og';
+				$sql='select distinct id_org from organization';
+				
 				$query = DB::query(Database::SELECT, $sql)
 				->execute(Database::instance('fb'))
 				->as_array();
-				//echo Debug::vars('53', count($query));
+				//echo Debug::vars('53', count($query)); exit;
+				if(count($query)>1500) throw new  ExceptionCRM('Количество аргументов SQL запроса превышает 1500. Запрос не может быть выполнен.');
 				foreach ($query as $key=>$value){
 					
 					$org_list[]=Arr::get($value, 'ID_ORG');
 				}
-				//echo Debug::vars('57', implode("," ,$org_list));//exit;
+				
 				
 				//выбираю разрешенные точки прохода.
 				$sql='select distinct dg.id_dev from DEVGROUP_GETCHILD(1, '.$user->id_devgroup.') dg
@@ -64,7 +67,8 @@ class Model_history2_report extends Model
 				$query = DB::query(Database::SELECT, $sql)
 				->execute(Database::instance('fb'))
 				->as_array();
-				//echo Debug::vars('53', count($query));
+				//echo Debug::vars('53', count($query)); exit;
+				if(count($query)>1500) throw new  ExceptionCRM('Количество аргументов SQL запроса превышает 1500. Запрос не может быть выполнен.');
 				foreach ($query as $key=>$value){
 					
 					$dev_list[]=Arr::get($value, 'ID_DEV');
