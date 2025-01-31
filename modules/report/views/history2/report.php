@@ -6,9 +6,10 @@
     //echo Debug::vars('6', ::get('reportdatestart'));
     //echo Debug::vars('6', ::get('reportdateend'));
     //echo Debug::vars('6', $data); exit;
+    //echo Debug::vars('6', $report); exit;
 $data=array();
 if(isset($report)) $data=$report;
-$ruid='history2';
+$ruid='history2';//r(eport)uid
 	?>
 	</div>
 	<br class="clear" />

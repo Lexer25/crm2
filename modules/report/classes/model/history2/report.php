@@ -45,6 +45,34 @@ class Model_history2_report extends Model
 	
 			
 			if(true){
+				//выбираю разрешенные организации.
+				$sql='select distinct og.id_org from organization_getchild(1, '.$user->id_orgctrl. ') og';
+				$query = DB::query(Database::SELECT, $sql)
+				->execute(Database::instance('fb'))
+				->as_array();
+				//echo Debug::vars('53', count($query));
+				foreach ($query as $key=>$value){
+					
+					$org_list[]=Arr::get($value, 'ID_ORG');
+				}
+				//echo Debug::vars('57', implode("," ,$org_list));//exit;
+				
+				//выбираю разрешенные точки прохода.
+				$sql='select distinct dg.id_dev from DEVGROUP_GETCHILD(1, '.$user->id_devgroup.') dg
+				where dg.id_dev is not null';
+				//echo Debug::vars('62', $sql);exit;
+				$query = DB::query(Database::SELECT, $sql)
+				->execute(Database::instance('fb'))
+				->as_array();
+				//echo Debug::vars('53', count($query));
+				foreach ($query as $key=>$value){
+					
+					$dev_list[]=Arr::get($value, 'ID_DEV');
+				}
+				//echo Debug::vars('70', count($dev_list));
+				//echo Debug::vars('57', implode("," ,$dev_list));exit;
+				
+				
 				$sql='select first 10000
                      e.id_event,
                     e.datetime,
@@ -59,18 +87,22 @@ class Model_history2_report extends Model
                   join people p on p.id_pep=e.ess1
                  join device d on d.id_dev=e.id_dev
                  join eventtype et on et.id_eventtype=e.id_eventtype
-                 join organization_getchild(1, '.$user->id_orgctrl .') og on og.id_org=e.ess2
-                 join DEVGROUP_GETCHILD(1, '.$user->id_devgroup.') dg on dg.id_dev=e.id_dev
+                
 				 
 				
                  WHERE
-						e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
+					e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
 					and e.datetime between \''.Arr::get($post, 'reportdatestart').'\' and \''.Arr::get($post, 'reportdateend').'\'
+					and e.ess2 in ('.implode("," ,array_slice($org_list, 0, 1000)).')
+					and e.id_dev in ('.implode("," , array_slice($dev_list, 0, 1000)).')
 				ORDER BY
 					e.id_event DESC';			
 			
 						
 				//echo Debug::vars('21', $sql);exit;
+				//Log::instance()->add(Log::DEBUG, Debug::vars($dev_list));
+				//Log::instance()->add(Log::DEBUG, implode("," , $dev_list));
+				//Log::instance()->add(Log::DEBUG, $sql);
 				$query = DB::query(Database::SELECT, $sql)
 				->execute(Database::instance('fb'))
 				->as_array();
