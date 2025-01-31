@@ -47,7 +47,6 @@ class Model_history2_report extends Model
 			if(true){
 				//выбираю разрешенные организации.
 				$sql='select distinct og.id_org from organization_getchild(1, '.$user->id_orgctrl. ') og';
-				$sql='select distinct id_org from organization';
 				
 				$query = DB::query(Database::SELECT, $sql)
 				->execute(Database::instance('fb'))
