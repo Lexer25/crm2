@@ -96,8 +96,8 @@ class Model_history2_report extends Model
                  WHERE
 					e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
 					and e.datetime between \''.Arr::get($post, 'reportdatestart').'\' and \''.Arr::get($post, 'reportdateend').'\'
-					and e.ess2 in ('.implode("," ,array_slice($org_list, 0, 1000)).')
-					and e.id_dev in ('.implode("," , array_slice($dev_list, 0, 1000)).')
+					and e.ess2 in ('.implode("," ,$org_list).')
+					and e.id_dev in ('.implode("," , $dev_list).')
 				ORDER BY
 					e.id_event DESC';			
 			

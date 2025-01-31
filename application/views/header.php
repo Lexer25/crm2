@@ -29,8 +29,8 @@
 			
 			echo __('welcome') . ', <strong><i>' . iconv('CP1251', 'UTF-8', 
 				$userAdmin->name. ' '
-				.$userAdmin->surname. ' '
-				.$userAdmin->patronymic)
+				.$userAdmin->patronymic. ' '
+				.$userAdmin->surname)
 				. '</i></strong>'; ?> 
 	</div>
 	<div>
