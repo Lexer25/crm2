@@ -57,7 +57,10 @@ include Kohana::find_file('views','alert'); ?>
 		
 		<?php if (count($people) <= 0) { ?>
 		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('contacts.empty');?><br /><br />
+			<?php echo __('contacts.empty');
+				echo '<br><br>'.HTML::anchor('contacts/index/all','Показать все. Вывод всех записей может занять много времени.');
+			?><br /><br />
+			
 			
 		</div>
 		<?php } else { ?>

@@ -149,6 +149,7 @@ class Controller_Contacts extends Controller_Template
 	*/
 	public function action_index($filter = null)
 	{
+		if((!is_null($filter)) OR (strtoupper($this->request->param('id')) == 'ALL')){
 		$contacts = Model::factory('Contact');
 		//определяю режим показа: 
 		// is_active = 0, что означает работу с удаленными сотрудниками.
@@ -200,8 +201,8 @@ class Controller_Contacts extends Controller_Template
 			
 		$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
 		$this->session->delete('arrAlert');//очистить алерт в сессии
+		}
 
-		$showphone = $this->session->get('showphone', 0);
 		//include Kohana::find_file('views\alerttest','testarralert');
 		$view = View::factory('contacts/list')
 			
@@ -473,22 +474,7 @@ class Controller_Contacts extends Controller_Template
 	public function action_edit()
 	{
 		$id=$this->request->param('id');//это id_pep
-		$post=Validation::factory(array('id_pep'=>trim($this->request->param('id'))));//определяю тип идентификатора, который надо выводить
-		 $post->rule('id_pep', 'not_empty')
-				->rule('id_pep', 'digit')
-				->rule('id_pep', 'Model_Contact::unique_idpep')
-				;
-				
-		if(!$post->check())
-		{
-			//echo Debug::vars('486');exit;
-			$alert=__('contact.validKeyErr', array(':id_pep'=>Arr::get($post, 'id_pep'), ':desc'=>implode(",", $post->errors('validation'))));
-			$arrAlert[]=array('actionResult'=>constants::ALERT_WARNING, 'actionDesc'=>$alert);
-			Session::instance()->set('arrAlert', $arrAlert);
-			$this->redirect('contacts');
-						
-			
-		} 
+		
 		$force_org=$this->request->query('id_org');//наличие этого параметра означает, что надо выбрать именно указанную организацию для правильной работы дерева организаций.
 		
 		//выбор головной организации
@@ -504,6 +490,25 @@ class Controller_Contacts extends Controller_Template
 			$contact->is_active=1;
 			$contact->id_org=$id_orgctrl;// при создании нового пипла ему присваивается id_org, которым управляет текущий пользователь
 		} else {
+			
+			//защита от умышленно указанных неправильных данных.
+		$post=Validation::factory(array('id_pep'=>trim($this->request->param('id'))));//определяю тип идентификатора, который надо выводить
+		 $post->rule('id_pep', 'not_empty')
+				->rule('id_pep', 'digit')
+				->rule('id_pep', 'Model_Contact::unique_idpep')
+				;
+				
+		 if(!$post->check())
+		{
+			//echo Debug::vars('486');exit;
+			$alert=__('contact.validKeyErr', array(':id_pep'=>Arr::get($post, 'id_pep'), ':desc'=>implode(",", $post->errors('validation'))));
+			$arrAlert[]=array('actionResult'=>constants::ALERT_WARNING, 'actionDesc'=>$alert);
+			Session::instance()->set('arrAlert', $arrAlert);
+			$this->redirect('contacts');
+						
+			
+		}  
+		
 		    $org= new Company($contact->id_org);
 		    if($org->flag & 1) $this->redirect('passoffices/edit/'.$id.'/guest_mode'); //если это гость, то уходим на показ свойства гостя
 			$contact->getPhoto(); 
