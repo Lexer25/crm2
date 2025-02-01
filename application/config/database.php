@@ -8,8 +8,8 @@ return array
 		'connection'	=> array(
 			//'dsn'		=> 'odbc:VNII_2024_06_17',
 			//'dsn'		=> 'odbc:VNII_local',
-			//'dsn'		=> 'odbc:SDUO',
-			'dsn'		=> 'odbc:AIZK',
+			'dsn'		=> 'odbc:SDUO',
+			//'dsn'		=> 'odbc:AIZK',
 			//'dsn'		=> 'odbc:wg',
 			//'dsn'		=> 'odbc:'.Kohana::$config->load('main')->odbcname,
 			'username'	=> 'SYSDBA',
