@@ -7,7 +7,7 @@ class Kohana_Exception extends Kohana_Kohana_Exception
      */
     public static function handler(Exception $e)
     {
-        echo Debug::vars('10 Test my exception', $e);exit;
+        //echo Debug::vars('10 Test my exception', $e);exit;
 		
 		switch (get_class($e))
         {

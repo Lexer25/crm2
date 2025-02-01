@@ -7,7 +7,7 @@ class ConfigType
 	*/
 	public static function getCityCrmVer()
 	{
-		return Arr::get(Kohana::$config->load('config_newcrm')->version, 'minor').'.'.Arr::get(Kohana::$config->load('config_newcrm')->version, 'major');
+		return Arr::get(Kohana::$config->load('config_newcrm')->version, 'major').'.'.Arr::get(Kohana::$config->load('config_newcrm')->version, 'minor');
 	}
 	
 	/*

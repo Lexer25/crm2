@@ -18,7 +18,7 @@
 		?>
 	</div>
 	<div id="search">
-		<?php echo  __('system.version'). Arr::get(Kohana::$config->load('config_newcrm')->version, 'minor').'.'.Arr::get(Kohana::$config->load('config_newcrm')->version, 'major'); ?>
+		<?php echo  __('system.version'). ConfigType::getCityCrmVer(); ?>
 	</div>
 
 	<div id="account_info">
