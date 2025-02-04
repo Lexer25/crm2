@@ -66,29 +66,41 @@ class Model_allContactsExport_report extends Model
 				->as_array();
 				//все данные, кроме метки времени, преобразую в UTF-8
 				$result=array();
+				$tempFile=new tempCSV;
+				
+				$report->titleColumn=array('Орагнизация', 'ФИО сотрудника','Дата регистрации контакта', 'Категория доступа','', 'Код идентификатора','Тип идентификатора', 'Активность идентификатора', 'Дата начала идентификатора', 'Дата завершения идентификатора');
+			
+				$tempFile->addRow($report->titleColumn);
+				//echo Debug::vars('70', $tempFile);exit;
 				foreach ($query as $key=>$value)
 				{
-					//преобразую все к UTF-8					
+					//преобразую все к UTF-8	
+					//echo Debug::vars('78', $value);//exit;					
 					foreach($value as $key2=>$value2)
 					{
 						
-						$result[$key][Arr::get($value,$key2)]=iconv('CP1251', 'UTF-8', $value2);
+						$result[]=iconv('CP1251', 'UTF-8', $value2);
 						
 					}
-								
+					//тут добавить запись преобразованной строки в файл. Тогда не надо будет хранить в памяти массив $result
+					//или в сессию писать... дописывать. какая разница?	
+					//echo Debug::vars('86', $result);//exit;
+					$tempFile->addRow($result);
+					$result=array();
 				}
+				$tempFile->closeFile();
 				
 			} else {
 
 				$result=array();
 			}
-			//echo Debug::vars('87', $result);exit;
-			$report->titleColumn=array('Орагнизация', 'ФИО сотрудника','Дата регистрации контакта', 'Категория доступа','', 'Код идентификатора','Тип идентификатора', 'Активность идентификатора', 'Дата начала идентификатора', 'Дата завершения идентификатора');
+			echo Debug::vars('87', $tempFile->fileName, $report);exit;
 			
-			$report->rowData=$result;
+			//$report->rowData=$result;
 			$report->view='report';//указание куда выводить отчет на экран
+			$report->fileName=$tempFile->fileName;//ссылка на файл список контактов
 			
-			return $report;
+			return $report;//тут выводится класс, с массивом ответа. А если записывать все в файл, то класс будет без массива, маленький, и мало памяти потребуется.
 	}
 	
 	

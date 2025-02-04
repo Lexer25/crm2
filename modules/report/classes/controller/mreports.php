@@ -76,12 +76,13 @@ class Controller_mreports extends Controller_Template {
 		if($post->check()){
 		
 			//echo Debug::vars('71', Arr::get($post, 'id_report'), $this);exit;
-			$ruid=Arr::get($post, 'id_report');
+			$ruid=Arr::get($post, 'id_report');// получаю report UID - уникальный идентификатор отчета.
 			$report=Model::factory($ruid.'_report')->getReport($post,$this->user);
 		
 			//echo Debug::vars('84', $report);exit;
 			//сохраняю отчет в сессию. Результат должен быть записан в файл сессии на сервере http
 			Session::instance()->delete('report');
+			
 			Session::instance()->set('report', $report);
 			
 			if(isset($report->view)) $this->view=$report->view;

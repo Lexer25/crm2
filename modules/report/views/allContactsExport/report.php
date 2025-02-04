@@ -16,7 +16,7 @@
 	//echo Debug::vars('11', $org);//exit;
 	
 $data=array();
-if(isset($report)) $data=$report;
+if(isset($report)) $data=$report;//если установлен $report, то беру значения из перемнной.
 $ruid='allContactsExport';
 	?>
 	</div>
@@ -48,17 +48,25 @@ $ruid='allContactsExport';
 
 		<?php 
 
-		
+//вывод содержимого файла на экран		
 		
 		echo Form::open('mreports/export');
-	
 
-		
 		echo Form::submit('savecsv', __('button.savecsv'));
 	
-		//echo Debug::vars('96', $data);//exit;
+	
+		
+		
 		$t1=microtime(true);
 		if (count($data) > 0) { 
+		exit;
+		  $tempFile=new tempCSV;
+		  $tempFile->getFile($data->fileName);
+		  
+		  echo Debug::vars('60', $data->fileName);//exit;
+		  //echo Debug::vars('62', Kohana::find_file('/',$data->fileName, 'tmp'));exit;
+		  echo Debug::vars('62', $tempFile, $tempFile->getRow());exit;
+		  
 		
 		$showRowCount=200;
 		$rowCount=count($data->rowData);
