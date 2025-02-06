@@ -51,7 +51,7 @@ public function getTree($dataset) {//Функция построения дер�
 			//echo Debug::vars('39', $category);
 			if (Arr::get($category, 'parent') == 0) 
 			{
-				$menu = '<li><details open><summary>(id='.Arr::get($category, 'id').') '.Arr::get($category, 'title').'</summary>';
+				$menu = '<li><details><summary>(id='.Arr::get($category, 'id').') '.Arr::get($category, 'title').'</summary>';
 			} else {
 				$menu = '<li><details><summary>(id='.Arr::get($category, 'id').') '.Arr::get($category, 'title').'</summary>';
 			}
@@ -85,7 +85,7 @@ public function tplMenu2($category){ //Шаблон для вывода меню
 		//echo Debug::vars('39', $category);
 		if (Arr::get($category, 'parent') == 0) 
 		{
-			$menu = '<li><details open><summary>(id='.Arr::get($category, 'id').') '.Arr::get($category, 'title').'</summary>';
+			$menu = '<li><details><summary>(id='.Arr::get($category, 'id').') '.Arr::get($category, 'title').'</summary>';
 		} else {
 			$menu = '<li><details><summary>(id='.Arr::get($category, 'id').') '.Arr::get($category, 'title').'</summary>';
 		}
@@ -120,7 +120,7 @@ public function tplMenu_anchor($category){ //Шаблон для вывода м
 		if (Arr::get($category, 'parent') == 0) 
 		{
 			//$menu = '<li><details open><summary>(id='.Arr::get($category, 'id').') '.Arr::get($category, 'title').'</summary>';
-			$menu = '<li><details open><summary>'.Arr::get($category, 'title').'</summary>';
+			$menu = '<li><details><summary>'.Arr::get($category, 'title').'</summary>';
 		} else {
 			$menu = '<li><details><summary>'.HTML::anchor('companies/edit/'. Arr::get($category, 'id'), Arr::get($category, 'title')).'</summary>';
 		}

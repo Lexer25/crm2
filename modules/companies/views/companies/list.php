@@ -110,11 +110,16 @@ if ($alert) { ?>
 		<span><?php echo __('companies.title'); ?></span>
 	</div>
 
+	<br class="clear"/>
+	<div  class="content">
 	<?php
 		//echo Debug::vars('19', $org_tree);
-		echo '<br><div class="content">'.$org_tree.'</div>';//прорисовка дерева орг
+		echo 'Дерево организаций.';
+		echo '<br>'.$org_tree;//прорисовка дерева орг
 		
 	?>
+	
+	</div>	
 	
 	
 	
