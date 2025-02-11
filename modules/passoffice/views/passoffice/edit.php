@@ -149,7 +149,7 @@ if ($alert) { ?>
 		
 		$guest=new Guest($id_pep);
 		//echo Debug::vars('150', $guest);exit;
-		$mode=Session::instance()->get('mode');
+		//$mode=Session::instance()->get('mode');//закомментировал 11.02.2025 г.
 		switch($mode){
 			
 			case 'guest_mode'://просмотр гостя с картой, можно сделать отметку о выходе
@@ -451,7 +451,7 @@ if ($alert) { ?>
 			<br />
 			
 				<?php
-				
+			//echo Debug::vars('454', $mode);exit;	
 			switch($mode){
 			
 				case 'guest_mode'://просмотр гостя с картой, можно сделать отметку о выходе
@@ -478,8 +478,6 @@ if ($alert) { ?>
 					//echo Form::submit(null, __('button.cancel'), array('onclick'=>'document.forms[0].reset()'));
 				
 				break;
-			
-			
 		}
 		
 

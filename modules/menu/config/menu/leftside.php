@@ -154,7 +154,7 @@ return [
 									'tooltip' => 'sidebar.archive',
 								],
 						'addguest'=>[
-									'url'     => 'passoffices/addguest',
+									'url'     => 'passoffices/edit/0/issue',
 									'icon'    => '',
 									'title'   => 'sidebar.addguest',
 									'tooltip' => 'sidebar.addguest',

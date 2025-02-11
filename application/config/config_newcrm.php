@@ -35,6 +35,7 @@ return array(
 			'identity',
 			'fastreg',
 			'Reports',
+			'passoffice',
 			//'acl',
 			'doors',
 			),

@@ -128,6 +128,7 @@ class Controller_Passoffices extends Controller_Template
 	/** 23.06.2024
 		Включаю режим работы issue - Выдача карты
 		Новый гость, новая карта
+		issue - выдавать
 	*/
 	public function action_issue()
 	{
@@ -402,7 +403,10 @@ class Controller_Passoffices extends Controller_Template
 	
 	/**23.06.2024
 	Регистрация нового гостя или редактирование уже зарегистрированного.
-
+	* @input passoffices/edit/<id_pep>/<режим работы>
+		'guest_mode'://просмотр гостя с картой, можно сделать отметку о выходе
+		'archive_mode'://просмотр архива
+		'issue'://выдача карты новому гостю
 	*/
 	
 
@@ -421,7 +425,6 @@ class Controller_Passoffices extends Controller_Template
 		
 		$this->session->delete('alert');
 		$this->session->delete('arrAlert');
-		
 		$topbuttonbar=View::factory('passoffice/topbuttonbar', array(
 		    'id_pep'=> $id_pep,
 		    '_is_active'=> 'edit',
