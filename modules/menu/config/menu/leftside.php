@@ -189,6 +189,15 @@ return [
 					
 				],
 				
+		'monitor'=>[
+					'url'     => 'monitors',
+					'icon'    => 'icon_monitor.png',
+					'title'   => 'monitor',
+					'tooltip' => 'sidebar.monitor',
+					'visible' => true, // можно запретить показ, если false
+					
+				],
+				
 		'doors'=>[
 					'url'     => 'doors',
 					'icon'    => 'icon_contacts.png',

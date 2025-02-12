@@ -145,6 +145,7 @@ Kohana::modules(array(
 	'menu' => MODPATH.'menu',
 	'mreports' => MODPATH.'report',
 	'companies' => MODPATH.'companies',
+	'monitors' => MODPATH.'monitors',
 	
 	));
 /*

@@ -10,7 +10,7 @@
 	<link rel="stylesheet" type="text/css" media="all" href="css/jquery.dataTables.min.css">
 	<link rel="stylesheet" type="text/css" media="all" href="css/theme.default.min.css">
 	<link rel="stylesheet" type="text/css" media="all" href="css/multi-month-picker.css">
-	
+	<link rel="stylesheet" type="text/css" media="all" href="css/jquery.select2.css">
 	 <?php // echo HTML::style('static/css/bootstrap.css'); ?>
 	<?php //echo HTML::style('static/css/modal.css'); ?>
  
@@ -35,7 +35,7 @@
 	<script type="text/javascript" src="js/crm2_custom_blue.js"></script>
 	<script type="text/javascript" src="js/crm2_template_tablesorter.js"></script>
 	<script type="text/javascript" src="js/multi-month-picker.js"></script>
-
+	<script type="text/javascript" src="js/jquery.select2.js"></script>
 	<style>
 	/*
 		это стиль для нижней таблицы состояний

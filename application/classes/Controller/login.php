@@ -11,12 +11,13 @@
 
         public function action_index() {
 			
+			//echo Debug::vars('14', $_POST);exit;
 		
                 if (Arr::get($_POST, 'hidden') == 'form_sent') {
 				
                 if (Auth::instance()->login(Arr::get($_POST, 'username'), Arr::get($_POST, 'password'), Arr::get($_POST, 'remember'))
                      
-                        
+                       
                 ) {
                    $user = Auth::instance()->get_user();
                 

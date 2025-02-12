@@ -36,6 +36,7 @@ return array(
 			'fastreg',
 			'Reports',
 			'passoffice',
+			'monitor',
 			//'acl',
 			'doors',
 			),

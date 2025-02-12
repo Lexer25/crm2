@@ -27,11 +27,6 @@
 		}
 	
 	} */
-$(document).ready(function () {
-//change selectboxes to selectize mode to be searchable
-$("select").find('option[value="1"]').attr('disabled','disabled').attr('value','');
-$("select").select2();
-});
 </script>
 
 <?php 
@@ -315,11 +310,12 @@ $tt=microtime(true);
 
 							?>
 							
-							<input type="hidden" name="id_org_old" class="form-control select2 select2-hidden-accessible" value="<?php echo $contact->id_org; ?>" />
+							<input type="hidden" name="id_org_old" value="<?php echo $contact->id_org; ?>" />
 							
-							<select name="id_org"  <?php echo $dis1; ?> required>
-							
+							<select name="id_org" <?php echo $dis1; ?>>
+								
 								<?php
+
 								$tree=new Tree();
 									//$var2=$tree->array_to_tree($org_tree, 759);
 									echo $tree->out_options($tree->array_to_tree($org_tree), $select_org);
