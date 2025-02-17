@@ -1,7 +1,7 @@
 <?php
 return array
 (
-	'passoffice.passoffice' => 'Бюро пропусков<br>:po_name',
+	'passoffice.passoffice' => 'Бюро пропусков',
 	'passoffice.guestslist' => 'Список гостей',
 	'card.errDataForSearchRFID'	=>'Неправильный формат идентификатора в запросе :mess',
 	'card.errDataForSearchRFID'	=>'Неправильный формат идентификатора в запросе :mess',

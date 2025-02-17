@@ -356,6 +356,18 @@ $tt=microtime(true);
 												echo array_key_exists($key, $groupConfig->fieldsRequired)? 'required':''; 
 												?>
 									/>
+							
+							<input type="text" 
+													id="idcard" 
+													name="idcard"  
+													value="<?php if (isset($card)) echo Arr::get($card, 'ID_CARD'); ?>"
+													pattern="<?php echo $patternValid;?>" 
+													title="<?php echo $title ;?>" 
+											
+													required
+													/>
+													
+													
 									
 							<br />
 							<span class="error" id="error4" style="color: red; display: none;"><?php echo __('contact.emptypost'); ?></span>

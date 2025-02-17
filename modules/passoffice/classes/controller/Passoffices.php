@@ -150,9 +150,9 @@ class Controller_Passoffices extends Controller_Template
 		//echo Debug::vars('161', Auth::instance()->get_user());exit;
 		$po->init(Arr::get(Auth::instance()->get_user(), 'ID_PEP'));// инициализирую для текущего авторизованного пользователя.
 			
-		//echo Debug::vars('110', $this->mode, Session::instance()->get('mode')); exit;
+	//echo Debug::vars('110', $this->mode, Session::instance()->get('mode')); //exit;
 		$mode=Session::instance()->get('mode');
-
+	//echo Debug::vars('155', $mode);
 		$list = $po->getList($filter, $mode);//получил список id_pep, удовлетворяющих фильтру и режиму (гости или архив).
 
 		$fl = $this->session->get('alert');
