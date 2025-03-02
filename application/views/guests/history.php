@@ -67,7 +67,7 @@
 		</table>
 		<?php } else { ?>
 		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('history.empty'); ?><br /><br />
+			<?php echo __('history.empty'); ?><br><br>
 		</div>
 		<?php } ?>
 		

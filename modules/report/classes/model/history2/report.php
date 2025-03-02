@@ -33,18 +33,20 @@ class Model_history2_report extends Model
 			
 			// беру ФИО оператора
 			$pep=new Contact($user->id_pep);
-			
 			$report->fromUser  = $pep->surname.' '.Text::limit_chars($pep->name, 1).'. '.Text::limit_chars($pep->patronymic, 1).'.';
-			
 			
 			//беру название департамента оператора
 			$org= new Company($user->id_orgctrl );
 			$report->depatment  =  $org->name;
 			
-			//echo Debug::vars('43', $user);exit;
-	
+			$report->titleColumn=array('Дата/время', 'Точка прохода', 'Событие', 'Имя, Фамилия','Должность');
+				
+			$tempFile=new tempCSV;//в этот файл будут заноситься данные.Открыл файл.
+			$tempFile->makeFile();
+			$tempFile->addRow($report->titleColumn);//сохранил заголовок отчета - первая строка.
 			
 			if(true){
+				$timeStart=time(true);
 				//выбираю разрешенные организации.
 				$sql='select distinct og.id_org from organization_getchild(1, '.$user->id_orgctrl. ') og';
 				
@@ -76,58 +78,78 @@ class Model_history2_report extends Model
 				//echo Debug::vars('57', implode("," ,$dev_list));exit;
 				
 				
-				$sql='select first 10000
-                     e.id_event,
-                    e.datetime,
-                    p.surname,
-                    p.name,
-                    p.patronymic,
-                    p.post,
-                    d.name as doorname,
-                    et.name as eventname
-
-                     from events e
-                  join people p on p.id_pep=e.ess1
-                 join device d on d.id_dev=e.id_dev
-                 join eventtype et on et.id_eventtype=e.id_eventtype
-                
-				 
+				//события будут выбираться в цикле по 100000 (Сто тысяч) и записываться в файл.
+				//т.о. можно будет избежать потребность в большом количестве выделяемой оперативной памяти.
 				
-                 WHERE
-					e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
-					and e.datetime between \''.Arr::get($post, 'reportdatestart').'\' and \''.Arr::get($post, 'reportdateend').'\'
-					and e.ess2 in ('.implode("," ,$org_list).')
-					and e.id_dev in ('.implode("," , $dev_list).')
-				ORDER BY
-					e.id_event DESC';			
-			
-						
-				//echo Debug::vars('21', $sql);exit;
-				//Log::instance()->add(Log::DEBUG, Debug::vars($dev_list));
-				//Log::instance()->add(Log::DEBUG, implode("," , $dev_list));
-				//Log::instance()->add(Log::DEBUG, $sql);
-				$query = DB::query(Database::SELECT, $sql)
-				->execute(Database::instance('fb'))
-				->as_array();
-				foreach ($query as $key=>$value)
+				$rowCount=100000;//количество строк в sql запросе
+				$sqlCount=$rowCount;//количество полученных строк в SQL запросе. Начальное значение равно максимальному, чтобы выполнился первый SQL запрос.
+				$page=0;//количество итерация SQL запросов
+				$totalCountRow=0;//общее количесвто строк с данными.
+				
+				while($sqlCount==$rowCount)
 				{
-					$query[$key]['SURNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'SURNAME'));
-					$query[$key]['NAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'NAME'));
-					$query[$key]['PATRONYMIC']=iconv('CP1251', 'UTF-8', Arr::get($value,'PATRONYMIC'));
-					$query[$key]['POST']=iconv('CP1251', 'UTF-8', Arr::get($value,'POST'));
-					$query[$key]['DOORNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'DOORNAME'));
-					$query[$key]['EVENTNAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'EVENTNAME'));
+					//echo Debug::vars('89', '$sqlCount='.$sqlCount,'$rowCount='.$rowCount, $sqlCount==$rowCount);
 					
+				
+				
+				$sql='select  first '.$rowCount.' skip '.$page*$rowCount.'   distinct
+                    e.datetime,
+					d.name as doorname,
+					et.name as eventname,
+					p.surname||\' \'||p.name||\' \'||p.patronymic,
+					p.post
+                    from device d
+					join events e on e.id_dev=d.id_dev and e.datetime between \''.Arr::get($post, 'reportdatestart').'\' and \''.Arr::get($post, 'reportdateend').'\'
+					join people p on p.id_pep=e.ess1
+					join eventtype et on et.id_eventtype=e.id_eventtype
+
+					where d.id_dev in ('.implode("," , $dev_list).')
+					and e.ess2 in ('.implode("," ,$org_list).')
+					and e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
+					 ';
+				
+					
+					
+				//echo Debug::vars('134', $sql);//exit;
+				
+					$query = DB::query(Database::SELECT, $sql)
+					->execute(Database::instance('fb'))
+					->as_array();
+					$sqlCount=count($query);//считаю какое количество строк получено в последнем запросе.
+					$totalCountRow=$totalCountRow + $sqlCount;//считаю общую сумму строк в отчете.
+					$page++;
+					
+					//if($page>7) exit;
+					$result=array();
+					
+					//echo Debug::vars('117', $sqlCount, $page);//exit;
+					foreach ($query as $key=>$value)
+					{
+						foreach($value as $key2=>$value2)
+						{
+							
+							$result[]=iconv('CP1251', 'UTF-8', $value2);
+							
+						}
+					//echo Debug::vars('128', $result);exit;
+					if($result) $tempFile->addRow($result);//сохранил строку файла
+					$result=array();//очистил строку с результатом.
+					}
+					//echo Debug::vars('166');exit;
+					$query=array();
 				}
+				$report->totalCountRow=$totalCountRow;
+				$report->timeExecute=(time(true) - $timeStart);
 				
 			} else {
 
 				$query=array();
 			}
-			$report->titleColumn=array('Дата/время', 'Точка прохода', 'Событие', 'Имя, Фамилия','Должность');
-			
-			$report->rowData=$query;
+			//$report->rowData=$query;
+			$tempFile->closeFile();
+
 			$report->view='report';//указание куда выводить отчет на экран
+			$report->fileName=$tempFile->fileName;//имя файла с сохраненными данными
 			
 			return $report;
 	}

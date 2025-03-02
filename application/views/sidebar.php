@@ -1,18 +1,4 @@
 
-<style>
-.container {
-    width: 100%;
-}
-
-.container ul {
-    text-align: center;
-    list-style: none;
-}
-
-.container li {
-    display: inline-block;
-}
-</style>
 
 <a href="javascript:" id="show_menu">&nbsp;</a>
 <div id="left_menu">
@@ -39,7 +25,7 @@
 	?>	
 	</ul>
 
-	<br class="clear"/>
+	<br class="clear">
 	<div id="calendar"></div>
 
 </div>

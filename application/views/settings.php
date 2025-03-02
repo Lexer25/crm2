@@ -15,7 +15,7 @@
 		<form action="settings/save" method="post">
 			<p>
 				<label><?php echo __('settings.place'); ?></label>
-				<br />
+				<br>
 				<select name="place">
 					<option value="1">Шуваловский</option>
 					<option value="2"<?php echo ' selected="selected"'; ?>>Яуза</option>
@@ -25,16 +25,16 @@
 			</p>
 			<p>
 				<label><?php echo __('settings.language'); ?></label>
-				<br />
+				<br>
 				<select name="language">
 					<option value="en-us">English</option>
 					<option value="ru-ru"<?php if ($lang == 'ru-ru') echo ' selected="selected"'; ?>>Русский</option>
 				</select>
 			</p>
-			<br />
+			<br>
 			<p>
 				<label><?php echo __('settings.listsize'); ?></label>
-				<br />
+				<br>
 				<select name="listsize">
 					<?php
 					$sizes = array(10, 25, 50);
@@ -49,13 +49,13 @@
 									
 			<p>
 				<label><?php echo __('settings.password'); ?></label>
-				<br />
+				<br>
 				<input type="password" name="password" />
 			</p>
-			<br />
+			<br>
 			
 			
-			<br />
+			<br>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset();" />

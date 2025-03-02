@@ -71,7 +71,7 @@
 		<?php echo $pagination; ?>
 		<?php } else { ?>
 		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('cards.empty'); ?><br /><br />
+			<?php echo __('cards.empty'); ?><br><br>
 		</div>
 		<?php } ?>
 	</div>

@@ -78,7 +78,7 @@ if ($alert) { ?>
 			</table>
 			<div id="chart_wrapper" class="chart_wrapper"></div>
 		<!-- End bar chart table-->
-		<br />
+		<br>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset()" />

@@ -16,18 +16,18 @@
         <?php echo FORM::open('roles/edit/' . $role->id, array()); ?>
             <p>
                 <?php echo Form::label('name', __('roles.name')); ?>
-                <br />
+                <br>
                 <?php echo Form::input('name', $role->name, array('size' => '50', 'id' => 'name')); ?>
             </p>
-            <br />
+            <br>
 
             <p>
                 <?php echo Form::label('description', __('roles.description')); ?>
-                <br />
+                <br>
                 <?php echo Form::input('description', $role->description, array('size' => '50', 'id' => 'description')); ?>
             </p>
-            <br />
-            <br />
+            <br>
+            <br>
 
             <input type="submit" value="<?php echo __('button.save'); ?>" />
             &nbsp;&nbsp;

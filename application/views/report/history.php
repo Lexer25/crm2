@@ -24,7 +24,7 @@
 
                             <input type="text" size="12" name="reportdatestart" id="carddatestart" value="<?php
                             echo Cookie::get('reportdatestart', Date::formatted_time('now', "d.m.Y"));														?>" />
-                            <br />
+                            <br>
                             <span class="error" id="error2" style="color: red; display: none;"><?php echo __('report.emptystarttime'); ?></span>
                         </div>
                     </td>
@@ -38,7 +38,7 @@
                         <div style="padding-bottom: 10px;">
                             <input type="text" size="12" name="reportdateend" id="carddateend" value="<?php
                             echo Cookie::get('reportdateend', Date::formatted_time('tomorrow', "d.m.Y"));														?>" />
-                            <br />
+                            <br>
                             <span class="error" id="error3" style="color: red; display: none;"><?php echo __('report.wrongendtime'); ?></span>
                         </div>
                     </td>
@@ -138,7 +138,7 @@
 		echo Debug::vars('132', (microtime(true)-$t1));
 		} else { ?>
 		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('history.empty'); ?><br /><br />
+			<?php echo __('history.empty'); ?><br><br>
 		</div>
 		<?php } ?>
 			<?php 	

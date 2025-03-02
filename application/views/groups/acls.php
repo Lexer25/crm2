@@ -99,8 +99,8 @@
 					} ?>
 				</tbody>
 			</table>
-			<br />
-			<br />
+			<br>
+			<br>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset();" />
@@ -109,7 +109,7 @@
 		</form>
 		<?php } else { ?>
 			<div style="margin: 100px 0; text-align: center;">
-				<?php echo __('acl.nousers'); ?><br /><br />
+				<?php echo __('acl.nousers'); ?><br><br>
 			</div>
 		<?php } ?>
 	</div>

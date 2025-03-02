@@ -19,13 +19,12 @@
 
 		// Is this a with sibling links?
 		// есть ли дочки? Если есть, то работаем тут
-		//  <a id="sidebar_companies" href="javascript:"><img src="images/icon_companies.png" /><?php echo __('companies');</a>
-		
+				
 		
 		if ($item->has_siblings()){?>
 
 			<li>
-				<a id="sidebar_<?php echo $item->url; ?>" href="javascript:"><img src="images/<?php echo $item->icon;?>" /><?php echo __($item->title); ?></a>
+				<a id="sidebar_<?php echo $item->url; ?>" href="javascript:"><img src="images/<?php echo $item->icon;?>" alt="<?php echo $item->title;?>"><?php echo __($item->title); ?></a>
 							
 				<ul>
 						<?php 
@@ -46,7 +45,7 @@
 				//а если дочек нет, то работаем тут
 				?>
 				<li>
-					<?php echo HTML::anchor ($item->url, HTML::image('images/'.$item->icon).$item->title); ?>
+					<?php echo HTML::anchor ($item->url, HTML::image('images/'.$item->icon, array('alt'=>$item->title)).$item->title); ?>
 				</li>
 
 		<?php } 

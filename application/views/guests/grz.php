@@ -126,7 +126,7 @@ if (isset($alert)) { ?>
 											<?php } else {
 											?>
 												<input type="text" size="12" maxlength="8" id="idcard" name="idcard" value="<?php if (isset($card)) echo Arr::get($card, 'ID_CARD'); ?>" />
-												<br />
+												<br>
 											<?php } ?>
 												<span class="error" id="error11" style="color: red; display: none;"><?php echo __('card.emptyid'); ?></span>
 												<span class="error" id="error12" style="color: red; display: none;"><?php echo __('card.wrongcharacter'); ?></span>
@@ -170,7 +170,7 @@ if (isset($alert)) { ?>
 													} else {
 														echo date("d.m.Y");
 													}														?>" />
-												<br />
+												<br>
 												<span class="error" id="error2" style="color: red; display: none;"><?php echo __('card.emptystarttime'); ?></span>
 											</div>
 										</td>
@@ -189,7 +189,7 @@ if (isset($alert)) { ?>
 
 														echo date('d.m.Y', strtotime('+1 year'));
 													}														?>" />
-												<br />
+												<br>
 												<span class="error" id="error3" style="color: red; display: none;"><?php echo __('card.wrongendtime'); ?></span>
 											</div>
 										</td>
@@ -209,14 +209,14 @@ if (isset($alert)) { ?>
 								</tbody>
 							</table>
 						</fieldset>
-						<br />
-						<br />
+						<br>
+						<br>
 
-						<br />
+						<br>
 						
-						<br />
+						<br>
 						<div id="cardactions1">
-							<br />
+							<br>
 							<?php if (isset($card) or 1) { ?>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
@@ -247,10 +247,10 @@ if (isset($alert)) { ?>
 				
 				</tr>
 			</table>
-			<br />
+			<br>
 
-			<br />
-			<br />
+			<br>
+			<br>
 			<?php if (isset($card)) 
 			{?>
 				<input type="button" value="<?php echo __('cards.delete_grz'); ?>" onclick="deletecard('<?php echo Arr::get($card, 'ID_CARD'); ?>')" />

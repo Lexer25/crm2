@@ -53,7 +53,7 @@
 		</form>
 		<?php } else { ?>
 			<div style="margin: 100px 0; text-align: center;">
-				<?php echo __('groups.none'); ?><br /><br />
+				<?php echo __('groups.none'); ?><br><br>
 			</div>
 		<?php } ?>
 	</div>

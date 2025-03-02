@@ -30,4 +30,33 @@ class Model_mreport extends Model
 			$titleArray=array('YEARFROM', 'MONTFROM', 'COUNT' );
 			return array('title'=>$titleArray, 'data'=>$query);
 	}
+	
+	/**2.03.2025 Передача файла через браузер.
+	*
+	*
+	*/
+	
+	public function send_file ($file)// скачать указанный файл в браузер
+	{
+		//https://habr.com/ru/post/151795/
+		if (file_exists($file)) {
+			// сбрасываем буфер вывода PHP, чтобы избежать переполнения памяти выделенной под скрипт
+			// если этого не сделать файл будет читаться в память полностью!
+			if (ob_get_level()) {
+			  ob_end_clean();
+			}
+			// заставляем браузер показать окно сохранения файла
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/octet-stream');
+			header('Content-Disposition: attachment; filename=' . basename($file));
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($file));
+			// читаем файл и отправляем его пользователю
+			readfile($file);
+			exit;
+	  }
+	}
 }

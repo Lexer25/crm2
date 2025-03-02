@@ -75,10 +75,10 @@ $catdTypelist = Model::factory('Card')->getcatdTypelist();//получил сп�
 		</form>
 		<?php } else { ?>
 			<div style="margin: 100px 0; text-align: center;">
-				<?php echo __('cards.none'); ?><br /><br />
+				<?php echo __('cards.none'); ?><br><br>
 			</div>
 		<?php } ?>
-		<br />
+		<br>
 		<?php if (!$contact) {?>
 		<input type="button" value="<?php echo __('cards.create'); ?>" onclick="location.href='<?php echo URL::base() . 'guests/addcard/' . $contact['ID_PEP']; ?>'" />
 		<input type="button" value="<?php echo __('cards.create_grz'); ?>" onclick="location.href='<?php echo URL::base() . 'guests/addgrz/' . $contact['ID_PEP']; ?>'" />

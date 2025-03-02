@@ -12,7 +12,7 @@ if(isset($report)) $data=$report;
 $ruid='history2';//r(eport)uid
 	?>
 	</div>
-	<br class="clear" />
+	<br class="clear">
     <div class="content">
         <form action="mreports/makeReport" method="post" onsubmit="return validate()">
 		
@@ -26,9 +26,9 @@ $ruid='history2';//r(eport)uid
                     <td>
                         <div style="padding-bottom: 10px;">
 
-                            <input type="text" size="12" name="dataReport[reportdatestart]" id="carddatestart" value="<?php
-                            echo Cookie::get('reportdatestart', Date::formatted_time('now', "d.m.Y"));														?>" />
-                            <br />
+                            <input type="text" size="12" name="reportdatestart" id="carddatestart" value="<?php
+                            echo Cookie::get('reportdatestart', Date::formatted_time('now', "d.m.Y"));?>" />
+                            <br>
                             <span class="error" id="error2" style="color: red; display: none;"><?php echo __('report.emptystarttime'); ?></span>
                         </div>
                     </td>
@@ -40,9 +40,9 @@ $ruid='history2';//r(eport)uid
                     </th>
                     <td>
                         <div style="padding-bottom: 10px;">
-                            <input type="text" size="12" name="dataReport[reportdateend]" id="carddateend" value="<?php
-                            echo Cookie::get('reportdateend', Date::formatted_time('tomorrow', "d.m.Y"));														?>" />
-                            <br />
+                            <input type="text" size="12" name="reportdateend" id="carddateend" value="<?php
+                            echo Cookie::get('reportdateend', Date::formatted_time('tomorrow', "d.m.Y"));?>" />
+                            <br>
                             <span class="error" id="error3" style="color: red; display: none;"><?php echo __('report.wrongendtime'); ?></span>
                         </div>
                     </td>
@@ -55,16 +55,16 @@ $ruid='history2';//r(eport)uid
             <?php
 			//передаю RUID отчета
 			
-			echo Form::hidden('dataReport[id_event][]', 50);
-			echo Form::hidden('dataReport[id_event][]', 65);
-			echo Form::hidden('dataReport[id_report]', $ruid);
+			echo Form::hidden('id_event[]', 50);
+			echo Form::hidden('id_event[]', 65);
+			echo Form::hidden('id_report', $ruid);
             
            // echo Form::hidden('id_pep', $contact['ID_PEP']);
             
             //echo Form::hidden('todo', 'wtOncePep');
             echo Form::submit(NULL, __('button.reportEvents'));
             echo Form::close();
-			echo __('Внимание! при подготовке отчета выбирается не более 10000 событий. При необходимости получить отчет большего размера разбейте его на несколько частей.');
+			//echo __('Внимание! при подготовке отчета выбирается не более 10000 событий. При необходимости получить отчет большего размера разбейте его на несколько частей.');
           	
             ?>
 
@@ -76,67 +76,67 @@ $ruid='history2';//r(eport)uid
 
 		<?php 
 
-		
+		if( $data instanceof Report) {//если есть переменная дата $data типа Report, то организую вывод данных в таблицу
 		
 		echo Form::open('mreports/export');
-	
-
-		
 		echo Form::submit('savecsv', __('button.savecsv'));
 	
-		//echo Debug::vars('96', $data);//exit;
-		$t1=microtime(true);
-		if (count($data) > 0) { 
+		//echo Debug::vars('96', $data, $data instanceof Report );exit;
 		
-		echo __('<p>Надено :count событий.</p>', array(':count'=>count($data->rowData)));
-		?>
-		<table class="data" width="100%" cellpadding="0" cellspacing="0">
-			<thead>
-				<tr>
-							
-					<?php
-					
-					foreach($data->titleColumn  as $key=>$value)
-					{
-					    //echo Debug::vars('81', $key, $value); exit;
-					    echo '<th>'. $value.'</th>'; 
-					}
-					
-					?>
-				</tr>
-			</thead>
-			<tbody>
-				<?php 
-				
-				foreach ($data->rowData as $h) {
-                 
-				
-				foreach($h as $key2=>$value2)
+		$t1=microtime(true);
+		if ($data->totalCountRow>1) { 
+		
+			echo __('<p>Отчет содержит :count событий.</p>', array(':count'=>$data->totalCountRow));
+			echo __('<p>Отчет подготовлен за :count секунд.</p>', array(':count'=>$data->timeExecute));
+			echo __('<p>Будут показаны первые 100 событий.</p>');
+			
+			
+			  $tempFile=new tempCSV;
+			  $tempFile->getFile();
+			 // echo Debug::vars('96', $tempFile->getRow());exit;
+			  
+			?>
+			<table class="data" width="100%" cellpadding="0" cellspacing="0">
+				<thead>
+					<tr>
+								
+						<?php
+						//echo Debug::vars('109', $tempFile->getRow());exit;
+						foreach($tempFile->getRow()  as $key=>$value)
+						{
+							echo '<th>'. $value.'</th>'; 
+						}
+						
+						?>
+					</tr>
+				</thead>
+				<tbody>
+					<?php 
+				$countMax=100;
+				if(($data->totalCountRow-1) < $countMax) $countMax=$data->totalCountRow-1;		
+				for($i=0; $i<$countMax; $i++)
 				{
-				  echo '<tr>'; 
-				   echo '<td>'. Arr::get($h, 'DATETIME').'</td>';
-					echo '<td>'. Arr::get($h, 'DOORNAME').'</td>';
-					echo '<td>'. Arr::get($h, 'EVENTNAME').'</td>';
-					echo '<td>'. Arr::get($h, 'NAME').' '.Arr::get($h, 'SURNAME').' '.Arr::get($h, 'PATRONYMIC').'</td>';
-					echo '<td>'. Arr::get($h, 'POST').'</td>';
-				echo '</tr>';
-				}
-				
-				} 
-				?>
-			</tbody>
-		</table>
+					echo '<tr>';
+					foreach($tempFile->getRow() as $key=>$value)
+					{
+							echo '<td>'. $value.'</td>'; 
+					}
+					echo '</tr>';				
+				}?>
+				</tbody>
+			</table>
 		<?php 
 		//echo __('Время выполнения :timeexec сек.', array(':timeexec'=>(microtime(true)-$t1)));
 		} else { ?>
 		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('history.empty'); ?><br /><br />
+			<?php echo __('history.empty'); ?><br><br>
 		</div>
 		<?php } ?>
 			<?php 	
 			
-
+			echo Form::hidden('filename', $data->fileName);
 			echo Form::close();
+		}
 			?>
 	</div>
 </div>

@@ -172,7 +172,7 @@ if ($alert) { ?>
 		<?php 
 		 } else { ?>
 		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('report.empty'); ?><br /><br />
+			<?php echo __('report.empty'); ?><br><br>
 		</div>
 		<?php }
 		echo __('Time executed').' '. (microtime(true) - $timestart);

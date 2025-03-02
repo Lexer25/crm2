@@ -1,8 +1,8 @@
 <?php defined('SYSPATH') or die('No direct script access.'); 
 $messages = array(
-   'name'   =>
+   'id_report'   =>
       array(
-         'not_empty'       => ':field Не может быть пустым',
+         'not_empty'       => 'Не указан тип отчета.',
       ),
 
 	'getCardInfo'   =>

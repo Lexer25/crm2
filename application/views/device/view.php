@@ -166,24 +166,24 @@ echo Debug::vars('2', $device);
 				<input type="hidden" name="id_server" size="15"  value="<?php echo Arr::get($device,'ID_SERVER'); ?>" />
 			<p>
 				<label for="name"><?php echo __('device.name'); ?></label>
-				<br />
+				<br>
 				<input type="text" id="name" name="name" size="50" value="<?php echo iconv('CP1251', 'UTF-8', Arr::get($device,'NAME')); ?>" />
-				<br />
+				<br>
 				<span class="error" id="error1" style="color: red; display: none;"><?php echo __('device.emptyname'); ?></span>
 			</p>
-			<br />
+			<br>
 			<p>
 				<label for="code"><?php echo __('device.ip'); ?></label>
 				
 				<input type="text" id="ip" name="ip" size="15"  value="<?php echo Arr::get($device,'IP'); ?>" />
 				<span class="error" id="ip_empty" style="color: red; display: none;"><?php echo __('device.ip_empty'); ?></span>
 				<span class="error" id="ipFormatError" style="color: red; display: none;"><?php echo __('device.ipFormatError'); ?></span>
-				<br />
+				<br>
 				<label for="code"><?php echo __('device.port'); ?></label>
 				<input type="text" id="port" name="port" size="5"  value="<?php echo Arr::get($device,'PORT'); ?>" />
 				<span class="error" id="ipPortEmpty" style="color: red; display: none;"><?php echo __('device.ipPortEmpty'); ?></span>
 				<span class="error" id="ipPortFormatError" style="color: red; display: none;"><?php echo __('device.ipPortFormatError'); ?></span>
-				<br />
+				<br>
 				
 				
 				
@@ -191,7 +191,7 @@ echo Debug::vars('2', $device);
 			</p>
 				<p>
 				<?php echo Form::label('parent', __('device.devtype')); ?>
-				<br />
+				<br>
 				
 					<?php
 					
@@ -201,17 +201,17 @@ echo Debug::vars('2', $device);
 					?>
 				
 			</p>
-			<br />
+			<br>
 		
-			<br />
+			<br>
 			<p>
 				<label for="access"><?php echo __('device.is_active'); ?></label>
-				<br />
+				<br>
 				<?php echo Form::checkbox('is_active', 1, Arr::get($device,'IS_ACTIVE')==1); ?>
 			</p>
-			<br />
-			<br />
-			<br />
+			<br>
+			<br>
+			<br>
 			<input type="submit" name="save_device_data" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset()" />

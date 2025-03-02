@@ -95,8 +95,8 @@
 				</div>
 			</div>
 			<?php echo Form::hidden('hidden', 'form_sent') . Form::hidden('id', $group['ID_GROUP']); ?>
-			<br />
-			<br />
+			<br>
+			<br>
 			<input type="hidden" name="list0" id="list0" value="" />
 			<input type="hidden" name="list1" id="list1" value="" />
 			<input type="submit" value="<?php echo __('button.save'); ?>" />

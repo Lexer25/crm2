@@ -1,11 +1,11 @@
-	<br class="clear"/>
+	<br class="clear">
 	<div class="content">
 	<?php
 		echo Kohana::message('report234', 'aboutReport234');
 		echo Form::open('mreports/makeReport');
 		?>
-		 <input type="text" name="dataReport[monceList]" id="monthselect" />
-			<br />
+		 <input type="text" name="monceList" id="monthselect">
+			<br>
 			<fieldset>
 				<legend><?php echo __('Месяцы'); ?></legend>
 				<?php
@@ -14,19 +14,18 @@
 					{
 						
 						if($i==6) {
-							echo Form::radio('dataReport[howManyMonce]', $i, true).$i.'<br>';
+							echo Form::radio('howManyMonce', $i, true).$i.'<br>';
 						} else {
-							echo Form::radio('dataReport[howManyMonce]', $i).$i.'<br>';
+							echo Form::radio('howManyMonce', $i).$i.'<br>';
 						}
 					}
 				?>
 							
 			</fieldset>				
 			<?php 
-			//echo '<p>'.__('howManyMonce').Form::input('dataReport[howManyMonce]', '7').'</p>';
-			
-			echo Form::hidden('dataReport[id_report]', '234');
-			echo Form::submit('dataReport[button]', __('button.makeReport'));
+						
+			echo Form::hidden('id_report', '234');
+			echo Form::submit('button', __('button.makeReport'));
 				
 		echo Form::close();
 			?>

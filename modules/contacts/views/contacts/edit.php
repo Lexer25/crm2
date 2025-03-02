@@ -361,8 +361,8 @@ $tt=microtime(true);
 													id="idcard" 
 													name="idcard"  
 													value="<?php if (isset($card)) echo Arr::get($card, 'ID_CARD'); ?>"
-													pattern="<?php echo $patternValid;?>" 
-													title="<?php echo $title ;?>" 
+													pattern="<?php //echo $patternValid;?>" 
+													title="<?php //echo $title ;?>" 
 											
 													required
 													/>

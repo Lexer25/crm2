@@ -16,33 +16,33 @@
         <?php echo FORM::open('objects/add', array()); ?>
             <p>
                 <?php echo Form::label('name', __('objects.name')); ?>
-                <br />
+                <br>
                 <?php echo Form::input('name', $object->name, array('size' => '50', 'id' => 'name')); ?>
             </p>
-            <br />
+            <br>
 
             <p>
                 <?php echo Form::label('config_servere', __('objects.config_server')); ?>
-                <br />
+                <br>
                 <?php echo Form::input('config_server', $object->config_server, array('size' => '50', 'id' => 'config_server')); ?>
             </p>
-            <br />
+            <br>
 
             <p>
                 <?php echo Form::label('config_bdpath', __('objects.config_bdpath')); ?>
-                <br />
+                <br>
                 <?php echo Form::input('config_bdpath', $object->config_bdpath, array('size' => '50', 'id' => 'config_bdpath')); ?>
             </p>
-            <br />
+            <br>
 
             <p>
                 <?php echo Form::label('config_bdfile', __('objects.config_bdfile')); ?>
-                <br />
+                <br>
                 <?php echo Form::input('config_bdfile', $object->config_bdfile, array('size' => '50', 'id' => 'config_bdfile')); ?>
             </p>
-            <br />
+            <br>
 
-            <br />
+            <br>
             <input type="submit" value="<?php echo __('button.save'); ?>" />
             &nbsp;&nbsp;
             <input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset()" />

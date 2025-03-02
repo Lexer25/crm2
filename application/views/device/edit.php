@@ -57,24 +57,24 @@ if ($alert) { ?>
 			<?php echo Form::hidden('hidden', 'form_sent') . Form::hidden('id', $company['ID_ORG']); ?>
 			<p>
 				<label for="name"><?php echo __('company.name'); ?></label>
-				<br />
+				<br>
 				<input type="text" id="name" name="name" size="50" value="<?php echo iconv('CP1251', 'UTF-8', $company['NAME']); ?>" />
-				<br />
+				<br>
 				<span class="error" id="error1" style="color: red; display: none;"><?php echo __('company.emptyname'); ?></span>
 			</p>
-			<br />
+			<br>
 			<p>
 				<label for="code"><?php echo __('company.code'); ?></label>
-				<br />
+				<br>
 				<input type="text" id="code" name="code" size="50" value="<?php echo iconv('CP1251', 'UTF-8', $company['DIVCODE']); ?>" />
-				<br />
+				<br>
 				<span class="error" id="error2" style="color: red; display: none;"><?php echo __('company.emptycode'); ?></span>
 			</p>
-			<br />
+			<br>
 			<p>
 				<?php echo Form::label('parent', __('company.parent')); 
 				//echo Debug::vars('82', $org_tree);?>
-				<br />
+				<br>
 				
 				
 				<select name="parent">
@@ -85,10 +85,10 @@ if ($alert) { ?>
 								?>
 				</select>
 			</p>
-			<br />
+			<br>
 
-			<br />
-			<br />
+			<br>
+			<br>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset();" />
