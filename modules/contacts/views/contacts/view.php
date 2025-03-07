@@ -103,6 +103,7 @@
 							<label for="id_org"><?php echo __('contact.company'); ?></label>
 							<br />
 							<select name="id_org" disabled="disabled">
+
 								<?php
 								foreach ($companies as $c)
 									if ($c['ID_ORG'] == $contact['ID_ORG'])
