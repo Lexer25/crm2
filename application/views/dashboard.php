@@ -25,7 +25,11 @@ if (false)
 	echo 'Test';
 
 	echo Debug::vars('27', Kohana::$config->load('config_newcrm_')->get('contactListIdView_', '123-321'));//exit;
-	echo Debug::vars('28', Kohana::$config->load('config_newcrm')->contactListIdView);//exit;
+	$cache = Cache::instance();
+	//$cache->set('foo', '777');
+	echo Debug::vars('30', Cache::instance()->get('foo'));
+	$cache_file = Cache::instance('file');
+	$cache_file->garbage_collect();
 	
 
 }

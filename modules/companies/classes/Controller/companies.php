@@ -75,7 +75,7 @@ class Controller_Companies extends Controller_Template
 			->bind('filter', $filter)
 			->bind('org_tree', $org_tree)
 			;
-			//echo View::factory('profiler/stats');
+			echo View::factory('profiler/stats');
 	}
 	
 	
