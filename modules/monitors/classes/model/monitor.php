@@ -5,7 +5,7 @@
 
 class Model_monitor extends Model
 {
-	
+	public 	$id_event=0;
 	public function getReport1($id_org){// Статистика
 		
 			$month=20;
@@ -30,4 +30,6 @@ class Model_monitor extends Model
 			$titleArray=array('YEARFROM', 'MONTFROM', 'COUNT' );
 			return array('title'=>$titleArray, 'data'=>$query);
 	}
+	
 }
+
