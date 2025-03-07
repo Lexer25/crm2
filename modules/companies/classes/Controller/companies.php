@@ -21,47 +21,44 @@ class Controller_Companies extends Controller_Template
 		$this->action_index($pattern);
 	}
 	
-	/** 2024
+	/** 7.03.2025 ревью кода с целью убрать лишнее
 	*
 	*/
 	public function action_index($filter = null)
 	{
 		//смотрю указание на родительскую организацию для вывода списка организаций.
 		$parent_org=$this->request->query('parent');
-		if(is_null($parent_org)) $parent_org=Arr::get(Auth::instance()->get_user(), 'ID_ORG');// если parent_org не указан, то беру ID_ORG подчиняемой организации
+		//echo Debug::vars('43', $parent_org);//exit;
 		
-		$isAdmin = Auth::instance()->logged_in('admin');
+		$user=new User;//информация о текущем авторизованном пользователе
+				
+		if(is_null($parent_org)) $parent_org=$user->id_orgctrl;// если parent_org не указан, то беру id_orgctrl подчиняемой организации
 		
-		//подсчет количества элементов в списке
+		
 		$companies = Model::factory('Company');
+		//проверка, что полученный через query действительно разрешен для текущего пользователи. Это защита от попыток получить информацию о группах путем формирования
+		//GET-запроса
 		
-		$count_q = Model::factory('Company')->getCountUser(Arr::get(Auth::instance()->get_user(), 'ID_PEP'), $parent_org, $filter);// сколько всего организаций для авторизованного пользователя?
-						
-		$list = $companies->getListAdmin(// получение списка организаций, удовлетворяющего фильтру
-				Arr::get(Auth::instance()->get_user(), 'ID_PEP'),
-				Arr::get($_GET, 'page', 1),
-				$this->listsize,
+		$accellListOrg = $companies->getOrgListForOnce($user->id_orgctrl );
+		if(! Arr::get($accellListOrg, $parent_org)) $this->redirect('companies');
+		//echo Debug::vars('56', $accellListOrg);exit;
+		// получение списка организаций, удовлетворяющего фильтру		
+		
+		$list = $companies->getListAdmin(
+				//$user->id_pep,
 				$parent_org,
 				$filter
 				);
-		//echo Debug::vars('63', Arr::get(Auth::instance()->get_user(), 'ID_PEP'), $list); exit;
+		
+		
+		//проверка наличия алертов, их извлечение их сессии.
 		$fl = $this->session->get('alert');
 		$this->session->delete('alert');
-		$tmp = $this->session->get('company_columns', null);
-		if ($tmp)
-			$company_columns = unserialize($tmp);
-		else
-			$company_columns = array(
-				'ID_ORG'		=> true,
-				'NAME'			=> true,
-				'PARENT'		=> $isAdmin,
-				'DIVCODE'		=> true,
-				'ACCESSNAME'	=> $isAdmin,
-			);
+		
 	
 		// готовлю список организаций в виде иерархического дерева
 		//$org_tree = Model::Factory('Company')->getOrgList();// я получил список организаций.
-		$org_tree = Model::Factory('Company')->getOrgListForOnce(Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL'));// я получил список организаций разрешенных текущему пользователю.
+		$org_tree = $companies->getOrgListForOnce($user->id_orgctrl);// я получил список организаций разрешенных текущему пользователю.
 		//echo Debug::vars('84', $org_tree);exit;
 		
 		$org_tree=Model::Factory('treeorg')->make_tree($org_tree, 1);//формирую иерархический список
@@ -71,17 +68,18 @@ class Controller_Companies extends Controller_Template
 		$this->template->content = View::factory('companies/list')
 			->bind('companies', $list)
 			->bind('alert', $fl)
-			->bind('col1', $company_columns)
 			->bind('filter', $filter)
 			->bind('org_tree', $org_tree)
 			;
-			echo View::factory('profiler/stats');
+		
+			//echo View::factory('profiler/stats');
 	}
 	
 	
 	/*
 	18.12.2023
 	Вывод списк сотрудников указанной организации
+	@input id - id_org организации
 	*/
 	public function action_people()
 	{
@@ -136,11 +134,14 @@ class Controller_Companies extends Controller_Template
 		$filter = null;
 		$hidesearch = true;
 		
+		$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
+		$this->session->delete('arrAlert');//очистить алерт в сессии
 		$this->template->content = View::factory('companies/acl')
 			->bind('alert', $fl)
 			->bind('company', $company)
 			->bind('company_acl', $company_acl)
 			->bind('aclsForCurrentUser', $aclsForCurrentUser)
+			->bind('arrAlert', $arrAlert)
 			;
 	}
 	
@@ -161,7 +162,7 @@ class Controller_Companies extends Controller_Template
 		
 		if(!$aclList)
 		{
-			//если массив нового набора категорий доступа пуст, то очищаю таблицу ss_accessuser для этого пипла
+			//если массив нового набора категорий доступа пуст, то очищаю таблицу SS_ACCESSORG для этой организации
 			$resultDelAcl=Model::factory('company')->clear_company_acl($id);//удаляю все из таблицы ss_accessuser
 			
 		} else {
@@ -172,8 +173,8 @@ class Controller_Companies extends Controller_Template
 				$source[]=$key;//это массив вновь созданного набора категорий доступа в виде, удобном для последующего сравнения
 			}
 		
-			//смотрим какие категории доступа уже есть у пипла
-			$contact_acl = Model::factory('company')->company_acl($id);//список категорий доступа, уже имеющихся у пипла
+			//смотрим какие категории доступа уже есть у организации
+			$contact_acl = Model::factory('company')->company_acl($id);//список категорий доступа, уже имеющихся у организации
 			if(!$contact_acl)
 			{
 				//если категорий доступа ранее не было выдано, то надо их просто добавить
@@ -359,9 +360,7 @@ class Controller_Companies extends Controller_Template
 	*/
 	public function action_edit()
 	{
-		//127.0.0.1/crm2/companies/edit/98765432107777777
 		//Log::instance()->add(Log::DEBUG, '324 '. Debug::vars($_POST), $this->request->param('id')); exit;
-		//echo Debug::vars('359', $_POST, $this->request->param('id')); exit;
 		//echo Debug::vars('358', Debug::vars($_GET), Debug::vars($_POST));//exit;
 		//echo Debug::vars('359', $this->request->param('id'));exit;
 		$id=$this->request->param('id');
@@ -420,154 +419,7 @@ class Controller_Companies extends Controller_Template
 			->bind('acl', $acls);
 	}
 	
-	/* public function action_groups()
-	{
-		if (!Auth::instance()->logged_in('admin')) $this->redirect('/');
-		
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
-		
-		$companies = Model::factory('Company');
-		$list = $companies->getGroups();
-		
-		$this->template->content = View::factory('groups/list')
-			->bind('groups', $list)
-			->bind('alert', $fl);
-	} 
-	
-	public function action_groupdelete()
-	{
-		$id=$this->request->param('id');
-		if (!Auth::instance()->logged_in('admin')) $this->redirect('/');
-		
-		Model::factory('Company')->deleteGroup($id);
-		$this->session->set('alert', __('groups.deleted'));
-		$this->redirect('companies/groups');
-	}
-	
-	public function action_groupedit()
-	{
-		$id=$this->request->param('id');
-		if (!Auth::instance()->logged_in('admin')) $this->redirect('/');
-		if (!(preg_match("/^\d+$/", $id))) $this->redirect('companies/groups');
-		$group = Model::factory('Company')->getGroup($id);
-		if ($id != "0" && !$group) $this->redirect('companies/groups');
-		
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
 
-		$this->template->content = View::factory('groups/edit')
-			->bind('alert', $fl)
-			->bind('group', $group);
-	}
-	*/
-/* 	public function action_groupsave()
-	{
-		if (!Auth::instance()->logged_in('admin')) $this->redirect('/');
-		
-		$id		= Arr::get($_POST, 'id');
-		$name	= iconv('UTF-8', 'CP1251', Arr::get($_POST, 'name'));
-		$desc	= iconv('UTF-8', 'CP1251', Arr::get($_POST, 'desc'));
-		
-		$company = Model::factory('company');
-		if ($id == 0) {
-			$id = $company->saveGroup($name, $desc);
-			$this->session->set('alert', __('group.saved'));
-		} else {
-			$company->updateGroup($id, $name, $desc);
-			$this->session->set('alert', __('group.updated'));
-		}
-		$this->redirect('companies/groupedit/' . $id);
-	} */
-	
-	/* public function action_grouplist()
-	{
-		$id=$this->request->param('id');
-		if (!(preg_match("/^\d+$/", $id))) $this->redirect('companies/groups');
-		$company = Model::factory('Company');
-		
-		if ($_POST) {
-			$old = array_unique(explode('|', Arr::get($_POST, 'list0', array())));
-			$new = array_unique(explode('|', Arr::get($_POST, 'list1', array())));
-			
-			//echo "<pre>";
-			//print_r($old);
-			//print_r($new);
-			//echo "</pre>";
-			//die;
-			
-			$del = array_diff($old, $new);
-			foreach ($del as $d)
-				if ($d != '')
-					$company->removeFromGroup($d, $id); 
-			
-			$add = array_diff($new, $old);
-			foreach ($add as $a)
-				if ($a != '')
-					$company->addToGroup($a, $id);
-			
-			$this->session->set('alert', __('group.listsaved'));
-			$this->redirect('companies/grouplist/' . $id);
-		}
-		
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
-
-		$data = $company->getGroup($id);
-		
-		$list = $company->getNamesWithGroup($id);
-
-		$this->template->content = View::factory('groups/companies')
-			->bind('alert', $fl)
-			->bind('list', $list)
-			->bind('group', $data);
-	}
-	
-	public function action_groupacl()
-	{
-		$id=$this->request->param('id');
-		if (!(preg_match("/^\d+$/", $id))) $this->redirect('companies/groups');
-		$company = Model::factory('Company');
-
-		if ($_POST) {
-			$data = array();
-			$modes = array('o_view', 'o_edit', 'o_add', 'o_delete', 'p_edit', 'p_add', 'p_delete', 'c_edit', 'c_add', 'c_delete');
-			$uids = Arr::get($_POST, 'uid');
-			foreach ($uids as $uid)
-				$data[$uid] = array(
-					'o_view'	=> 0,
-					'o_edit'	=> 0,
-					'o_add'		=> 0,
-					'o_delete'	=> 0,
-					'p_edit'	=> 0,
-					'p_add'		=> 0,
-					'p_delete'	=> 0,
-					'c_edit'	=> 0,
-					'c_add'		=> 0,
-					'c_delete'	=> 0);
-				foreach ($modes as $mode) {
-				$uids = Arr::get($_POST, $mode, array());
-				foreach ($uids as $uid)
-					$data[$uid][$mode] = 1;
-			}
-			foreach ($data as $uid => $acl)
-				Model::factory('user')->setGroupACL($id, $uid, $acl);
-
-			$this->session->set('alert', __('group.aclsaved'));
-			$this->redirect('companies/groupacl/' . $id);
-		}
-		
-		$data = $company->getGroup($id);
-		$list = Model::factory('user')->getGroupACL($id);
-				
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
-
-		$this->template->content = View::factory('groups/acls')
-			->bind('alert', $fl)
-			->bind('users', $list)
-			->bind('group', $data);
-	} */
 	
 	public function addpeople()
 	{

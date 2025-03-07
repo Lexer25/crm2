@@ -131,7 +131,7 @@ if ($alert) { ?>
 		$sn=0;
 	?>
 		<form id="form_data" name="form_data" action="" method="post">
-			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
+			<table class="data tablesorter-blue" width="100%"  id="tablesorter" >
 				<thead>
 					<tr>
 						<!--
@@ -177,7 +177,7 @@ if ($alert) { ?>
 						echo '<td>' . iconv('CP1251', 'UTF-8', $company->divcode) . '</td>';
 						
 						echo '<td>' //. Debug::vars($company)
-						.HTML::anchor('companies/edit/' . $company->id_parent, iconv('CP1251', 'UTF-8', $c['PARENT'])) . '</td>';
+						.HTML::anchor('companies?parent=' . $company->id_parent, iconv('CP1251', 'UTF-8', $c['PARENT'])) . '</td>';
 						
 						echo '<td>';
 					

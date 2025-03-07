@@ -311,27 +311,23 @@ where ssa.id_org='. $id_org;
 		return $res;
 	} */
 	
-	/**
+/**
 	5.12.2023 
+	4.02.2025 удалена пагинация, удалены ненужные входные параметры.
 	Получить список организаций
-	$user - id_pep авторизованного пользователя
-	$page - начиная с какой страницы
-	$perpage - количество записей
 	$parent_org - с какой родительской организации надо выводить данные
 	$filter - фильтр - организация, по которой надо вывести информацию
 	
 	*/
-	public function getListAdmin($user, $page = 1, $perpage = 10, $parent_org, $filter=null)
+	public function getListAdmin($parent_org, $filter=null)
 	{
-		//$filter=null;
-		
-		//echo Debug::vars('161', $user, $page , $perpage , 'parent_org='.$parent_org, 'filter bool='.$filter.'_'.is_string($filter).'_'.is_null(true).'_'.is_null(false)); exit;
 		$id_org_control=Arr::get(Auth::instance()->get_user(), 'ID_ORGCTRL');
+		
 		if(is_null($filter)) //если это не поиск конкретной оргназации, то вывожу всех дочек parent_org
 		{			
 		$sql = 'select  o.*, p.name AS parent, p.id_org AS parentid, p.name AS accessname ' . 
 			'from organization o
-			join organization_getchild (1,'.$id_org_control.') og on og.id_org =o.id_org 
+			join organization_getchild (1,'.$parent_org.') og on og.id_org =o.id_org 
 			INNER JOIN organization p ON o.id_parent = p.id_org 
 		
 			ORDER BY  o.name COLLATE PXW_CYRL';
@@ -339,7 +335,7 @@ where ssa.id_org='. $id_org;
 		} else {//если строго по фильтру, то вывожу эту организацию (если она разрешена текущего пользователю)
 			$sql = 'select  o.*, p.name AS parent, p.id_org AS parentid, p.name AS accessname ' . 
 			'from organization o
-			join organization_getchild (1,'.$id_org_control.') og on og.id_org =o.id_org 
+			join organization_getchild (1,'.$parent_org.') og on og.id_org =o.id_org 
 			INNER JOIN organization p ON o.id_parent = p.id_org 
 			where o.id_org>0 '.
 			($filter ? " and o.name containing '$filter'" : '') .'
