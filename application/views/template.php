@@ -91,7 +91,9 @@
 	</head> 
 	<body>
 		<div class="content_wrapper">
-			<?php include Kohana::find_file('views', 'header'); ?>		
+			<?php 
+			$timeStart=microtime(true);
+			include Kohana::find_file('views', 'header'); ?>		
 			<br>
 			<br>
 			<?php include Kohana::find_file('views', 'sidebar'); ?>
@@ -108,7 +110,9 @@
 				</div>
 			</div>
 		</div>
-
+<div id="someidentifier">
+<?php echo __('Time execute :time sec.', array(':time'=> number_format((microtime(true) - $timeStart), 3))); ?>
+</div>
 	<script>
 	function updateAdditionalInfo() {
 			var currentTime = new Date();

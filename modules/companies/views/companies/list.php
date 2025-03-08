@@ -129,59 +129,7 @@ if ($alert) { ?>
 	<?php
 		include Kohana::find_file('views', 'paginatoion_controller_template'); 
 		$sn=0;
-	?>
-		<form id="form_data" name="form_data" action="" method="post">
-			<table class="data tablesorter-blue" width="100%"  id="tablesorter" >
-				<thead>
-					<tr>
-						<!--
-						<th style="width:10px">
-							<input type="checkbox" id="check_all" name="check_all"/>
-						</th>
-						-->
-						<?php
-
-						echo '<th class="filter-false sorter-false">' . __('sn') . '</th>';
-						echo '<th class="filter-false">' . __('companies.id') . '</th>';
-						echo '<th>' . __('companies.name') . '</th>';
-						echo '<th class="sorter-false">' . __('companies.countChildren') . '</th>';
-						echo '<th class="sorter-false">' . __('companies.countContact') . '</th>';
-						echo '<th>' . __('companies.code') . '</th>';
-						echo '<th>' . __('companies.parent') . '</th>';
-						echo '<th class="filter-false sorter-false">' . __('companies.action') . '</th>';
-						?>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ($companies as $c) {
-						$company=new Company(Arr::get($c,'ID_ORG'));
-						?>
-					
-					<tr>
-						<!--
-						<td>
-							<input type="checkbox"/>
-						</td>
-						-->
-						<?php 
-						
-						echo '<td align="center">' . ++$sn . '</td>';
-						echo '<td align="center">' . $company->id_org . '</td>';
-						echo '<td>' . HTML::anchor('companies/edit/' . $company->id_org, iconv('CP1251', 'UTF-8', $company->name));
-							if($company->flag & 1) echo HTML::image('/images/icon_guest2.png', array('width'=>'16'));
-						echo '</td>';	
-					
-												
-						echo '<td>' . count($company->getChildIdOrg()) . '</td>';
-						echo '<td>' . count($company->getChildId_pepList()) . '</td>';
-						echo '<td>' . iconv('CP1251', 'UTF-8', $company->divcode) . '</td>';
-						
-						echo '<td>' //. Debug::vars($company)
-						.HTML::anchor('companies?parent=' . $company->id_parent, iconv('CP1251', 'UTF-8', $c['PARENT'])) . '</td>';
-						
-						echo '<td>';
-					
-						//набор параметров, определяющий поведение кнопок для разных ролей
+		//набор параметров, определяющий поведение кнопок для разных ролей
 						$user=new User();
 						$acl=new Acl(true);
 						if($acl->is_allowed($user->role,'organization', 'read')){
@@ -208,6 +156,62 @@ if ($alert) { ?>
 							$dis2_lighten='';
 							$dis3='';
 						};
+
+	?>
+		<form id="form_data" name="form_data" action="" method="post">
+			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0" id="tablesorter" >
+				<thead>
+					<tr>
+						<!--
+						<th style="width:10px">
+							<input type="checkbox" id="check_all" name="check_all"/>
+						</th>
+						-->
+						<?php
+
+						echo '<th class="filter-false sorter-false">' . __('sn') . '</th>';
+						echo '<th class="filter-false">' . __('companies.id') . '</th>';
+						echo '<th>' . __('companies.name') . '</th>';
+						echo '<th class="sorter-false">' . __('companies.countChildren') . '</th>';
+						echo '<th class="sorter-false">' . __('companies.countContact') . '</th>';
+						echo '<th>' . __('companies.code') . '</th>';
+						echo '<th>' . __('companies.parent') . '</th>';
+						echo '<th class="filter-false sorter-false">' . __('companies.action') . '</th>';
+						?>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($companies as $c) {
+						$t1=microtime(true);
+						$company=new Company(Arr::get($c,'ID_ORG'));
+						//echo Debug::vars('159', microtime(true) - $t1); exit;
+						?>
+					
+					<tr>
+						<!--
+						<td>
+							<input type="checkbox"/>
+						</td>
+						-->
+						<?php 
+						
+						echo '<td align="center">' . ++$sn . '</td>';
+						echo '<td align="center">' . $company->id_org . '</td>';
+						echo '<td>' . HTML::anchor('companies/edit/' . $company->id_org, iconv('CP1251', 'UTF-8', $company->name));
+							if($company->flag & 1) echo HTML::image('/images/icon_guest2.png', array('width'=>'16'));
+						echo '</td>';	
+					
+												
+						echo '<td>' . count($company->getChildIdOrg()) . '</td>';
+						echo '<td>' . count($company->getChildId_pepList()) . '</td>';
+						echo '<td>' . iconv('CP1251', 'UTF-8', $company->divcode) . '</td>';
+						
+						echo '<td>' //. Debug::vars($company)
+						.HTML::anchor('companies/edit/' . $company->id_parent, iconv('CP1251', 'UTF-8', $c['PARENT'])) . '</td>';
+						
+						echo '<td>';
+					
+						
 							
 			echo HTML::anchor('companies/edit/' . $company->id_org, HTML::image('images/icon_edit.png', array('title' => __('tip.edit'), 'class' => 'help '.$dis1)));
 						?>
