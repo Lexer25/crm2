@@ -149,12 +149,15 @@ if ($alert) { ?>
 
 		?>
 				<div>
-					Недоступные категории доступа
+
+				<fieldset>
+					<legend><?php echo __('Недоступные категории доступа'); ?></legend>
+		
 					<table>
 					<?php for ($j=0; $j<count($aaa); $j++){ //начинаю перебор массивово с перечнями категорий доступа
 					  
 						echo '<tr>';
-
+						
  										
 						foreach (Arr::get($aaa, $j) as $key=>$value) //вывод построчный
 						{
@@ -162,9 +165,7 @@ if ($alert) { ?>
 														
 							   // echo Debug::vars('174', $key, $value); exit;
 							if(in_array(Arr::get($value, 'ID_ACCESSNAME'), $aclsForCurrentUser)){
-    							// echo Form::checkbox('aclList['.Arr::get($value, 'ID_ACCESSNAME').']', Arr::get($value, 'ID_ACCESSNAME'), in_array (Arr::get($value, 'ID_ACCESSNAME'), $res))
-    							// .' '
-		                      // . iconv('CP1251', 'UTF-8', Arr::get($value, 'NAME', ''));
+    						
 
 							} else {
 						echo '<td>';	    
@@ -184,7 +185,10 @@ if ($alert) { ?>
 		  
 		 
 					</table>
-					Доступные категории доступа
+					</fieldset>
+
+					<fieldset>
+					<legend><?php echo __('Доступные категории доступа'); ?></legend>
 					<table>
 					<?php for ($j=0; $j<count($aaa); $j++){ //начинаю перебор массивово с перечнями категорий доступа
 					  
@@ -219,7 +223,7 @@ if ($alert) { ?>
 		  
 		 
 					</table>
-					
+					</fieldset>
 					
 					</div>
 					

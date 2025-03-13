@@ -81,10 +81,7 @@ class Auth_City extends Auth {
 			->execute(Database::instance('fb'))
 			->as_array());
 			
-			//echo Debug::vars('84', Arr::get($query, 'LOGIN'), Arr::get($query, 'PSWD'));exit;
-			
-			//$this->_login(Arr::get($query, 'LOGIN'), Arr::get($query, 'PSWD'));
-			
+				
 			Auth::instance()->login(Arr::get($query, 'LOGIN'), Arr::get($query, 'PSWD'));
 				
 		} catch (Exception $e) { 
