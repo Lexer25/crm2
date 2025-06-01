@@ -1,9 +1,7 @@
 <?php 
-$token = Profiler::start('test', 'profiler');
 //echo Debug::vars('13',$people );exit;
 //echo Debug::vars('14',$company );exit;
 //echo Debug::vars('15', Session::instance()->get('viewDeletePeopleOnly'));//exit;
-$token = Profiler::start('test', 'profiler');	
 
 if ($alert) { ?>
 <div class="alert_success">
@@ -261,9 +259,6 @@ include Kohana::find_file('views','alert'); ?>
 			<div id="chart_wrapper" class="chart_wrapper"></div>
 		<!-- End bar chart table-->
 		</form>
-		<?php }
-Profiler::stop($token);
-//echo Debug::vars('207', Profiler::stats(array($token)));
-		?>
+		<?php }?>
 	</div>
 </div>

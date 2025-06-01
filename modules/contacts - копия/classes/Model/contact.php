@@ -4,35 +4,6 @@ class Model_Contact extends Model
 {
 	
 	public $peopleIsActive = 1;
-	public $id_pep;
-	public $fio;
-	public $post;
-	public $id_orgName;
-	public $orgName;
-	public $rfidCount;
-	public $grzCount;
-	
-	/**9.05.2025 Тестирования для ускорения обработки вывода информации о пиплах (а их 5923).
-	*
-	*/
-	public function newInit()
-	{
-		$sql='select p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name as orgName,
-			COALESCE(count(case when c.id_cardtype=1 then 1 end), 0) AS count1,
-			COALESCE(count(case when c.id_cardtype=4 then 1 end), 0) AS count2
-			from people p
-			join organization o on o.id_org=p.id_org
-			left join card c on c.id_pep=p.id_pep and c.id_cardtype=1
-			where p."ACTIVE">0
-
-			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name';
-		$query = DB::query(Database::SELECT, $sql)
-					->execute(Database::instance('fb'))
-					->as_array();
-			
-		return $query;
-
-	}
 	
 	public function getCountByOrg($org)
 	{

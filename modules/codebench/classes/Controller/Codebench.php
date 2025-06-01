@@ -16,7 +16,6 @@ class Controller_Codebench extends Kohana_Controller_Template {
 	public function action_index()
 	{
 		$class = $this->request->param('class');
-
 		// Convert submitted class name to URI segment
 		if (isset($_POST['class']))
 		{
@@ -25,11 +24,11 @@ class Controller_Codebench extends Kohana_Controller_Template {
 
 		// Pass the class name on to the view
 		$this->template->class = (string) $class;
-
 		// Try to load the class, then run it
 		if (Kohana::auto_load($class) === TRUE)
 		{
 			$codebench = new $class;
+			
 			$this->template->codebench = $codebench->run();
 		}
 	}

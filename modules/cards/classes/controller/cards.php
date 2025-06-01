@@ -542,7 +542,7 @@ class Controller_Cards extends Controller_Template
 	*/
 	public function action_savecard()
 	{
-		echo Debug::vars('106', $_POST); exit;
+		//echo Debug::vars('106', $_POST); exit;
 		$validation=Validation::factory($_POST);
 		
 		$validation->rule('idcard','not_empty') 

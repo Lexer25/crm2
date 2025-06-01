@@ -4,35 +4,11 @@ class Model_Contact extends Model
 {
 	
 	public $peopleIsActive = 1;
-	public $id_pep;
-	public $fio;
-	public $post;
-	public $id_orgName;
-	public $orgName;
-	public $rfidCount;
-	public $grzCount;
 	
-	/**9.05.2025 Тестирования для ускорения обработки вывода информации о пиплах (а их 5923).
-	*
-	*/
-	public function newInit()
-	{
-		$sql='select p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name as orgName,
-			COALESCE(count(case when c.id_cardtype=1 then 1 end), 0) AS count1,
-			COALESCE(count(case when c.id_cardtype=4 then 1 end), 0) AS count2
-			from people p
-			join organization o on o.id_org=p.id_org
-			left join card c on c.id_pep=p.id_pep and c.id_cardtype=1
-			where p."ACTIVE">0
-
-			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name';
-		$query = DB::query(Database::SELECT, $sql)
-					->execute(Database::instance('fb'))
-					->as_array();
-			
-		return $query;
-
-	}
+	
+	
+	
+	
 	
 	public function getCountByOrg($org)
 	{
@@ -248,7 +224,7 @@ class Model_Contact extends Model
 			$g[] = $value['id_group'];
 		}
 
-		$sql =	'SELECT  p.*, o.name AS oname ' . 
+		$sql =	'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' p.*, o.name AS oname ' . 
     			'FROM organization o INNER JOIN people p  ON (p.id_org = o.id_org) ' .
 				'WHERE o.id_group IN (' . join(', ', $g) . ') ' . ($filter ? " AND (p.surname containing '$filter' OR p.name containing '$filter')" : '') .
 				'ORDER BY id_pep';
@@ -263,7 +239,7 @@ class Model_Contact extends Model
 	{
 		
 
-		$sql =  'SELECT  	o.id_org,
+		$sql =  'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 	o.id_org,
     				o.name AS oname,
     				p.id_pep,
 					p."ACTIVE" as is_active,
@@ -286,7 +262,7 @@ class Model_Contact extends Model
 	
 	public function getListAdmin($page = 1, $perpage = 10, $filter)
 	{
-		$sql =  'SELECT  p.*, o.name AS oname ' .
+		$sql =  'SELECT FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' p.*, o.name AS oname ' .
 				'FROM people p INNER JOIN organization o ON p.id_org = o.id_org ' .
 				($filter ? " WHERE upper(p.surname) containing upper('$filter') OR upper(p.name) containing upper('$filter')" : '') . 
 				'ORDER BY id_pep'; 
@@ -316,9 +292,10 @@ class Model_Contact extends Model
 	
 	public function getListUser($id_org, $page = 1, $perpage = 10, $filter)
 	{
-						
+		
+				
 		if(is_null($filter) or $filter=='' or $filter=='*') {// если фильтра нет, то выбираем всех пиплов из родительской и подчиненной организаций
-		$sql='select  
+		$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
 				o.id_org,
 				o.name AS oname,
                 p.id_pep,
@@ -330,7 +307,7 @@ class Model_Contact extends Model
 		join organization_getchild (1, ' . $id_org . ') og on og.id_org = p.id_org
 		where p."ACTIVE"='.$this->peopleIsActive.'';
 		} else {
-			$sql='select  
+			$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
 				o.id_org,
 				o.name AS oname,
                 p.id_pep,
@@ -347,7 +324,7 @@ class Model_Contact extends Model
 			
 			
 		}
-		//echo Debug::vars('306', $sql); exit;
+		echo Debug::vars('306', $sql); exit;
 		$res = DB::query(Database::SELECT, $sql)
 			->execute(Database::instance('fb'));
 			
@@ -487,37 +464,5 @@ class Model_Contact extends Model
 			DB::query(Database::UPDATE,$sql)	
 				->execute(Database::instance('fb'));
 	}
-	
-	
-	/** 4.12.2024 Проверка на уникальность id_pep
-	*
-	*/
-	public static function unique_idpep($id_pep)
-		{
-			
-		// Check if the username already exists in the database
-		//создаю user тут, в процедуре, локально, т.к.
-		//метод static реализуется без создания экземпляра класса, а значит наследование не работает.
-		$user=new User();
-		
-		
-		$sql='select count(id_pep) from people p
-		join organization_getchild(1, '.$user->id_orgctrl .') og on og.id_org=p.id_org
-		where p.id_pep='.$id_pep;
-		
-	
-		
-		$res = DB::query(Database::SELECT, $sql)
-			->execute(Database::instance('fb'))
-			->get('COUNT');
-		//echo Debug::vars('492', $res, $sql);exit;
-		if($res>0) return true;
-			
-			return false;
-		
-		}
-	
-	
-	
 	
 }

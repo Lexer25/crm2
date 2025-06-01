@@ -149,7 +149,6 @@ class Controller_Contacts extends Controller_Template
 	*/
 	public function action_index($filter = null)
 	{
-		
 		if((!is_null($filter)) OR (strtoupper($this->request->param('id')) == 'ALL')){
 		$contacts = Model::factory('Contact');
 		//определяю режим показа: 
@@ -185,7 +184,7 @@ class Controller_Contacts extends Controller_Template
 			$contacts ->peopleIsActive=1;
 		}
 		
-
+	
 			
 		$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
 	
@@ -198,9 +197,6 @@ class Controller_Contacts extends Controller_Template
 			$list=array_slice($list, 0, Kohana::$config->load('config_newcrm')->get('table_view_max_contact'));
 			
 		}
-		//$list = array_slice($contacts->newInit(), 0, 5);
-		$list = $contacts->newInit();
-		
 		$fl=$alert;
 			
 		$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
@@ -208,18 +204,16 @@ class Controller_Contacts extends Controller_Template
 		}
 
 		//include Kohana::find_file('views\alerttest','testarralert');
-		//$view = View::factory('contacts/list2')// это "новый" вариант, где все должно браться из единого массива, и этот вариант работает быстрее в 10 раз, но еще не доделан
-		$view = View::factory('contacts/list')// это "старый" вариант, где много new
+		$view = View::factory('contacts/list')
 			
 			->bind('people', $list)
 			->bind('alert', $fl)
 			->bind('arrAlert[]', $arrAlert[])
+			->bind('showphone', $showphone)
 			->bind('filter', $filter)
 			->bind('arrAlert', $arrAlert)
 			;
 	$this->template->content =	$view;	
-	
-
 		
 	//echo View::factory('profiler/stats');
 	}
