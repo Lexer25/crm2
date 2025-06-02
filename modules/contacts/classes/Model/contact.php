@@ -15,18 +15,31 @@ class Model_Contact extends Model
 	/**9.05.2025 Тестирования для ускорения обработки вывода информации о пиплах (а их 5923).
 	*
 	*/
-	public function newInit()
+	public function newInit($filter=null)
 	{
-		$sql='select p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name as orgName,
+		if($filter)
+		{$sql='select p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name as orgName, p."ACTIVE",
 			COALESCE(count(case when c.id_cardtype=1 then 1 end), 0) AS count1,
 			COALESCE(count(case when c.id_cardtype=4 then 1 end), 0) AS count2
 			from people p
 			join organization o on o.id_org=p.id_org
-			left join card c on c.id_pep=p.id_pep and c.id_cardtype=1
+			left join card c on c.id_pep=p.id_pep
 			where p."ACTIVE">0
+			and p.surname containing \''.$filter.'\'
+			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name, p."ACTIVE"';
+		}else {	
+		$sql='select p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name as orgName, p."ACTIVE",
+			COALESCE(count(case when c.id_cardtype=1 then 1 end), 0) AS count1,
+			COALESCE(count(case when c.id_cardtype=4 then 1 end), 0) AS count2
+			from people p
+			join organization o on o.id_org=p.id_org
+			left join card c on c.id_pep=p.id_pep
+			where p."ACTIVE">0
+			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name, p."ACTIVE"';
+		}
 
-			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name';
-		$query = DB::query(Database::SELECT, $sql)
+//echo Debug::vars('41', $sql);exit;		
+		$query = DB::query(Database::SELECT, iconv('UTF-8', 'CP1251',$sql))
 					->execute(Database::instance('fb'))
 					->as_array();
 			

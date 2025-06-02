@@ -1,4 +1,6 @@
 <?php 
+//это "новая" форма. В нее передается полный список пиплов, и на ее основе строится общий вид
+//это сделано с целью ускорения подготовки страницы.
 $token = Profiler::start('test', 'profiler');
 //echo Debug::vars('13',$people );exit;
 //echo Debug::vars('14',$company );exit;
@@ -97,7 +99,7 @@ include Kohana::find_file('views','alert'); ?>
 				<tbody>
 					<?php foreach ($people as $pep=>$pepVal) 
 					{ 
-					
+					//echo Debug::vars('103', $pep, $pepVal);//exit;
 					//$peppep=new Contact(Arr::get($pep,'ID_PEP'));
 					//$org = new Company($peppep->id_org);
 					?>
@@ -110,23 +112,32 @@ include Kohana::find_file('views','alert'); ?>
 						<td><?php echo ++$sn; ?></td>
 						
 						
-						<td><?php //вывод символов идентификаторов RFID
+						<td><?php 
 								
 								echo Arr::get($pepVal, 'ID_PEP');
 								?>
 						</td>
 						
 						<td>
-							<?php //вывод символов идентификаторов ГРЗ
+							<?php //вывод символов идентификаторов RFID
 								
-								echo Arr::get($pepVal, 'COUNT1');
+								//echo Arr::get($pepVal, 'COUNT1');
+								
+								for($i=0; $i<Arr::get($pepVal, 'COUNT1'); $i++)
+								{
+									echo HTML::image('/images/icon_card.png', array('width'=>'16'));
+								}
 								
 								 ?>
 						</td>
 						
-						<td><?php 
+						<td><?php //вывод символов идентификаторов ГРЗ
 						
-							echo Arr::get($pepVal, 'COUNT2');
+							//echo Arr::get($pepVal, 'COUNT2');
+							for($i=0; $i<Arr::get($pepVal, 'COUNT2'); $i++)
+							{
+								echo HTML::image('/images/icon_grz.png', array('height'=>'16'));
+							}
 						
 						?></td>
 						<td>
@@ -144,7 +155,16 @@ include Kohana::find_file('views','alert'); ?>
 						</td>
 						<td><?php 
 						
-							echo iconv('windows-1251','UTF-8', Arr::get($pepVal, 'ORGNAME'));
+							//echo iconv('windows-1251','UTF-8', Arr::get($pepVal, 'ORGNAME'));
+							
+						
+						if (Auth::instance()->logged_in('admin') && Arr::get($pepVal, 'ID_PEP') <>1)
+						{
+						    echo HTML::anchor('companies/edit/' . Arr::get($pepVal, 'ID_ORG'), iconv('CP1251', 'UTF-8', Arr::get($pepVal, 'ORGNAME'))); 
+						}	else {
+							    echo iconv('CP1251', 'UTF-8',  Arr::get($pepVal, 'ORGNAME'));
+						}
+							
 							?>
 						</td>
 						
@@ -152,7 +172,7 @@ include Kohana::find_file('views','alert'); ?>
 						<?php
 						//Определяюсь с правами текущего пользователя
 						$user=new User();
-						
+						//echo Debug::vars('175', $user, class_exists('Acl'));exit;
 						//набор параметров, определяющий поведение кнопок для разных ролей
 							if(class_exists('Acl')){
 								$acl=new Acl(true);
@@ -188,6 +208,50 @@ include Kohana::find_file('views','alert'); ?>
 									
 							}
 						?>
+						<td>
+							<?php 
+							    
+	//редактировать						    
+							 echo HTML::anchor('contacts/edit/'.Arr::get($pepVal, 'ID_PEP'), HTML::image('images/icon_edit.png', array('title' => __('tip.edit'), 'class' => 'help', 'alt'=>'edit'.$dis1))
+							    
+							     );
+
+							 ?>
+							
+							<?php if (Arr::get($pepVal, 'ACTIVE') == 1) {
+
+									switch (ConfigType::howDeletePeople()) {
+										case 0://делать неактивным. Вывожу надпись что сотрудник будет Уволен
+										?>
+										<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.confirmSetNotActive'); ?>')) location.href='<?php echo URL::base() . 'contacts/fired/' . Arr::get($pepVal, 'ACTIVE'); ?>';">
+										 <?php echo HTML::image('images/icon_delete.png', array('title' => __('tip.fired'), 'class' => 'help '.$dis2_lighten)); ?>
+										</a>
+										<?php 
+										
+										break;
+										case 1:// удалять сотрудника. Вывожу надпись, что сотрудник будет удален
+											?>
+											<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.confirmdelete'); ?>')) location.href='<?php echo URL::base() . 'contacts/fired/' . Arr::get($pepVal, 'ACTIVE'); ?>';">
+											 <?php echo HTML::image('images/icon_delete.png', array('title' => __('tip.delete'), 'class' => 'help '.$dis2_lighten)); ?>
+											</a>
+											<?php 
+										
+										break;
+										
+									}
+//уволить							
+
+							?>
+										
+								<?php } else {?>
+									<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.restore'); ?>')) location.href='<?php echo URL::base() . 'contacts/restore/' . Arr::get($pepVal, 'ACTIVE'); ?>';">
+										<?php echo HTML::image('images/restore_16.png', array('title' => __('tip.restore'), 'class' => 'help '.$dis2_lighten)); ?>
+								</a>
+								
+								
+								<?php }
+							?>
+						</td>
 						
 					</tr>
 					<?php }
@@ -201,7 +265,7 @@ include Kohana::find_file('views','alert'); ?>
 	</div>
 </div>
 <?php }
-
+echo 'Time exec '.(microtime(true) - $t1);
 Profiler::stop($token);
 //echo Debug::vars('207', Profiler::stats(array($token)));
 					?>

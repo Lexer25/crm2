@@ -418,6 +418,49 @@ include Kohana::find_file('views','alert');
 		</table>				
 				</div>
 		</fieldset>	
+		
+	<fieldset>
+						<legend><?php echo __('setting.database'); ?></legend>
+						<div>
+						<?php
+
+	$_connectName='fb';
+			$about=Model::factory('Parkdb')->aboutDB($_connectName);
+			//echo Debug::vars('22', $about);
+			
+		?>
+		<table class="tablesorter-blue">
+
+
+			<tr>
+				<td>Имя подключения</td>
+				<td><?php echo iconv('CP1251','UTF-8',  Arr::get($about, 'connectName')); ?></td>
+			</tr>
+			<tr>
+				<td>Тип подключения</td>
+				<td><?php echo iconv('CP1251','UTF-8', Arr::get($about, 'dsn')); ?></td>
+			</tr>
+			<tr>
+				<td>Путь к базе данных</td>
+				<td><?php echo iconv('cp866','UTF-8//IGNORE', Arr::get($about, 'pathDB'));?>
+				
+			</td>
+			<tr>
+				<td>IP</td>
+				<td><?php echo iconv('cp866','UTF-8//IGNORE', Arr::get($about, 'Server'));?>
+				
+			</td>
+			
+			
+			</tr>
+			
+			
+
+		</table>
+				</div>
+		</fieldset>	
+		
+		
 
 	</div>
 </div>

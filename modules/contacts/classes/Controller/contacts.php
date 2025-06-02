@@ -149,7 +149,7 @@ class Controller_Contacts extends Controller_Template
 	*/
 	public function action_index($filter = null)
 	{
-		
+		$t1=microtime(true);
 		if((!is_null($filter)) OR (strtoupper($this->request->param('id')) == 'ALL')){
 		$contacts = Model::factory('Contact');
 		//определяю режим показа: 
@@ -158,7 +158,7 @@ class Controller_Contacts extends Controller_Template
 		$q=0;// количество доступных контактов пока 0.
 		$list=array();// список контактов пока пуст.
 		
-		$id_orgctrl=$this->user->id_orgctrl;
+		$id_orgctrl=$this->user->id_orgctrl;//организация для управления текущего пользователя
 		// если $this->session->get('is_host') == 1, то работаем в режиме быстрой регистрации. Для этого $id_orgctrl берется из настроек fastorder для текущего юзера
 		if($this->session->get('is_host') == 1) {
 		//предстоит работа с быстрой регистрацией. Для этого:
@@ -189,7 +189,7 @@ class Controller_Contacts extends Controller_Template
 			
 		$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
 	
-		//echo Debug::vars('190', count($list));exit;
+		//echo Debug::vars('190', count($list), (microtime(true)-$t1));exit;
 
 		//контроль количества выводимых строк. если стро много - то будет заметное "торможение".
 		$alert='';
@@ -199,8 +199,8 @@ class Controller_Contacts extends Controller_Template
 			
 		}
 		//$list = array_slice($contacts->newInit(), 0, 5);
-		$list = $contacts->newInit();
-		
+		$list = $contacts->newInit($filter);//май 2025 г, получаю весь список пиплов сразу. Время выполнения примерно 0,2 секунды.
+		//echo Debug::vars('203', count($list), (microtime(true)-$t1));exit;
 		$fl=$alert;
 			
 		$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
@@ -208,14 +208,15 @@ class Controller_Contacts extends Controller_Template
 		}
 
 		//include Kohana::find_file('views\alerttest','testarralert');
-		//$view = View::factory('contacts/list2')// это "новый" вариант, где все должно браться из единого массива, и этот вариант работает быстрее в 10 раз, но еще не доделан
-		$view = View::factory('contacts/list')// это "старый" вариант, где много new
+		$view = View::factory('contacts/list2')// это "новый" вариант, где все должно браться из единого массива, и этот вариант работает быстрее в 10 раз, но еще не доделан
+		//$view = View::factory('contacts/list')// это "старый" вариант, где много new
 			
 			->bind('people', $list)
 			->bind('alert', $fl)
 			->bind('arrAlert[]', $arrAlert[])
 			->bind('filter', $filter)
 			->bind('arrAlert', $arrAlert)
+			->bind('t1', $t1)
 			;
 	$this->template->content =	$view;	
 	

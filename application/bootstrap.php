@@ -147,6 +147,7 @@ Kohana::modules(array(
 	'companies' => MODPATH.'companies',
 	'monitors' => MODPATH.'monitors',
 	'access' => MODPATH.'access',
+	'setup' => MODPATH.'setup',
 	));
 /*
 Добавляю хранение настроек в базе данных
