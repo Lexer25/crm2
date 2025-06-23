@@ -146,6 +146,7 @@ Kohana::modules(array(
 	'mreports' => MODPATH.'report',
 	'companies' => MODPATH.'companies',
 	'monitors' => MODPATH.'monitors',
+	'order' => MODPATH.'order',
 	
 	));
 /*
@@ -180,6 +181,14 @@ Kohana::$config->attach(new Config_Database(array('instance'=>'cdb')));
 		'controller' => 'passoffices',
 		'action'     => 'edit',
 	)); 
+	
+	Route::set('edit_order', 'order/edit((/<id>)(/<mode>))')
+	->defaults(array(
+		'controller' => 'order',
+		'action'     => 'edit',
+	)); 
+	
+	
     
 Route::set('edit', 'companies/delete((/<id>)(/<parent>))')
 	->defaults(array(

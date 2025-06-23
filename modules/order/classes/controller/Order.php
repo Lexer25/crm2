@@ -7,7 +7,7 @@
 */
 
 
-class Controller_Passoffices extends Controller_Template
+class Controller_Order extends Controller_Template
 {
 	public $template = 'template';
 	public $archive_mode = 1;// константа режима работы Архив
@@ -134,7 +134,7 @@ class Controller_Passoffices extends Controller_Template
 	{
 		$this->session->set('mode', 'issue');
 		
-		$this->redirect('passoffices/edit/0/issue');// параметр 0 - значит, новый гость
+		$this->redirect('order/edit/0/issue');// параметр 0 - значит, новый гость
 	}
 	
 	
@@ -198,7 +198,7 @@ class Controller_Passoffices extends Controller_Template
 	*/
 	public function action_save()
 	{
-		echo Debug::vars('70', $_POST); //exit;
+		echo Debug::vars('70', $_POST); exit;
 		
 		
 		$id			= Arr::get($_POST, 'id_pep');
@@ -208,7 +208,7 @@ class Controller_Passoffices extends Controller_Template
 		switch($todo){
 			
 			
-			case 'savenew':// это добавление нового пользователя, т.к. $id (она же id_pep) равна 0.
+			case 'savenew':// это добавление новой заявки
 				$key=new Keyk($idcard);
 				$key->id_cardtype=1;//указал, что карта именно RFID
 				$key->rfidmode=$rfidmode;
@@ -290,7 +290,7 @@ class Controller_Passoffices extends Controller_Template
 					Session::instance()->set('arrAlert',$arrAlert);
 				}
 				
-		$this->redirect('passoffices/edit/0/issue');
+		$this->redirect('order/edit/0/issue');
 			break;
 			/** ручная отметка о выходе либо обновление данных гостя
 			*Если нажата кнопка submit - это отметка о выходе
@@ -320,7 +320,7 @@ class Controller_Passoffices extends Controller_Template
 						
 					}
 					
-				$this->redirect('passoffices/edit/'.Arr::get($_POST,'id_pep', 0).'/guest_mode');	
+				$this->redirect('order/edit/'.Arr::get($_POST,'id_pep', 0).'/guest_mode');	
 					
 				}
 				
@@ -341,7 +341,7 @@ class Controller_Passoffices extends Controller_Template
 					Session::instance()->set('alert',$alert);
 					
 				}
-					$this->redirect('passoffices');
+					$this->redirect('order');
 			break;
 			
 			case 'reissue':// выдача карты уже известному гостю
@@ -396,14 +396,14 @@ class Controller_Passoffices extends Controller_Template
 			break;
 	}
 			
-		//$this->redirect('passoffices');
-		$this->redirect('passoffices/edit/' . $id);
+		//$this->redirect('order');
+		$this->redirect('order/edit/' . $id);
 	}
 
 	
 	/**23.06.2024
 	Регистрация нового гостя или редактирование уже зарегистрированного.
-	* @input passoffices/edit/<id_pep>/<режим работы>
+	* @input order/edit/<id_pep>/<режим работы>
 		'guest_mode'://просмотр гостя с картой, можно сделать отметку о выходе
 		'archive_mode'://просмотр архива
 		'issue'://выдача карты новому гостю
@@ -412,7 +412,7 @@ class Controller_Passoffices extends Controller_Template
 
 	public function action_edit()
 	{
-	
+	//echo Debug::vars('415');exit;
 		$id_pep=$this->request->param('id');// кого редактируем
 		$mode=$this->request->param('mode');//режим работы
 
@@ -432,7 +432,7 @@ class Controller_Passoffices extends Controller_Template
 		))
 		;
 					
-		$this->template->content = View::factory('passoffice/edit')
+		$this->template->content = View::factory('order/edit')
 			->bind('id_pep', $id_pep)
 			->bind('contact', $contact)
 			->bind('alert', $fl)
@@ -453,7 +453,7 @@ class Controller_Passoffices extends Controller_Template
 	{
 		$id=$this->request->param('id');
 		$contact = Model::factory('Contact')->getContact($id);
-		if (!$contact) $this->redirect('passoffices');
+		if (!$contact) $this->redirect('order');
 		$companies = Model::factory('Company')->getNames(true);
 		
 		$this->template->content = View::factory('passoffice/view')
@@ -467,7 +467,7 @@ class Controller_Passoffices extends Controller_Template
 	{
 		$id=$this->request->param('id');
 		$contact = Model::factory('Contact')->getContact($id);//Получаю контакт по его id
-		if (!$contact) $this->redirect('passoffices');//если контакта нет, то перенаправление на список контактов 
+		if (!$contact) $this->redirect('order');//если контакта нет, то перенаправление на список контактов 
 	//	беру историю для указанного контакта историю. Для гостя надо указать бОльший диапазон дат за последний год
 		$hist=new History();
 		$hist->id_pep=$id;
@@ -515,7 +515,7 @@ class Controller_Passoffices extends Controller_Template
 		Session::instance()->set('alert', $alert);
 		
 		
-		$this->redirect('passoffices');
+		$this->redirect('order');
 	}
 	
 	
@@ -540,7 +540,7 @@ class Controller_Passoffices extends Controller_Template
 	{
 		$id=$this->request->param('id');
 		$contact = Model::factory('Contact')->getContact($id);
-		if (!$contact) $this->redirect('passoffices');
+		if (!$contact) $this->redirect('order');
 		$cards = Model::factory('Card')->getListByPeople($id);
 
 		$fl = $this->session->get('alert');
@@ -584,7 +584,7 @@ class Controller_Passoffices extends Controller_Template
 			
 		
 		$contact_acl = Model::factory('Contact')->contact_acl($id);//список категорий доступа, выданных контакту
-		if ($id != "0" && !$contact) $this->redirect('passoffices');//если что не так - переход на корень
+		if ($id != "0" && !$contact) $this->redirect('order');//если что не так - переход на корень
 		$isAdmin = Auth::instance()->logged_in('admin');
 		
 		//$companies = Model::factory('Company')->getNames($isAdmin ? null : Auth::instance()->get_user());
@@ -770,14 +770,14 @@ class Controller_Passoffices extends Controller_Template
 		}
 		
 		
-		$alert=__('passoffices.resultUpdateAcl', array(':addAclOkCount'=>$addAclOkCount,':delAclOkCount'=>$delAclOkCount ));		
+		$alert=__('order.resultUpdateAcl', array(':addAclOkCount'=>$addAclOkCount,':delAclOkCount'=>$delAclOkCount ));		
 		$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>$alert);		
 		Session::instance()->set('arrAlert',$arrAlert);
 		
 		//echo Debug::vars('416', Session::instance());exit;
 		
 		//echo Debug::vars('254',$source, $oldACL , $aclForDel, $aclForAdd, $resultDelAcl, $resultAddAcl); exit;
-		$this->redirect('passoffices/acl/'.$id_pep);
+		$this->redirect('order/acl/'.$id_pep);
 	}
 	
 	
@@ -791,7 +791,7 @@ class Controller_Passoffices extends Controller_Template
 		Model::factory('Card')->reload($id);
 		
 		Session::instance()->set('alert', __('cards.deleted'));
-		$this->redirect('passoffices/cardlist');
+		$this->redirect('order/cardlist');
 	}
 	
 	
@@ -872,7 +872,7 @@ class Controller_Passoffices extends Controller_Template
 		  }
 		  
 		
-		$this->redirect('passoffices/config');
+		$this->redirect('order/config');
 		
 	}
 	
@@ -954,7 +954,7 @@ class Controller_Passoffices extends Controller_Template
 				$po->name=Arr::get($post,'po_name');
 				$po->is_active=1;
 				$po->add();
-				$this->redirect('passoffices/config');
+				$this->redirect('order/config');
 			} else {
 				
 				throw new exceptioncrm();
@@ -985,7 +985,7 @@ class Controller_Passoffices extends Controller_Template
 			    switch(Arr::get($post, 'todo')){
 			        case 'deletePassoffice':
 			            $po->delete();
-			            $this->redirect('passoffices/config');
+			            $this->redirect('order/config');
 			        break;
 			        case 'updatePassoffice':
 					
@@ -994,7 +994,7 @@ class Controller_Passoffices extends Controller_Template
 			         $po->idOrgGuestArchive=Arr::get($post, 'idOrgGuestArchive');
 			         $po->is_active=Arr::get($post, 'is_active');
 			         $po->update();
-			         $this->redirect('passoffices/config');
+			         $this->redirect('order/config');
 			        
 			        break;
 			        
@@ -1002,7 +1002,7 @@ class Controller_Passoffices extends Controller_Template
 				
 			} else {
 				
-			    $this->redirect('passoffices/config');
+			    $this->redirect('order/config');
 			}
 			
 		

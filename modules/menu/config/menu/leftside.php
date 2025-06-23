@@ -166,18 +166,43 @@ return [
 									'tooltip' => 'passoffice.menu_events',
 								],
 								
-						'make_order'=>[
-									'url'     => 'passoffices/order',
-									'icon'    => '',
-									'title'   => 'passoffice.menu_order',
-									'tooltip' => 'passoffice.menu_order',
-								],
-								
+													
 						'config'=>[
 									'url'     => 'passoffices/config',
 									'icon'    => '',
 									'title'   => 'sidebar.config',
 									'tooltip' => 'sidebar.config',
+								],
+						
+							
+					]
+					
+				],
+		
+					'order'=>[	//заказ пропусков
+					'url'     => 'order.order',
+					'icon'    => 'icon_guest.png',
+					'title'   => 'order.order',
+					'tooltip' => 'order.order',
+					'visible' => true, // можно запретить показ, если false
+					'items'   => [
+						'guestslist'=>[
+									'url'     => 'order/guest',
+									'icon'    => '',
+									'title'   => 'order.orderlist',
+									'tooltip' => 'order.orderlist',
+								],
+						'addorder'=>[
+									'url'     => 'order/archive',
+									'icon'    => '',
+									'title'   => 'sidebar.archive',
+									'tooltip' => 'sidebar.archive',
+								],
+						'addguest'=>[
+									'url'     => 'order/edit/0/issue',
+									'icon'    => '',
+									'title'   => 'sidebar.addguest',
+									'tooltip' => 'sidebar.addguest',
 								],
 						
 							
