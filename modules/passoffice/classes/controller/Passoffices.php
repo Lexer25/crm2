@@ -56,6 +56,16 @@ class Controller_Passoffices extends Controller_Template
 	}
 	
 	
+	/**23.06.2025 Заказ пропусков сторонними организациями.
+	*
+	*/
+	public function action_order()
+	{
+		$content=View::factory('passoffice/order', array(
+	        
+	    ));
+		
+	}
 	
 	/** 2.07.2024 Событий по гостевым картам, для бюро пропусков.
 	 * 

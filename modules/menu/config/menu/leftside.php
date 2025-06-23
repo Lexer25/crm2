@@ -165,6 +165,14 @@ return [
 									'title'   => 'passoffice.menu_events',
 									'tooltip' => 'passoffice.menu_events',
 								],
+								
+						'make_order'=>[
+									'url'     => 'passoffices/order',
+									'icon'    => '',
+									'title'   => 'passoffice.menu_order',
+									'tooltip' => 'passoffice.menu_order',
+								],
+								
 						'config'=>[
 									'url'     => 'passoffices/config',
 									'icon'    => '',
