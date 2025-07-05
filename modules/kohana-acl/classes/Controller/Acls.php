@@ -16,7 +16,7 @@ class Controller_Acls extends Controller_Template {
 
 		$acl=new Acl(true);
 		$resource='acl';
-		if(!$acl->is_allowed($user->role,$resource, 'read')){
+		if(!$acl->is_allowed($this->user->role,$resource, 'read')){
 			
 			
 			$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>__('No_ACL'));

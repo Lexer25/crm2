@@ -37,7 +37,7 @@ return array(
 			'Reports',
 			'passoffice',
 			'monitor',
-			//'acl',
+			'acl',
 			'doors',
 			),
 	//содержимое главной страницы
