@@ -4,7 +4,7 @@
 
 if (isset($arrAlert)) { 
 //echo Debug::vars('5-5', $arrAlert, !empty($arrAlert));//exit;
-	if(!empty($arrAlert)){
+	if(empty($arrAlert)){
 		include Kohana::find_file('views', 'alertState');
 		foreach($arrAlert as $_key=>$value){
 			
@@ -17,7 +17,7 @@ if (isset($arrAlert)) {
 	}
 } else {
 	
-	//echo __('no_arrAlert');
+	echo __('no_arrAlert');
 }
 
 ?>

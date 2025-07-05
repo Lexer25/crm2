@@ -13,12 +13,14 @@ class Controller_Doors extends Controller_Template {
 	{
 		$_SESSION['menu_active']='door';
 		$doorList=Model::factory('Door')->getDoorList();
+		//$doorList=Model::factory('Door')->getDoorListArray();
 		//echo Debug::vars('18',$doorList);exit;
 		$content = View::factory('door/list', array(
 			'doors'=>$doorList,
 		
 		));
         $this->template->content = $content;
+		
 	}
 	 
 	 

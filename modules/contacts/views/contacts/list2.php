@@ -6,7 +6,8 @@ $token = Profiler::start('test', 'profiler');
 //echo Debug::vars('14',$company );exit;
 //echo Debug::vars('15', Session::instance()->get('viewDeletePeopleOnly'));//exit;
 $token = Profiler::start('test', 'profiler');	
-
+//Определяюсь с правами текущего пользователя
+$user=new User();
 if ($alert) { ?>
 <div class="alert_success">
 	<p>
@@ -59,7 +60,10 @@ include Kohana::find_file('views','alert'); ?>
 	<br class="clear"/>
 	<div class="content">
 		
-		<?php if (count($people) <= 0) { ?>
+		<?php 
+		echo Debug::vars('63',count($people), $user, $user->id_orgctrl );
+		if (count($people) <= 0) 
+		{ ?>
 		<div style="margin: 100px 0; text-align: center;">
 			<?php echo __('contacts.empty');
 				echo '<br><br>'.HTML::anchor('contacts/index/all','Показать все. Вывод всех записей может занять много времени.');
@@ -170,8 +174,7 @@ include Kohana::find_file('views','alert'); ?>
 						
 					
 						<?php
-						//Определяюсь с правами текущего пользователя
-						$user=new User();
+						
 						//echo Debug::vars('175', $user, class_exists('Acl'));exit;
 						//набор параметров, определяющий поведение кнопок для разных ролей
 							if(class_exists('Acl')){

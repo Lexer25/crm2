@@ -10,6 +10,8 @@ class Controller_Contacts extends Controller_Template
 	public function before()
 	{
 		parent::before();
+	//	echo Debug::vars('13',$this->request->controller(),  $this->request->action());
+		
 	}
 
 	
@@ -150,6 +152,7 @@ class Controller_Contacts extends Controller_Template
 	public function action_index($filter = null)
 	{
 		$t1=microtime(true);
+		//если указано, что выводить с учетом фильтра, либо ВСЕХ (ALL), то начинаю выборку с учетом фильтра.
 		if((!is_null($filter)) OR (strtoupper($this->request->param('id')) == 'ALL')){
 		$contacts = Model::factory('Contact');
 		//определяю режим показа: 

@@ -274,8 +274,6 @@ class Model_Contact extends Model
 	
 	public function getListByOrg($page = 1, $perpage = 10, $org)
 	{
-		
-
 		$sql =  'SELECT  	o.id_org,
     				o.name AS oname,
     				p.id_pep,
