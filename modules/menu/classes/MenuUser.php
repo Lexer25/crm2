@@ -5,8 +5,9 @@ class MenuUser extends Kohana_Menu {
 	/**
 	 *06.10.2024
 	 * Instantiate a new menu с учетом нужного шаблона
-	 *предполагается, что из общего файла меню будут выбраны только те пункты, которые указанаы в шаблоне
-	 * шаблон - это массив с перечнем корневых элементов меню, которые необходимо вывести на экран
+	 *@config_file - файл с полным перечнем меню
+	 *@_file - массив с пунктами меню, которые необходимо вывести на экран
+	 * т.о, на экран будут выведены не все пункты меню, а только указанные.
 	 */
 	public static function factory($config_file = 'simple', $_file = 'simple')
 	{
@@ -15,8 +16,7 @@ class MenuUser extends Kohana_Menu {
         
 		// Auto-detect view path when no view file given
 		if (Arr::get($menu_config, 'view') === NULL) {
-			$view_file = Kohana::find_file('views/'.self::VIEWS_DIR, $config_file)
-				? $config_file : self::DEFAULT_VIEW;
+			$view_file = Kohana::find_file('views/'.self::VIEWS_DIR, $config_file)? $config_file : self::DEFAULT_VIEW;
 			$menu_config['view'] = self::VIEWS_DIR.DIRECTORY_SEPARATOR.$view_file;
 		}
 		
@@ -30,7 +30,7 @@ class MenuUser extends Kohana_Menu {
 			$currentMenu['items'][]=Arr::get(Arr::get($menu_config, 'items'), $key);
 
 		}			
-			
+		
 		
 		return new Menu($currentMenu);
 	}

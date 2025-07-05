@@ -19,21 +19,21 @@ return [
 					'url'     => 'companies',
 					'title'   => 'companies',
 					'icon'    => 'icon_companies.png',
-					'tooltip' => 'sidebar.companieslist',
+					'tooltip' => 'Просмотр списка организаций',
 					'attributes'=> ['data-method' => 'ajax'],
 					'items'   => [
 						'list'=>[
 									'url'     => 'companies',
 									'icon'    => '',
 									'title'   => 'sidebar.companieslist',
-									'tooltip' => 'sidebar.companieslist',
+									'tooltip' => 'Просмотр списка организаций',
 									'visible' => true,
 								],
 						'add'=>[
 								'url'     => 'companies/edit/0',
 								'icon'    => '',
 								'title'   => 'sidebar.addcompany',
-								'tooltip' => 'sidebar.addcompany'
+								'tooltip' => 'Добавление организации'
 							]
 					]
 				],

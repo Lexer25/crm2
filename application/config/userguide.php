@@ -2,7 +2,7 @@
 
 return array(
 		// Enable the API browser.  TRUE or FALSE
-		'api_browser'  => TRUE,
+		//'api_browser'  => TRUE,
 
 	// Enable these packages in the API browser.  TRUE for all packages, or a string of comma seperated packages, using 'None' for a class with no @package
 	// Example: 'api_packages' => 'Kohana,Kohana/Database,Kohana/ORM,None',
@@ -35,7 +35,7 @@ return array(
 		'kohana' => array(
 
 			// Whether this modules userguide pages should be shown
-				'enabled' => FALSE,
+				'enabled' => false,
 
 			// The name that should show up on the userguide index page
 			'name' => 'Kohana',
@@ -60,6 +60,21 @@ return array(
 			
 			// Copyright message, shown in the footer for this module
 			'copyright' => '&copy; 2008–2012 Kohana Team',
+		),
+		
+	'menu' => array(
+
+			// Whether this modules userguide pages should be shown
+				'enabled' => true,
+			
+			// The name that should show up on the userguide index page
+			'name' => 'Меню слева',
+
+			// A short description of this module, shown on the index page
+			'description' => 'Описание механизма настройки меню.',
+			
+			// Copyright message, shown in the footer for this module
+			'copyright' => '&copy; 2008–2012 Artsec',
 		),
 		
 	

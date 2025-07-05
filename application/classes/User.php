@@ -12,8 +12,9 @@ Class User {
 	public $id_devgroup;
 	public $login;
 	public $role;
+	public $flag;
 	
-
+	
 	
 	public function __construct($default = array())
 	{
@@ -28,6 +29,7 @@ Class User {
 		$this->id_devgroup=Arr::get($ddd, 'ID_DEVGROUP');
 		$this->login=Arr::get($ddd, 'LOGIN');
 		$this->role=Arr::get($ddd, 'ROLE');
+		$this->flag=Arr::get($ddd, 'FLAG');
 	}
 
 	/*10.11.2024 Список организаций, которыми может управлять текущий авторизованный пользователь.

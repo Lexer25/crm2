@@ -94,8 +94,8 @@ class Kohana_Menu {
 		foreach ($items as $key => $item) {
 			
 			$this->_items[$key] = new Menu_Item($item, $this);
+			
 		}
-		
 		return $this;
 	}
 

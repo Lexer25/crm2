@@ -24,7 +24,7 @@
 		if ($item->has_siblings()){?>
 
 			<li>
-				<a id="sidebar_<?php echo $item->url; ?>" href="javascript:"><img src="images/<?php echo $item->icon;?>" alt="<?php echo $item->title;?>"><?php echo __($item->title); ?></a>
+				<a id="sidebar_<?php echo $item->url; ?>" href="javascript:" <?php echo 'title ='. $item->tooltip;  ?>><img src="images/<?php echo $item->icon;?>" alt="<?php echo $item->title;?>"><?php echo __($item->title);?> </a>
 							
 				<ul>
 						<?php 
@@ -33,7 +33,7 @@
 							<li>
 								<?php 
 									
-									if($subitem->visible) echo HTML::anchor ($subitem->url, $subitem->title); ?>
+									if($subitem->visible) echo HTML::anchor ($subitem->url, $subitem->title, array('title'=>$subitem->tooltip)); ?>
 							</li>
 						<?php endforeach ?>
 					</ul>
@@ -45,7 +45,7 @@
 				//а если дочек нет, то работаем тут
 				?>
 				<li>
-					<?php echo HTML::anchor ($item->url, HTML::image('images/'.$item->icon, array('alt'=>$item->title)).$item->title); ?>
+					<?php echo HTML::anchor ($item->url, HTML::image('images/'.$item->icon, array('alt'=>$item->title)).$item->title, array('title'=>$item->tooltip)); ?>
 				</li>
 
 		<?php } 

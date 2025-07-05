@@ -14,6 +14,7 @@
 		echo  __('system.version'). ConfigType::getCityCrmVer().' ';
 		if(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_PEP') == 1) echo HTML::anchor('settings/mainManual', HTML::image('images/shortcut/setting.png', array('width'=>20, 'title'=>'Настройка')));
 		
+		echo ' | '. HTML::anchor('guide', __('Справка'));
 		echo ' | '. HTML::anchor('logout', __('logout'));
 		 ?>
 	</div>

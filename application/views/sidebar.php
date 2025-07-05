@@ -6,21 +6,19 @@
 	<ul id="main_menu">
 	
 	<?php 
-		//готовлю массив меню исходя из необходимой конфигурации
-		/* $configMenu=array(
-			'home',
-			'org',
-			'contact',
-			'identity',
-			'fastreg',
-			'Reports',
-			); */
 		
-		//$var1=(string)Menu::factory('leftside');
 		$configMenu= Kohana::$config->load('config_newcrm')->get('configLeftMenu');// получаю массив меню из указанного в конфигурации файла
-		$fullMenu='leftside';// полный список меню. Файл со списком должен находится в C:\xampp\htdocs\crm2\modules\menu\config\menu\<$fullMenu>.php. 
-		echo (string)MenuUser::factory($fullMenu, $configMenu);//работаю с классом, который фильтрует основной набор меню
 		
+		
+		//$configMenu= MenuModuleUser::factory();// получаю массив меню из указанного в конфигурации файла
+		
+		//echo Debug::vars('15', $configMenu);exit;
+		//если набор меню будет зависеть от параметра user->flag, то получится меню, зависящее от авторизованного пользователя.
+		
+		$fullMenu='leftside';// полный список меню. Файл со списком должен находится в C:\xampp\htdocs\crm2\modules\menu\config\menu\<$fullMenu>.php. 
+				
+			
+		echo (string)MenuUser::factory($fullMenu, $configMenu);//работаю с классом, который фильтрует основной набор меню
 		
 	?>	
 	</ul>
