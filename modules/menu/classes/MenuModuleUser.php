@@ -1,12 +1,11 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
-class MenuModuleUser extends MenuUser {
+class MenuModuleUser {
 	
 	/**
-	 *06.10.2024
-	 * Instantiate a new menu с учетом нужного шаблона
-	 *предполагается, что из общего файла меню будут выбраны только те пункты, которые указанаы в шаблоне
-	 * шаблон - это массив с перечнем корневых элементов меню, которые необходимо вывести на экран
+	 *06.07.2025
+	 * класс готовит массив пунктов меню, разрешенных авторизованному пользователю.
+	 * @config_file - список всех доступных меню.Из этого списка выбираются только те пункты меню, которые указаны в свойтве flag авторизованного пользователя.
 	 */
 	 
 	 /*
@@ -48,7 +47,8 @@ class MenuModuleUser extends MenuUser {
 	14	16384	Отчет Журнал сотрудников
 	15	32768	Отчет Журнал рабочего времени 2
 	*/
-		const DOOR=0;
+	//набор констант - битовые маски модулей
+	const DOOR=0;
 	const CONFIG=2;
 	const MANCARD=4;
 	const REPORT=5;
@@ -56,15 +56,13 @@ class MenuModuleUser extends MenuUser {
 	const INTEGRATOR=8;
 	const GUEST=13;
 	
-	public static function factory($config_file = 'simple', $_file = 'simple')
+	public static function factory($config_file = 'configMenu')
 	{
-		$configMenu= Kohana::$config->load('menu\moduleMenu')->get('configMenu');// получаю массив меню из указанного в конфигурации файла
+		$configMenu= Kohana::$config->load('menu\config')->get($config_file);// получаю массив меню из указанного в конфигурации файла
 		
 		$user=new User();
 		
 		$userFlag=$user->flag;// в переменной flag хранятся права доступа в битовых масках.
-		// $userFlag=(2^13) + (2^4);
-		// $userFlag=8192;
 		$res=array();
 		//делаю проверку массива пунктов меню.
 		//результатом является массив меню, который будет выведен на экран.
@@ -93,7 +91,6 @@ class MenuModuleUser extends MenuUser {
 
 			
 		}
-		//echo Debug::vars('51',$userFlag,  $res);exit;
 		return $res;
 	}
 	

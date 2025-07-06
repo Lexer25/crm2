@@ -23,7 +23,7 @@
 			<div id="kodoc-menu">
 				<ul>
 					<li class="guide first">
-						<a href="<?php echo Route::url('docs/guide') ?>">User Guide</a>
+						<a href="<?php echo Route::url('docs/guide') ?>"></a>
 					</li>
 					<?php if (Kohana::$config->load('userguide.api_browser')): ?>
 					<li class="api">

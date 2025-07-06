@@ -137,7 +137,6 @@ class Kohana_Menu {
 				? $config_file : self::DEFAULT_VIEW;
 			$menu_config['view'] = self::VIEWS_DIR.DIRECTORY_SEPARATOR.$view_file;
 		}
-
 		return new Menu($menu_config);
 	}
 

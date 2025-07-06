@@ -7,6 +7,8 @@
 	const INTEGRATOR=8;
 	const GUEST=13;
  return array(	 
+	'build'=>2,
+	'date'=>'6.07.2025',
  
  //вывод меню с учетом прав пользователя
 	'configMenu'=>array(
