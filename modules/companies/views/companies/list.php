@@ -113,7 +113,7 @@ if ($alert) { ?>
 	<br class="clear"/>
 	<div  class="content">
 	<?php
-		//echo Debug::vars('19', $org_tree);
+		//echo Debug::vars('19', $org_tree);exit;
 		echo 'Дерево организаций.';
 		echo '<br>'.$org_tree;//прорисовка дерева орг
 		

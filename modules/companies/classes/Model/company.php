@@ -43,7 +43,8 @@ class Model_Company extends Model
 		
 			
 		//https://xhtml.ru/2022/html/tree-views/		
-		$sql='SELECT  og.id_org, og.name, og.id_parent, og.flag FROM ORGANIZATION_GETCHILD(1, '.$id_org.')  og order by og.name';
+		$sql='SELECT og.id_org, og.name, og.id_parent, og.flag FROM ORGANIZATION_GETCHILD(1, '.$id_org.')  og order by og.name, og.id_org';
+		//$sql='SELECT og.id_org, og.name, og.id_parent, og.flag FROM organization og';
         //echo Debug::vars('47', $sql); exit;    
 		$res=array();	
 		try
@@ -56,13 +57,13 @@ class Model_Company extends Model
 		foreach ($query as $key=>$value)
 		{
 			//echo Debug::vars('58', $value); exit;
-			$res[Arr::get($value, 'ID_ORG')]['id']=Arr::get($value, 'ID_ORG');
+			$res[Arr::get($value, 'ID_ORG')]['id']=(int)Arr::get($value, 'ID_ORG');
 			$res[Arr::get($value, 'ID_ORG')]['title']=iconv('windows-1251','UTF-8', Arr::get($value, 'NAME'));
-			$res[Arr::get($value, 'ID_ORG')]['parent']=Arr::get($value, 'ID_PARENT');
+			$res[Arr::get($value, 'ID_ORG')]['parent']=(int)Arr::get($value, 'ID_PARENT');
 			$res[Arr::get($value, 'ID_ORG')]['busy']=Arr::get($value, 'ID_GARAGE');
 			
 		}
-		$res[$id_org]['parent']=0;
+		$res[$id_org]['parent']=null;
 			//echo Debug::vars('126', $id_org, $res); exit;
 			return $res;
 		} catch (Exception $e) {

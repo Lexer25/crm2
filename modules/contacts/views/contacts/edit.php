@@ -312,7 +312,18 @@ $tt=microtime(true);
 							} else {
 								$select_org=$contact->id_org;
 							}
-
+								$tree=new Tree();
+								//echo Debug::vars('316', array_slice($org_tree,0,10));
+/* 								$_org_tree=$organizations = [
+    ['id' => 1, 'name' => 'Head Office', 'parent' => null],
+    ['id' => 2, 'name' => 'Department A', 'parent' => 1],
+    ['id' => 3, 'name' => 'Department B', 'parent' => 1],
+    ['id' => 4, 'name' => 'Team 1', 'parent' => 2],
+    ['id' => 5, 'name' => 'Team 2', 'parent' => 2], 
+];*/
+								//echo Debug::vars('324', array_slice($org_tree, 0, 5));//exit;
+								$var2=$tree->buildTreeWithReferences($org_tree);
+								//echo Debug::vars('347', $var2);exit;
 							?>
 							
 							<input type="hidden" name="id_org_old" class="form-control select2 select2-hidden-accessible" value="<?php echo $contact->id_org; ?>" />
@@ -320,9 +331,12 @@ $tt=microtime(true);
 							<select name="id_org"  <?php echo $dis1; ?> required>
 							
 								<?php
-								$tree=new Tree();
-									//$var2=$tree->array_to_tree($org_tree, 759);
-									echo $tree->out_options($tree->array_to_tree($org_tree), $select_org);
+								
+								// $tree=new Tree();
+								// $var2=$tree->buildTreeWithReferences($org_tree);
+								// echo Debug::vars('324', $var2);exit;
+								//$_var=$tree->array_to_tree($org_tree);
+									echo $tree->out_options($var2, $select_org);
 									
 								?>
 							</select>
