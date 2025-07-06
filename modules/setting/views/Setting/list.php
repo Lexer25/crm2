@@ -1,11 +1,3 @@
-<?php if ($alert) { ?>
-<div class="alert_success">
-	<p>
-		<img class="mid_align" alt="success" src="images/icon_accept.png" />
-		<?php echo $alert; ?>
-	</p>
-</div>
-<?php } ?>
 <div class="onecolumn">
 	<div class="header">
 		<div id="search"<?php if (isset($hidesearch)) echo ' style="display: none;"'; ?>>

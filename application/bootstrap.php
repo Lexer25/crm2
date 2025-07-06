@@ -135,7 +135,7 @@ Kohana::modules(array(
 	 'unittest'   => MODPATH.'unittest',   // Unit testing
 	 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	'pagination' => MODPATH . 'pagination', // Paging of results
-	'tuner' => MODPATH . 'tuner', // tuner настройки
+	'setting' => MODPATH . 'setting', // setting настройки
 	'stat' => MODPATH . 'stat', // вспомогательные различные функции
 	'cards' => MODPATH . 'cards', // подключение модуля cards
 	'contacts' => MODPATH . 'contacts', // подключение модуля contacts
