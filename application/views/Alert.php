@@ -17,7 +17,7 @@ if (isset($arrAlert)) {
 	}
 } else {
 	
-	echo __('no_arrAlert');
+	//echo __('no_arrAlert');
 }
 
 ?>

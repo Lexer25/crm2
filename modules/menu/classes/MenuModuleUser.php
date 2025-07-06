@@ -47,14 +47,8 @@ class MenuModuleUser {
 	14	16384	Отчет Журнал сотрудников
 	15	32768	Отчет Журнал рабочего времени 2
 	*/
-	//набор констант - битовые маски модулей
-	const DOOR=0;
-	const CONFIG=2;
-	const MANCARD=4;
-	const REPORT=5;
-	const MONITOR=6;
-	const INTEGRATOR=8;
-	const GUEST=13;
+	//набор констант - битовые маски модулей см. класс Menu
+
 	
 	public static function factory($config_file = 'configMenu')
 	{
@@ -66,30 +60,21 @@ class MenuModuleUser {
 		$res=array();
 		//делаю проверку массива пунктов меню.
 		//результатом является массив меню, который будет выведен на экран.
-		//если у меню нет подчиненного массива, то выдаю
-		
-		
 		foreach($configMenu as $key=>$value)
 		{
-			
 			if(empty($value)) //если у пункта меню нет подчиненного массива, то его вывод разрешен
 			{	
 				$res[]=$key;
-				
 			} else {
 				foreach($value as $mask)//если есть подчиненные меню, то выполняю побитовую проверку с переменной flag авторизованного пользователя.
 				{
 					if(($userFlag & (1 << $mask)) !== 0){
 						$res[]=$key;
 						break;//если нашлось хоть одно совпадения - этого достаточно, завершает пополение меню
-						
 					} else {
-						
 					}
 				}
 			}
-
-			
 		}
 		return $res;
 	}

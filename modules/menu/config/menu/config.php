@@ -1,27 +1,21 @@
 <?php defined('SYSPATH' OR die('No direct access allowed.'));
-	const DOOR=0;
-	const CONFIG=2;
-	const MANCARD=4;
-	const REPORT=5;
-	const MONITOR=6;
-	const INTEGRATOR=8;
-	const GUEST=13;
+	
  return array(	 
 	'build'=>2,
-	'date'=>'6.07.2025',
+	'builddate'=>'6.07.2025',
  
  //вывод меню с учетом прав пользователя
 	'configMenu'=>array(
 			'home'=>array(),
-			'org'=>array(MANCARD),
-			'contact'=>array(MANCARD),
-			'identity'=>array(MANCARD),
-			'fastreg'=>array(GUEST),
-			'Reports'=>array(REPORT),
-			'passoffice'=>array(GUEST),
-			'monitor'=>array(MANCARD, MONITOR),
-			'acl'=>array(INTEGRATOR),
-			'doors'=>array(DOOR)
+			'org'=>array(Menu::MANCARD),
+			'contact'=>array(Menu::MANCARD),
+			'identity'=>array(Menu::MANCARD),
+			'fastreg'=>array(Menu::GUEST),
+			'Reports'=>array(Menu::REPORT),
+			'passoffice'=>array(Menu::GUEST),
+			'monitor'=>array(Menu::MANCARD, Menu::MONITOR),
+			'acl'=>array(Menu::INTEGRATOR),
+			'doors'=>array(Menu::DOOR)
 		),
 	//вывод меню без учета прав пользователя (т.к. указатели пусты)
 	'_configMenu'=>array(
