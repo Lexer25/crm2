@@ -177,7 +177,44 @@ return [
 					
 				],
 		
-
+			'order'=>[	//заказ пропусков
+					'url'     => 'order.order',
+					'icon'    => 'icon_guest.png',
+					'title'   => 'order.order',
+					'tooltip' => 'order.order',
+					'visible' => true, // можно запретить показ, если false
+					'items'   => [
+						'guestslist'=>[
+									'url'     => 'order/guest',
+									'icon'    => '',
+									'title'   => 'order.orderlist',
+									'tooltip' => 'order.orderlist',
+								],
+						'addorder'=>[
+									'url'     => 'order/archive',
+									'icon'    => '',
+									'title'   => 'sidebar.archive',
+									'tooltip' => 'sidebar.archive',
+								],
+						'addguest'=>[
+									'url'     => 'order/edit/0/issue',
+									'icon'    => '',
+									'title'   => 'sidebar.addguest',
+									'tooltip' => 'sidebar.addguest',
+									'visible' => false,
+								],
+						
+						'addguest2'=>[
+									'url'     => 'order/edit/0/newguest',
+									'icon'    => '',
+									'title'   => 'sidebar.addguest2',
+									'tooltip' => 'sidebar.addguest2',
+								],
+						
+							
+					]
+					
+				],
 		
 				
 		'acl'=>[

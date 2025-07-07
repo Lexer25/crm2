@@ -10,9 +10,10 @@
 			'org'=>array(Menu::MANCARD),
 			'contact'=>array(Menu::MANCARD),
 			'identity'=>array(Menu::MANCARD),
-			'fastreg'=>array(Menu::GUEST),
+			'fastreg'=>array(Menu::NONE),
 			'Reports'=>array(Menu::REPORT),
-			'passoffice'=>array(Menu::GUEST),
+			'passoffice'=>array(Menu::NONE),
+			'order'=>array(Menu::GUEST),
 			'monitor'=>array(Menu::MANCARD, Menu::MONITOR),
 			'acl'=>array(Menu::INTEGRATOR),
 			'doors'=>array(Menu::DOOR)

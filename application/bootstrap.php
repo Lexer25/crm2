@@ -139,7 +139,7 @@ Kohana::modules(array(
 	'stat' => MODPATH . 'stat', // вспомогательные различные функции
 	'cards' => MODPATH . 'cards', // подключение модуля cards
 	'contacts' => MODPATH . 'contacts', // подключение модуля contacts
-	
+	'order' => MODPATH . 'order', // подключение модуля order	
 	'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
 	'kohana-acl' => MODPATH . 'kohana-acl', // подключение модуля Passoffice
 	'menu' => MODPATH.'menu',
@@ -187,6 +187,12 @@ Route::set('edit', 'companies/delete((/<id>)(/<parent>))')
 	->defaults(array(
 		'controller' => 'companies',
 		'action'     => 'delete',
+	)); 
+	
+	Route::set('edit_order', 'order/edit((/<id>)(/<mode>))')
+	->defaults(array(
+		'controller' => 'order',
+		'action'     => 'edit',
 	)); 
     
 Route::set('default', '(<controller>(/<action>(/<id>)))')

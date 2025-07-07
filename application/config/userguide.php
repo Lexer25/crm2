@@ -2,13 +2,13 @@
 
 return array(
 		// Enable the API browser.  TRUE or FALSE
-		//'api_browser'  => TRUE,
+		'api_browser'  => TRUE,
 
 	// Enable these packages in the API browser.  TRUE for all packages, or a string of comma seperated packages, using 'None' for a class with no @package
 	// Example: 'api_packages' => 'Kohana,Kohana/Database,Kohana/ORM,None',
 		//'api_packages' => true,
-		//'api_packages' => 'Kohana/Database',
-
+		'api_packages' => 'Kohana/Database',
+// 'api_packages' => 'ParkResident/Emul,ParkResident/Garage,ParkResident/Gate,ParkResident/Parking,ParkResident/Place,ParkResident/ResidentPlace,ParkResident/Setup,ParkResident/Application',
 	// Enables Disqus comments on the API and User Guide pages
 	//'show_comments' => Kohana::$environment === Kohana::PRODUCTION,
 	
