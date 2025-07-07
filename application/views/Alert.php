@@ -4,8 +4,9 @@
 
 if (isset($arrAlert)) { 
 //echo Debug::vars('5-5', $arrAlert, !empty($arrAlert));//exit;
-	if(empty($arrAlert)){
+	if(!empty($arrAlert)){
 		include Kohana::find_file('views', 'alertState');
+
 		foreach($arrAlert as $_key=>$value){
 			
 			echo '<div class="'.Arr::get($arrayType, Arr::get($value, 'actionResult')).'"><p>';

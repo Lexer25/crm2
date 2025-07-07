@@ -61,7 +61,7 @@ include Kohana::find_file('views','alert'); ?>
 	<div class="content">
 		
 		<?php 
-		echo Debug::vars('63',count($people), $user, $user->id_orgctrl );
+		//echo Debug::vars('63',count($people), $user, $user->id_orgctrl );
 		if (count($people) <= 0) 
 		{ ?>
 		<div style="margin: 100px 0; text-align: center;">
