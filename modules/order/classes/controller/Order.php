@@ -15,8 +15,8 @@ class Controller_Order extends Controller_Template
 	public $order_mode = 2;// константа режима работы По заявкам
 	public $issue = 2;// регистрация нового гостя
 	public $mode;// текущий режим работы 
-	public $idOrgGuest;// id_org организация, в которой происходит учет гостей
-	public $idOrgGuestArchive;// id_org организация архив гостей
+	public $idOrgGuest=2;// id_org организация, в которой происходит учет гостей
+	public $idOrgGuestArchive=3;// id_org организация архив гостей
 	
 	public $id_of;// id бюро пропусков. Исходя из этого определяются все остальные параметры.
 	
@@ -319,41 +319,30 @@ class Controller_Order extends Controller_Template
 			*/
 			case 'forceexit':// ручная отметка о выходе
 				
-				//echo Debug::vars('312',$_POST, array_key_exists('forceexitUpdate', $_POST));exit;
-				if(array_key_exists('forceexitUpdate', $_POST)){// надо только сохранить данные.
-					$guest=new Guest(Arr::get($_POST,'id_pep', 0));
-					$guest->name=Arr::get($_POST, 'name','');
-					$guest->patronymic=Arr::get($_POST, 'patronymic','');
-					$guest->surname=Arr::get($_POST, 'surname','');
-					$guest->numdoc=Arr::get($_POST, 'numdoc','');
-					$guest->datedoc=Arr::get($_POST, 'datedoc','');
-					$guest->note=Arr::get($_POST, 'note','');
-					if($guest->update() == 0) { // если обновление прошло успешно, то выдаю нужную надпись
-						
-						$alert=__('guest.updateOK', array(':surname'=>$guest->surname,':name'=>$guest->name,':patronymic'=>$guest->patronymic,':id_pep'=>$guest->id_pep,':tabnum'=>$guest->tabnum));
-						$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>$alert);
-						Session::instance()->set('arrAlert',$arrAlert);
-						
-					} else {
-						$alert=__('guest.updateErr', array(':surname'=>$guest->surname,':name'=>$guest->name,':patronymic'=>$guest->patronymic,':id_pep'=>$guest->id_pep,':tabnum'=>$guest->tabnum));
-						$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>$alert);
-						Session::instance()->set('arrAlert',$arrAlert);
-						
-					}
-					
-				$this->redirect('order/edit/'.Arr::get($_POST,'id_pep', 0).'/guest_mode');	
-					
-				}
+				//echo Debug::vars('312',$_POST);//exit;
 				
-				$guest=new Guest(Arr::get($_POST,'id_pep', 0));
 				
+				$guest=new Guest2(Arr::get($_POST,'id_pep', 0));
+				//echo Debug::vars('326', $guest);exit;
 				$guest->idOrgGuest = $this->idOrgGuest;// указал организацию гостя
 				$guest->idOrgGuestArchive =$this->idOrgGuestArchive;//указал организацию архива
 					
-				//echo Debug::vars('291', $guest->id_pep); exit;
+				
+								
+				//удаляю карту у гостя - не реализовано 7.07.2025
+				/*
+				я предлагаю сделать гостю метод "Удалить все его карты". Быстро и сердито.
+				Вызывать этот метод здесь всегда.
+				
+				*/
 				if($guest->forceexit()==0){
 					// перемещаю в архив
 					$guest->moveToArchive();
+					//делаю запись о ручном удалении карты
+					/*
+					не реализовано 7.07.2025
+					
+					*/
 					$alert=__('guest.forceexitOK', array(':name'=>iconv('CP1251', 'UTF-8',$guest->name),':surname'=>iconv('CP1251', 'UTF-8',$guest->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$guest->patronymic)));
 					Session::instance()->set('alert',$alert);
 					
@@ -423,7 +412,7 @@ class Controller_Order extends Controller_Template
 				} else {
 					//карта выдана сотруднику с id_pep=$check
 					
-					$anypeople=new Guest($check);
+					$anypeople=new Guest2($check);
 					
 					//Session::instance()->set('alert', __('contact.key_occuped_'.$check));
 					$alert=__('guest.key_occuped', array(':idcard'=>$idcard, ':id_pep'=>$anypeople->id_pep,':name'=>iconv('CP1251', 'UTF-8',$anypeople->name),':surname'=>iconv('CP1251', 'UTF-8',$anypeople->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$anypeople->patronymic)));

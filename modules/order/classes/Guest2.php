@@ -527,9 +527,10 @@ class Guest2
 	
 	/*
 	25.12.2023 Отметка о выходе вручную
+	07.07.2025 Отметка о выходе вручную
 	*/
 	
-	public function Wforceexit()
+	public function forceexit()
 	{
 		
 		//удаляю карту у гостя
@@ -577,7 +578,7 @@ class Guest2
 	}
 	
 	
-	public function WmoveToArchive()
+	public function moveToArchive()
 	{
 		//перенос гостя в Архив
 		$sql = 'update people p

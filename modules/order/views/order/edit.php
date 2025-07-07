@@ -157,14 +157,14 @@ $user = new User();
                         <?php
                         switch ($mode) {
                             case 'newguest':
-                                include Kohana::find_file('views', 'guests/personal_data');
+                                include Kohana::find_file('views', 'order/block/personal_data');
                                 break;
                             case 'guest_mode':
                             case 'archive_mode':
-                                include Kohana::find_file('views', 'guests/personal_data');
+                                include Kohana::find_file('views', 'order/block/personal_data');
                                 break;
 							case 'buro':
-								include Kohana::find_file('views', 'guests/personal_data');
+								include Kohana::find_file('views', 'order/block/personal_data');
                                 break;
                         }
                         ?>
@@ -173,18 +173,18 @@ $user = new User();
                         <?php
                         switch ($mode) {
                             case 'newguest':
-                                include Kohana::find_file('views', 'guests/card_dates');
+                                include Kohana::find_file('views', 'order/block/card_dates');
                                 break;
                             case 'guest_mode':
                             case 'archive_mode':
-                                include Kohana::find_file('views', 'guests/rfid');
+                                include Kohana::find_file('views', 'order/block/rfid');
                                 //echo '<br>';
-                                include Kohana::find_file('views', 'guests/card_dates');
+                                include Kohana::find_file('views', 'order/block/card_dates');
                                 break;
 							case 'buro':
-								include Kohana::find_file('views', 'guests/rfid');
+								include Kohana::find_file('views', 'order/block/rfid');
                                 echo '<br>';
-                                include Kohana::find_file('views', 'guests/card_dates');
+                                include Kohana::find_file('views', 'order/block/card_dates');
                                 break;
                         }
                         ?>
@@ -196,7 +196,7 @@ $user = new User();
                             case 'guest_mode':
                             case 'archive_mode':
 							case 'buro':
-                                include Kohana::find_file('views', 'guests/note');
+                                include Kohana::find_file('views', 'order/block/note');
                                 break;
 							
                         }
@@ -207,19 +207,63 @@ $user = new User();
 
             <br />
             <?php
-            if ($guest->id_pep == 0) {
-                echo Form::hidden('todo', 'savenew');
-                echo Form::submit('savenew', __('Добавить гостя'));
-            } else {
-                echo Form::hidden('todo', 'reissue');
-                echo Form::submit('reissue', __('Обновить'));
+			  switch ($mode) {
+                            case 'newguest':
+							
+								echo Form::hidden('todo', 'savenew');
+								echo Form::submit('savenew', __('Добавить гостя214'));
+							break;
+							case 'guest_mode':
+								 if ($user->id_pep == 1) {//это может быть только администратор всего СКУД! Ему можно всё!
+									echo Form::hidden('todo', 'reissue');
+									echo Form::submit('reissue', __('Обновить222'));
+									//echo Form::submit('reissue', __('Забрать карту!'));
+								} else {
+									
+									// echo Form::hidden('todo', 'savenew');
+									// echo Form::submit('savenew', __('Добавить гостя219'));
+								}
+							break;
+                            case 'archive_mode':
+							break;
+							case 'buro':
+                                 if ($user->id_pep == 1) {
+									echo Form::hidden('todo', 'reissue');
+									echo Form::submit('reissue', __('Обновить233'));
+									echo Form::submit('reissue', __('Забрать карту!'));
+									
+								} else {
+									echo Form::hidden('todo', 'savenew');
+									echo Form::submit('savenew', __('Добавить гостя230'));
+								}
+                            break;
+							default:
+							break;
+                        }
+						
+           
+    echo Form::close();
+	
+	echo Form::open('order/save');
+		switch ($mode) {
+          case 'guest_mode':
+			if ($user->id_pep == 1) {//это может быть только администратор всего СКУД! Ему можно всё!
+				echo Form::hidden('id_pep', $id_pep);
+				echo Form::hidden('todo', 'forceexit');
+				echo Form::submit('reissue', __('Забрать карту!253'));
+			} else {
+			
+			}				
+			break;
             }
-            ?>
-        </form>
-
-        <?php
+	echo Form::close();
+	
+	
         echo 'id_pep=' . $guest->id_pep;
+		echo '<br>';
+        echo 'mode=' . $mode;
         echo '<br>';
+		echo Debug::vars('249', $user);exit;
         ?>
     </div>
 
