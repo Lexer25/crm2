@@ -9,7 +9,9 @@
 
 <div class="onecolumn">
 	<div class="header">
-		<span><?php echo __('Отчет Экспорт контактов организации "'.iconv('CP1251', 'UTF-8',$org->name).'".');
+		<span><?php
+//		echo __('Отчет Экспорт контактов организации "'.iconv('CP1251', 'UTF-8',$org->name).'".');
+		echo __('report.ExportContactReady', array(':org'=>iconv('CP1251', 'UTF-8',$org->name)));
 		?></span>
 <?php
 	
@@ -46,7 +48,7 @@ $ruid='allContactsExport';
 		
 		echo Form::open('mreports/export');
 
-		//echo Form::submit('savecsv', __('button.savecsv'));
+		echo Form::submit('savecsv', __('button.savecsv'));
 	
 	
 		

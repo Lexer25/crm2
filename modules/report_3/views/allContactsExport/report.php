@@ -46,7 +46,7 @@ $ruid='allContactsExport';
 		
 		echo Form::open('mreports/export');
 
-		//echo Form::submit('savecsv', __('button.savecsv'));
+		echo Form::submit('savecsv', __('button.savecsv'));
 	
 	
 		

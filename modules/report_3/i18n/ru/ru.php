@@ -16,7 +16,5 @@ return array
 	'mreport.allcontact'=> 'Список всех контактов',
 	'contact.allContactsExport'=> 'Просмотр и экспорт контактов',
 	'button.allContactsExport'=> 'Подготовить отчет Просмотр и экспорт контактов',
-	'report.ReportReady'=> 'Отчет подготовлен. Результат на экран не выводится. Для экспорта  нажмите кнопку "Экспорт CSV"',
-	'report.ExportContactReady'=> 'Отчет для организации ":org" подготовлен.',
   
 );

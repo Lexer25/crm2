@@ -5,6 +5,8 @@
 *вход - массив класса Report
 *выход - ссылка на подготовленный файл.
 *все входные данные должны быть в формате utf-8!!!
+* к уже созданной таблице (лежит в папке $report->fileName) с отчетом добавляется заголовок
+* производится преобразование данных из формата utf в win1251
 */
 
 class exportCSV
@@ -15,34 +17,16 @@ class exportCSV
 	
 	public function __construct(Report $report = null)
 	{
-		//echo Debug::vars('18', $report);exit;
+		
 		/**2.03.2025 проверка наличия класса
 		*
 		*
 		*/
-		
-		$filePresent=false;
-			if (file_exists($report->fileName)) {
-				// Файл существует
-				echo 'Файл найден';
-				$filePresent=true;
-				
-			} else {
-				// Файл не существует
-				echo 'Файл не найден';
-				//throw new  Exception('Файл не найден. Повторите подготовку отчета.');
-				
-			}
-		//echo Debug::vars('36', $report);exit;	
-		if(($report instanceof Report) and ($filePresent)) 
+		if( $report instanceof Report) 
 		{
+			$file_name=$report->fileName.'_'.date('Y-m-d_H_i_s').".csv";
 			
-			
-			//$file_name=$report->fileName.'_'.date('Y-m-d_H_i_s').".csv";
-			$file_name=$report->fileName.".csv";
-			
-			$fp = fopen($file_name, 'w');//тут будет результат
-			//$fp_source = fopen($report->fileName , 'r');//это источника заранее подготовленных строк.
+			$fp = fopen($file_name, 'w');
 				
 			//собираю заголовок	Название отчета и головную организацию
 			fputcsv ($fp, Array(iconv('UTF-8','CP1251', $report->titleReport), iconv('UTF-8','CP1251',$report->org)),';');
@@ -63,38 +47,20 @@ class exportCSV
 			
 			fputcsv ($fp, $title,';');
 
-						
-			$filename = $report->fileName;
-
-					if (($file = fopen($filename, 'r')) !== false) {
-						// Читаем заголовки (первую строку). Она нам не нужна
-						$headers = fgetcsv($file, 1000, ',');
-						
-						// Читаем остальные строки
-						while (($row = fgetcsv($file, 1000, ',')) !== false) {
-							
-							$convertedRow=array();
-							 foreach ($row as $field) {
-								$convertedRow[] = iconv('UTF-8', 'Windows-1251//IGNORE', $field);
-							}
-		
-		
-							//echo Debug::vars('73', $row, $convertedRow);exit;
-							fputcsv ($fp, $convertedRow,';');//записал строку в результирующий файл
-											
-						}
-						
-						fclose($file);
-						//unlink($report->fileName);// удалить файл отчета
-					} else {
-						echo "Не удалось открыть файл";
-					}
-
-
-
+			foreach ($report->rowData as $key=>$value)
+			{
+				//преобразую каждый элемент массива в Win1251
+				foreach($value as $key2=>$value2)
+				{
+					//echo Debug::vars('38',$value,  $key2, $value2);exit;
+					$value[$key2]=iconv('UTF-8','CP1251', $value2);
+					
+					
+				}
+				fputcsv ($fp, $value,';');
+			}
 		
 			fclose($fp); //Закрытие файла
-			//echo Debug::vars('93');exit;
 			//$content = Model::Factory('ReportWorkTime')->send_file($file_name);
 			
 			//echo Debug::vars('29', $file_name); exit;

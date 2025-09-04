@@ -34,7 +34,7 @@ class tempCSV
 		//$this->fp=$this->makeFile($this->fileName);	
 		//echo Debug::vars('30', Session::instance()->id());exit;
 		
-		$this->fileName=$this->path.DIRECTORY_SEPARATOR.Session::instance()->id().'.report';	//имя файла формируется как номер сессии.	
+		$this->fileName=$this->path.DIRECTORY_SEPARATOR.Session::instance()->id();	//имя файла формируется как номер сессии.	
 		
 	}
 	

@@ -4,5 +4,5 @@ return array(
 
 	$filePath='temp',
 	$separator=";",
-	'ver'=>4,
+	'ver'=>3,
 );

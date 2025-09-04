@@ -76,16 +76,17 @@ class Controller_mreports extends Controller_Template {
 		
 			//echo Debug::vars('71', Arr::get($post, 'id_report'), $this);exit;
 			$ruid=Arr::get($post, 'id_report');// получаю report UID - уникальный идентификатор отчета.
-			$report=Model::factory($ruid.'_report')->getReport($post,$this->user);//сформировал отчет. 
-			//Результат хранится в файле в папке temp\, в классе $report указаны все параметры отчета. Данные хранятся в папке, а не в $report
-					
-			//Session::instance()->set('report', $report);
-			//Cache::instance()->set('report', $report);//сохраняю (или переписываю) параметры отчета для последующего использования в экспорте
-			Cache::instance()->set(Session::instance()->id(), $report);//сохраняю (или переписываю) параметры отчета для последующего использования в экспорте
-			//echo Debug::vars('86', Session::instance());exit;
+			$report=Model::factory($ruid.'_report')->getReport($post,$this->user);
+		
+			//echo Debug::vars('84', $report);exit;
+			//сохраняю отчет в сессию. Результат должен быть записан в файл сессии на сервере http
+			Session::instance()->delete('report');
+			
+			Session::instance()->set('report', $report);//в сессию записываю параметры подготовленного отчета
+			
 			if(isset($report->view)) $this->view=$report->view;
 			
-			$content = View::factory($ruid.'/'.$this->view)
+			$content = View::factory($ruid.'/'.$this->view)//вывод отчета на экран
 				->bind('report', $report)
 				->bind('user', $this->user)
 				;
@@ -102,23 +103,22 @@ class Controller_mreports extends Controller_Template {
 	}
 	
 	
-	/*
-		18.10.2024 экспорт результата
-		экспортируется уже подготовленный ранее файл
+	/**
+	*	18.10.2024 экспорт результата
+	*	экспортируется уже подготовленный ранее файл
+	*	@param параметры отчета хранятся в сессии, в переменной report.	
 	*/
 	public function action_export()
 	{
-		//echo Debug::vars('76',$_POST, Session::instance()->id());//exit;
+		//echo Debug::vars('76',$_POST, Session::instance()->id());exit;
 		if(Arr::get($_POST, 'savecsv'))
 		{
 			/**2.03.2025 
 			*
 			*
 			*/
-			//$report=Session::instance()->get('report');//из сессия "достаю" параметры отчета
-			//$report=Cache::instance()->get('report');
-			$report=Cache::instance()->get(Session::instance()->id());
-			//Session::instance()->delete('report');//очищаю сессию от отчета
+			$report=Session::instance()->get('report');//из сессия "достаю" параметры отчета
+		//	Session::instance()->delete('report');//очищаю сессию от отчета
 			//echo Debug::vars('121', $report);exit;
 			$csv=new ExportCsv($report);
 			//echo Debug::vars('118', $csv->filename);exit;
@@ -127,19 +127,8 @@ class Controller_mreports extends Controller_Template {
 				//echo Debug::vars('125', $this);exit;
 				$content = Model::Factory('mreport')->send_file($csv->filename);//передача файла через браузер
 				//удалить файл с диска, чтобы не занимал место
-			//echo Debug::vars('129', $content);exit;
-				if (file_exists($csv->filename)) {
-					if (unlink($csv->filename)) {
-						echo "Файл успешно удален!"; exit;
-					} else {
-						echo "Не удалось удалить файл"; exit;
-					}
-				} else {
-					echo "Файл не существует";
-				}
-				
 			} else {
-				//echo Debug::vars('142', $this);exit;
+				//echo Debug::vars('129', $this);exit;
 				$this->redirect($this->request->referrer());
 			}
 		};

@@ -69,37 +69,7 @@ class Model_234_report extends Model
 			}
 			$report->titleColumn=array('Год', 'Месяц (номер)', 'Организация (отдел)','Количество зарегистрированных сотрудников' );
 			$report->rowData=$query;
-			//==========================
-			$result=array();
-			$tempFile=new tempCSV;//в этот файл будут заноситься данные.Открыл файл.
-			$tempFile->makeFile();
-			$tempFile->addRow($report->titleColumn);//сохранил заголовок отчета - первая строка.
-			//echo Debug::vars('76', $query);exit;
-			foreach ($query as $key=>$value)
-			{
-									
-				foreach($value as $key2=>$value2)
-				{
-					
-					$result[]=iconv('CP1251', 'UTF-8', $value2);
-						
-				}
-					//тут добавить запись преобразованной строки в файл. Тогда не надо будет хранить в памяти массив $result
-					//или в сессию писать... дописывать. какая разница?	
-					//echo Debug::vars('86', $result);exit;
-				$tempFile->addRow($result);
-				$result=array();
-			}
-				$tempFile->closeFile();
-				
 			
-			//echo Debug::vars('87', $tempFile->fileName, $report);exit;
-			
-			//$report->rowData=$result;
-			$report->view='result';//указание куда выводить отчет на экран
-			$report->fileName=$tempFile->fileName;//ссылка на файл список контактов
-			
-			//==========================
 			return $report;
 	}
 	

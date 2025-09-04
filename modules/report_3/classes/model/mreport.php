@@ -32,39 +32,31 @@ class Model_mreport extends Model
 	}
 	
 	/**2.03.2025 Передача файла через браузер.
-	*$file_sourc - какой файл передать
-	*$file_dest - под каким именем передать
-	*$report->fileName.'_'.date('Y-m-d_H_i_s')
+	*
+	*
 	*/
 	
-	public function send_file ($filePath, $file_dest='test')// скачать указанный файл в браузер
+	public function send_file ($file)// скачать указанный файл в браузер
 	{
 		//https://habr.com/ru/post/151795/
-	set_time_limit(0);
-    ignore_user_abort(true);
-    $file_dest='report_'.date('Y_m_d_H-i-s').'.csv';
-    if (!file_exists($filePath)) {
-        die('File not found');
-    }
-    
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename="'.basename($file_dest).'"');
-    header('Content-Length: ' . filesize($filePath));
-    
-    $chunkSize = 1024 * 1024; // 1MB chunks
-    $handle = fopen($filePath, 'rb');
-    
-    while (!feof($handle)) {
-        echo fread($handle, $chunkSize);
-        ob_flush();
-        flush();
-    }
-    
-    fclose($handle);
-    
-    // Удаляем файл
-    unlink($filePath);
-    
-    exit;
+		if (file_exists($file)) {
+			// сбрасываем буфер вывода PHP, чтобы избежать переполнения памяти выделенной под скрипт
+			// если этого не сделать файл будет читаться в память полностью!
+			if (ob_get_level()) {
+			  ob_end_clean();
+			}
+			// заставляем браузер показать окно сохранения файла
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/octet-stream');
+			header('Content-Disposition: attachment; filename=' . basename($file));
+			header('Content-Transfer-Encoding: binary');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize($file));
+			// читаем файл и отправляем его пользователю
+			readfile($file);
+			exit;
+	  }
 	}
 }

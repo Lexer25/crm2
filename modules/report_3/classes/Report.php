@@ -15,7 +15,6 @@ class Report
 	//дата создания отчета
 	public $dateCreated;
 	public $fileName='crm_report';//название файла с отчетом
-	public $fileNameReport='crm2_report';//название файла с отчетом
 	
 	//от имени какого сотрудника создан отчет. Надо указать ФИО string
 	public $fromUser='Администратор';

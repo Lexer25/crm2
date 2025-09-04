@@ -46,7 +46,7 @@ class Model_allContactsExport_report extends Model
 			
 			if(true){
 							
-				$sql='select o.name as orgname, p.surname||\' \'|| p.name ||\' \'|| p.patronymic as FIO, p.time_stamp,an.name as acname, 
+				$sql='select o.name as orgname, p.surname||\' \'|| p.name ||\' \'|| p.patronymic as FIO, p.time_stamp,an.name as acname,\'\', 
 						c.id_card, ct.smallname, c."ACTIVE", c.timestart, c.timeend
 						 from people p
                     join organization o on p.id_org=o.id_org
@@ -65,17 +65,17 @@ class Model_allContactsExport_report extends Model
 				//все данные, кроме метки времени, преобразую в UTF-8
 				$result=array();
 				$tempFile=new tempCSV;
-				$tempFile->makeFile();
 				
 				$report->titleColumn=array('Орагнизация', 'ФИО сотрудника','Дата регистрации контакта', 'Категория доступа','', 'Код идентификатора','Тип идентификатора', 'Активность идентификатора', 'Дата начала идентификатора', 'Дата завершения идентификатора');
-				$report->titleColumn=array('Орагнизация', 'ФИО сотрудника','Дата регистрации контакта', 'Категория доступа', 'Код идентификатора','Тип идентификатора', 'Активность идентификатора', 'Дата начала идентификатора', 'Дата завершения идентификатора');
-				
-			
+			//echo Debug::vars('70', $report);exit;
+			//echo Debug::vars('70-1', $tempFile);exit;
+			$tempFile->makeFile();
 				$tempFile->addRow($report->titleColumn);
 				//echo Debug::vars('70', $tempFile);exit;
 				foreach ($query as $key=>$value)
 				{
-									
+					//преобразую все к UTF-8	
+					//echo Debug::vars('78', $value);//exit;					
 					foreach($value as $key2=>$value2)
 					{
 						
@@ -97,7 +97,7 @@ class Model_allContactsExport_report extends Model
 			//echo Debug::vars('87', $tempFile->fileName, $report);exit;
 			
 			//$report->rowData=$result;
-			$report->view='result';//указание куда выводить отчет на экран
+			$report->view='report';//указание куда выводить отчет на экран
 			$report->fileName=$tempFile->fileName;//ссылка на файл список контактов
 			
 			return $report;//тут выводится класс, с массивом ответа. А если записывать все в файл, то класс будет без массива, маленький, и мало памяти потребуется.

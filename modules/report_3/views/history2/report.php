@@ -10,6 +10,7 @@
 $data=array();
 if(isset($report)) $data=$report;
 $ruid='history2';//r(eport)uid
+//echo Debug::vars('13', Kohana::$config->load('report'));//exit;
 	?>
 	</div>
 	<br class="clear">
@@ -88,7 +89,7 @@ $ruid='history2';//r(eport)uid
 		
 			echo __('<p>Отчет содержит :count событий.</p>', array(':count'=>$data->totalCountRow));
 			echo __('<p>Отчет подготовлен за :count секунд.</p>', array(':count'=>$data->timeExecute));
-			echo __('<p>Показаны первые 100 событий. Для получения полного отчета нажмите кнопку Экспорт</p>');
+			echo __('<p>Будут показаны первые 100 событий.</p>');
 			
 			
 			  $tempFile=new tempCSV;

@@ -1,7 +1,15 @@
 <?php
 //echo Debug::vars('2', $report);//exit; 
-//echo Debug::vars('3', $user);//exit; 
-
+//include Kohana::find_file('views','alert');
+/* if ($alert) { ?>
+<div class="alert_success">
+	<p>
+		<img class="mid_align" alt="success" src="images/icon_accept.png" />
+		<?php echo $alert; ?>
+	</p>
+</div>
+<?php }  */
+//echo Debug::vars('14', $rowData);exit;
 ?>
 <div class="onecolumn">
 	<div class="header">
@@ -22,7 +30,6 @@
 					<tr>
 						<th class="filter-false sorter-false"><?php echo __('sn');?></th>
 						<?php
-						
 						foreach($report->titleColumn as $key=>$value)
 						{
 							
@@ -59,27 +66,11 @@
 		
 	</div>
 		<?php
-		$filePresent=false;
-		if (file_exists($report->fileName)) {
-				// Файл существует
-				echo 'Файл найден';
-				$filePresent=true;
-				
-			} else {
-				// Файл не существует
-				echo 'Файл не найден';
-			}
-			
-			if($filePresent){
 			echo Form::open('mreports/export');
 				
 				echo Form::submit('savecsv', __('button.savecsv'));
-				//echo Form::submit('savexls', __('button.savexlsx'));
-				//echo Form::submit('savepdf', __('button.savepdf'));
+				echo Form::submit('savexls', __('button.savexlsx'));
+				echo Form::submit('savepdf', __('button.savepdf'));
 			echo Form::close();
-			} else {
-				echo Form::submit('savecsv', __('button.savecsv'), array('disabled'=>'disabled'));
-				
-			}
 			?>
 </div>
