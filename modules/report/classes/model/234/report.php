@@ -81,7 +81,7 @@ class Model_234_report extends Model
 				foreach($value as $key2=>$value2)
 				{
 					
-					$result[]=iconv('CP1251', 'UTF-8', $value2);
+					$result[]=iconv('CP1251', 'UTF-8//IGNORE', $value2);
 						
 				}
 					//тут добавить запись преобразованной строки в файл. Тогда не надо будет хранить в памяти массив $result
