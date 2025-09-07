@@ -1,4 +1,5 @@
 <?php
+//форма отчета по зарегистрированным контактам
 //echo Debug::vars('2', $report);//exit; 
 //echo Debug::vars('3', $user);//exit; 
 

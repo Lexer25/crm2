@@ -1,10 +1,10 @@
 <?php
-class Model_Report_Sales2 extends Model_Report_Base {
+class Model_Report_regRegestry extends Model_Report_Base {
     
     public function __construct()
     {
         parent::__construct();
-        $this->_name = 'sales2';
+        $this->_name = 'regRegestry';
     }
     
     public function generate($date_from = null, $date_to = null)

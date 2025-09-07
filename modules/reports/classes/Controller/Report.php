@@ -1,5 +1,7 @@
 <?php
-class Controller_Report extends Controller {
+class Controller_Report extends Controller_Template {
+	
+	public $template = 'template';
     
     public function action_index()
     {
@@ -7,15 +9,10 @@ class Controller_Report extends Controller {
         
         try {
             $report = Report_Factory::create($report_name);//возвращает экземпляр модели отчета, которая содержит имя, дату, форму для заполнения, форму для результата и набор параметров.
-            // echo Debug::vars('10', $report);exit;
-			// echo Debug::vars('11', $report_name);//exit;
-			// echo Debug::vars('12', ucfirst($report_name));//exit;
-			// echo Debug::vars('13', $report);//exit;
-			// echo Debug::vars('14', $report->get_form());exit;//а вот тут должна вернуться форма html с заполненными данными
-
+          
 				
 			
-            $view = View::factory('report/layout')
+            $content = View::factory('report/layout')
                 ->set('report_name', $report_name)
                 ->set('report_title', ucfirst($report_name).' Report')
                 ->set('form_content', $report->get_form())
@@ -23,52 +20,110 @@ class Controller_Report extends Controller {
                 ->set('active_tab', 'form');
                 
             //echo Debug::vars('18', $view);exit;
-			$this->response->body($view);
+			//$this->response->body($view);
+			$this->template->content = $content;
             
         } catch (Exception $e) {
-            $this->response->body('Error: '.$e->getMessage());
+           // $this->response->body('Error: '.$e->getMessage());
+			$this->template->content = 'Error: '.$e->getMessage();
         }
     }
     
     public function action_generate()
     {
-        $report_name = $this->request->param('report');
+        // echo Debug::vars('34', $_GET);//exit;
+        // echo Debug::vars('35', $_POST);exit;
+		$report_name = $this->request->param('report');
         $params = $this->request->query();
         
         try {
             $report = Report_Factory::create($report_name);
             $report->set_params($params);
             $report->generate($params);
-            
+           // echo Debug::vars('43', $report);exit;
             // Сохраняем отчет в сессии для кнопки "Сохранить"
             Session::instance()->set('current_report', array(
                 'name' => $report_name,
                 'data' => $report->get_data(),
                 'params' => $params
             ));
-            
-            $view = View::factory('report/layout')
+          //echo Debug::vars('50', $report);//exit;
+         // echo Debug::vars('51', $report->render());exit;
+          
+		  $view = View::factory('report/layout')
                 ->set('report_name', $report_name)
                 ->set('report_title', ucfirst($report_name).' Report')
                 ->set('form_content', $report->get_form())
                 ->set('result_content', $report->render())
                 ->set('active_tab', 'result');
                 
-            $this->response->body($view);
+           // $this->response->body($view);
+			$this->template->content = $view;
             
         } catch (Exception $e) {
-            $this->response->body('Error: '.$e->getMessage());
+           // $this->response->body('Error: '.$e->getMessage());
+			$this->template->content = 'Error: '.$e->getMessage();
         }
     }
     
-    public function action_save()
+    
+	
+	public function action_save()
     {
-        $report_data = Session::instance()->get('current_report');
+		//echo Debug::vars('73');exit;       
+	   $report_data = Session::instance()->get('current_report');
+	   //$report=Cache::instance()->get(Session::instance()->id());
+		$report=Arr::get(Arr::get($report_data,'data'), 'report');
+        //echo Debug::vars('75', $report_data);//exit;
+        //echo Debug::vars('78', $report);//exit;
+        if (!$report_data) {
+            $this->redirect('reports');
+        }
+        
+		//echo Debug::vars('80',$report_data );exit;
+        // try {
+          // $report=Cache::instance()->get(Session::instance()->id());
+			//Session::instance()->delete('report');//очищаю сессию от отчета
+			//echo Debug::vars('121', $report);exit;
+			$csv=new ExportCsv($report);
+			//echo Debug::vars('118', $csv->filename);exit;
+			if($csv->makeOk) 
+			{
+				//echo Debug::vars('125', $this);exit;
+				$content = Model::Factory('mreport')->send_file($csv->filename);//передача файла через браузер
+				//удалить файл с диска, чтобы не занимал место
+			//echo Debug::vars('129', $content);exit;
+				if (file_exists($csv->filename)) {
+					if (unlink($csv->filename)) {
+						echo "Файл успешно удален!"; exit;
+					} else {
+						echo "Не удалось удалить файл"; exit;
+					}
+				} else {
+					echo "Файл не существует";
+				}
+				
+			} else {
+				//echo Debug::vars('142', $this);exit;
+				$this->redirect($this->request->referrer());
+			}
+            
+        // } catch (Exception $e) {
+            // $this->response->body('Error saving report: '.$e->getMessage());
+			// $this->template->content ='113 Error saving report: '.$e->getMessage();
+        // }
+    }
+    
+    public function action_save_deep()
+    {
+		//echo Debug::vars('73');exit;       
+	   $report_data = Session::instance()->get('current_report');
         
         if (!$report_data) {
             $this->redirect('reports');
         }
         
+		//echo Debug::vars('80',$report_data );exit;
         try {
             $report = Report_Factory::create($report_data['name']);
             $report->set_params($report_data['params']);
@@ -97,10 +152,12 @@ class Controller_Report extends Controller {
                 ->set('filename', $filename)
                 ->set('report_content', $report->render());
                 
-            $this->response->body($view);
+            //$this->response->body($view);
+			$this->template->content = $view;
             
         } catch (Exception $e) {
             $this->response->body('Error saving report: '.$e->getMessage());
+			$this->template->content ='113 Error saving report: '.$e->getMessage();
         }
     }
     

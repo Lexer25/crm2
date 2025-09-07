@@ -1,11 +1,11 @@
 <?php
 abstract class Model_Report_Base {
     
-     protected $_data = array();
+     protected $_data = array();//это результат работы отчета, подготовленные данные
     protected $_name;
     protected $_view_path;
     protected $_form_path;
-    protected $_params = array();
+    protected $_params = array();//это набор входных значений
     
     public function __construct()
     {
@@ -42,8 +42,10 @@ abstract class Model_Report_Base {
             throw new Kohana_Exception('View not found for report: :name', 
                 array(':name' => $this->_name));
         }
-        extract($this->_data, EXTR_SKIP);
+        extract($this->_data, EXTR_SKIP);//преобразует массив key=>value в набор $key=$value 
+       // extract($this->_params , EXTR_SKIP);//преобразует массив key=>value в набор $key=$value 
 		//echo Debug::vars('46', $this->_data);//exit;
+		//echo Debug::vars('47', $this->_view_path);//exit;
 		ob_start();
 		
         include $this->_view_path;
@@ -78,13 +80,13 @@ abstract class Model_Report_Base {
         return $this->_params;
     }
     
-    public function set($key, $value)
+    public function set($key, $value)//можно устанавливать _data как набор значений из массива
     {
         $this->_data[$key] = $value;
         return $this;
     }
     
-    public function get_data()
+    public function get_data()// можно получить массив _data
     {
         return $this->_data;
     }

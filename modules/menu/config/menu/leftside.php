@@ -267,7 +267,8 @@ return [
 									'visible' => false,
 								],
 						'report1'=>[
-									'url'     => 'mreports/reportSelect/234',
+									//'url'     => 'mreports/reportSelect/234',
+									'url'     => 'reports/regRegestry',//реестр выданных пропусков
 									'icon'    => '',
 									'title'   => 'mreport.report1',
 									'tooltip' => 'mreport.report1',
@@ -275,7 +276,8 @@ return [
 								],
 						
 						'history2'=>[
-									'url'     => 'mreports/reportSelect/history2',
+									//'url'     => 'mreports/reportSelect/history2',
+									'url'     => 'reports/sales',
 									'icon'    => '',
 									'title'   => 'mreport.history',
 									'tooltip' => 'mreport.history',
