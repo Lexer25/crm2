@@ -143,13 +143,19 @@ Kohana::modules(array(
 	'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
 	'kohana-acl' => MODPATH . 'kohana-acl', // подключение модуля Passoffice
 	'menu' => MODPATH.'menu',
-	'mreports' => MODPATH.'report',
+	//'mreports' => MODPATH.'report',
+	'report' => MODPATH.'reports',
 	'companies' => MODPATH.'companies',
 	'monitors' => MODPATH.'monitors',
 	'access' => MODPATH.'access',
 	'setup' => MODPATH.'setup',
 	'doors' => MODPATH.'doors',
 	));
+	
+	
+
+
+
 /*
 Добавляю хранение настроек в базе данных
 
@@ -194,7 +200,43 @@ Route::set('edit', 'companies/delete((/<id>)(/<parent>))')
 		'controller' => 'order',
 		'action'     => 'edit',
 	)); 
-    
+	
+Route::set('reports', 'reports/<report>(.<format>)')
+    ->defaults(array(
+        'controller' => 'report',
+        'action' => 'index',
+        'format' => 'html'
+    ));
+
+// Route::set('reports_list', 'reports')
+    // ->defaults(array(
+        // 'controller' => 'report',
+        // 'action' => 'list'
+    // ));
+	
+	
+	
+	Route::set('reports_generate', 'reports/<report>/generate')
+    ->defaults(array(
+        'controller' => 'report',
+        'action' => 'generate'
+    ));
+
+Route::set('reports_save', 'reports/<report>/save')
+    ->defaults(array(
+        'controller' => 'report',
+        'action' => 'save'
+    ));
+
+Route::set('reports_download', 'reports/<report>/download.<format>')
+    ->defaults(array(
+        'controller' => 'report',
+        'action' => 'download',
+        'format' => 'html'
+    ));
+	
+	
+	
 Route::set('default', '(<controller>(/<action>(/<id>)))')
 	->defaults(array(
 		'controller' => 'dashboard',
