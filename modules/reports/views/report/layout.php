@@ -1,8 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title><?php echo $report_title; ?></title>
-    <style>
+<?php
+// echo Debug::vars('2', $report_name);//exit;
+// echo Debug::vars('3', $params);//exit;
+?>
+
+   
+   <style>
         .report-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .tabs { margin-bottom: 20px; }
         .tab { display: inline-block; padding: 10px 20px; background: #f0f0f0; 
@@ -17,21 +19,20 @@
         .result-actions { margin: 20px 0; }
         .hidden { display: none; }
     </style>
-</head>
-<body>
+
     <div class="report-container">
-        <h1><?php echo $report_title; ?></h1>
+        <h1><?php echo __($report_title); ?></h1>
         
         <div class="tabs">
             <div class="tab <?php echo $active_tab == 'form' ? 'active' : ''; ?>" 
-                 onclick="showTab('form')">Parameters</div>
+                 onclick="showTab('form')"><?php echo __('Parameters');?></div>
             <div class="tab <?php echo $active_tab == 'result' ? 'active' : ''; ?>" 
-                 onclick="showTab('result')">Result</div>
+                 onclick="showTab('result')"><?php echo __('Result');?></div>
         </div>
         
         <div class="tab-content">
             <div id="form-tab" class="tab-pane <?php echo $active_tab == 'form' ? '' : 'hidden'; ?>">
-                <?php echo $form_content; ?>
+                <?php echo $form_content; //вывод формы ввода данных отчета?>
             </div>
             
             <div id="result-tab" class="tab-pane <?php echo $active_tab == 'result' ? '' : 'hidden'; ?>">
@@ -39,7 +40,7 @@
                     <div class="result-actions">
                         <form method="post" action="<?php echo URL::site('reports/'.$report_name.'/save'); ?>">
                             <button type="submit" class="btn btn-success">
-                                <i class="icon-save"></i> Save Report
+                                <i class="icon-save"></i> <?php echo __('Save Report');?>
                             </button>
                         </form>
                     </div>
@@ -65,5 +66,3 @@
             document.querySelector('.tab[onclick="showTab(\'' + tabName + '\')"]').classList.add('active');
         }
     </script>
-</body>
-</html>

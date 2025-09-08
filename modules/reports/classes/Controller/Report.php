@@ -9,10 +9,8 @@ class Controller_Report extends Controller_Template {
         
         try {
             $report = Report_Factory::create($report_name);//возвращает экземпляр модели отчета, которая содержит имя, дату, форму для заполнения, форму для результата и набор параметров.
-          
-				
-			
-            $content = View::factory('report/layout')
+    
+			$content = View::factory('report/layout')
                 ->set('report_name', $report_name)
                 ->set('report_title', ucfirst($report_name).' Report')
                 ->set('form_content', $report->get_form())
@@ -29,47 +27,52 @@ class Controller_Report extends Controller_Template {
         }
     }
     
-    public function action_generate()
+    /**7.09.2025 генерация данных для отчета
+	* "_data" => string(3) "133"
+    * "report" => string(7) "example"
+	*/
+	public function action_generate()
     {
-        // echo Debug::vars('34', $_GET);//exit;
-        // echo Debug::vars('35', $_POST);exit;
-		$report_name = $this->request->param('report');
-        $params = $this->request->query();
-        
-        try {
+      	$report_name = $this->request->param('report');
+        $params = $this->request->query();// тут все полученные данные
+       //echo Debug::vars('37', $params);exit;
+     //   try {
+			Session::instance()->delete('current_report');
             $report = Report_Factory::create($report_name);
-            $report->set_params($params);
-            $report->generate($params);
-           // echo Debug::vars('43', $report);exit;
+            $report->set_params($params);//передал все входные параметры в модель
+            $report->generate($params);//генерация данных. Теперь у экземпляра report заполнено поле data=>report, и при этом данные сохранены в файл
             // Сохраняем отчет в сессии для кнопки "Сохранить"
-            Session::instance()->set('current_report', array(
+            
+			Session::instance()->set('current_report', array(
                 'name' => $report_name,
                 'data' => $report->get_data(),
                 'params' => $params
             ));
-          //echo Debug::vars('50', $report);//exit;
-         // echo Debug::vars('51', $report->render());exit;
-          
+          // echo Debug::vars('51', $report);exit;         
 		  $view = View::factory('report/layout')
                 ->set('report_name', $report_name)
                 ->set('report_title', ucfirst($report_name).' Report')
                 ->set('form_content', $report->get_form())
-                ->set('result_content', $report->render())
-                ->set('active_tab', 'result');
+                ->set('result_content', $report->render())//данные отчета вставляются в форму layout в раздел result
+                ->set('active_tab', 'result')
+                ->set('params', $params)
+				;
                 
-           // $this->response->body($view);
+            //$this->response->body($view);
 			$this->template->content = $view;
             
-        } catch (Exception $e) {
-           // $this->response->body('Error: '.$e->getMessage());
-			$this->template->content = 'Error: '.$e->getMessage();
-        }
+        // } catch (Exception $e) {
+          
+			// $this->template->content = 'Error: '.$e->getMessage();
+        // }
     }
     
     
 	
 	public function action_save()
     {
+		echo Debug::vars('74', $_GET);//exit;       
+		echo Debug::vars('75', $_POST);//exit;       
 		//echo Debug::vars('73');exit;       
 	   $report_data = Session::instance()->get('current_report');
 	   //$report=Cache::instance()->get(Session::instance()->id());

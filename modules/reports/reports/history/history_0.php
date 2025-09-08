@@ -1,8 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
 
-//class Model_Report_regRegestry extends Model
-class Model_Report_regRegestry extends Model_Report_Base {
+class Model_Report_history extends Model_Report_Base {
 	
 	
 	private $selectYear;
@@ -12,13 +11,13 @@ class Model_Report_regRegestry extends Model_Report_Base {
 	 public function __construct()
     {
         parent::__construct();
-        $this->_name = 'regRegestry';
+        $this->_name = 'history';
     }
 
 	//public function getReport($post, $user){
 	public function generate($post=array()){
 		
-			//echo Debug::vars('12', $post);//exit;
+			//echo Debug::vars('12', $post);exit;
 			$report=new Report();
 			$report->org=Kohana::$config->load('main')->get('orgname');
 			$report->titleReport='Количество зарегистрированных сотрудников за '.Arr::get($post, 'monceList');
@@ -39,7 +38,7 @@ class Model_Report_regRegestry extends Model_Report_Base {
 			//валидация данных.
 
 			$var1=Arr::get($post, 'monceList');
-			
+			echo Debug::vars('41');exit;
 			if($this->chekSelectDate($var1)){
 			
 				$month=Arr::get($post, 'howManyMonce');
@@ -58,7 +57,7 @@ class Model_Report_regRegestry extends Model_Report_Base {
 				
 				
 				
-				//echo Debug::vars('21', $sql);exit;
+				echo Debug::vars('21', $sql);exit;
 				$query = DB::query(Database::SELECT, $sql)
 				->execute(Database::instance('fb'))
 				->as_array();

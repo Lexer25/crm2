@@ -21,7 +21,7 @@ abstract class Model_Report_Base {
     
     abstract public function generate($params = array());
     
-    public function get_form()
+    public function get_form() //генерация формы для ввода параметров отчета
     {
         if (!file_exists($this->_form_path)) {
             return $this->_get_default_form();
@@ -44,8 +44,7 @@ abstract class Model_Report_Base {
         }
         extract($this->_data, EXTR_SKIP);//преобразует массив key=>value в набор $key=$value 
        // extract($this->_params , EXTR_SKIP);//преобразует массив key=>value в набор $key=$value 
-		//echo Debug::vars('46', $this->_data);//exit;
-		//echo Debug::vars('47', $this->_view_path);//exit;
+		
 		ob_start();
 		
         include $this->_view_path;

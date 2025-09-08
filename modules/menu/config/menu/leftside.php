@@ -277,7 +277,7 @@ return [
 						
 						'history2'=>[
 									//'url'     => 'mreports/reportSelect/history2',
-									'url'     => 'reports/sales',
+									'url'     => 'reports/history',
 									'icon'    => '',
 									'title'   => 'mreport.history',
 									'tooltip' => 'mreport.history',
