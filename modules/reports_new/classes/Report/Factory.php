@@ -1,14 +1,14 @@
 <?php
 class Report_Factory {
     
-    public static function create($report_name, $data=null)
+    public static function create($report_name)
     {
         // Приводим к правильному формату имени класса
         $class_name = 'Model_Report_'.ucfirst(strtolower($report_name));
         
         if (!class_exists($class_name)) {
             // Пробуем загрузить вручную
-            $file_path = self::get_model_path($report_name, $data=null);
+            $file_path = self::get_model_path($report_name);
  
 		    if (file_exists($file_path)) {
                 require_once $file_path;
@@ -17,7 +17,8 @@ class Report_Factory {
                     array(':name' => $report_name, ':class_name'=>$class_name));
             }
         }
-      
+       // echo Debug::vars('20', $class_name);//exit;
+       // echo Debug::vars('21', new $class_name());//exit;
         return new $class_name();
     }
     

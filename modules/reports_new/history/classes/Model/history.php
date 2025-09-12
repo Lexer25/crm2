@@ -25,21 +25,14 @@ class Model_Report_history extends Model_Report_Base
 	public $orgList;
 
 	
-	/**12.09.2025 класс подготовки отчета Журнал рабочего времени.
-	*входные параметры - массив $data, в котором ожидаю переменные
-	*$date_from - с какой даты сделать отчет
-	*$date_to по какую дату сделать отчет
-	*$select_org - какая организация была выбрана для отчета
-	*/
-	 public function __construct($data=null)
+	 public function __construct()
     {
         parent::__construct();
 		$user=new User();//получил данные текущего авторизованного юзера
         $this->_name = 'history';
         $this->titleReport = 'Журнал событий';
 		$orgList=Model::factory('company')->getOrgListForOnce($user->id_orgctrl);
-		$params=array('org'=>$orgList, 'user'=>$user,'data'=>$data);
-		$this->set_params($params);//этот набор параметров будет передан в form для организации таблицы ввода данных
+		$this->set_params($org=array('org'=>$orgList, 'user'=>$user));//передача результата 
     }
 
 	//public function getReport($post, $user){// 

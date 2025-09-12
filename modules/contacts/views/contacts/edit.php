@@ -321,7 +321,8 @@ $tt=microtime(true);
     ['id' => 4, 'name' => 'Team 1', 'parent' => 2],
     ['id' => 5, 'name' => 'Team 2', 'parent' => 2], 
 ];*/
-								//echo Debug::vars('324', array_slice($org_tree, 0, 5));//exit;
+								//echo Debug::vars('324', $select_org);//exit;
+								//echo Debug::vars('325', array_slice($org_tree, 0, 5));//exit;
 								$var2=$tree->buildTreeWithReferences($org_tree);
 								//echo Debug::vars('347', $var2);exit;
 							?>

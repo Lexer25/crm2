@@ -206,17 +206,9 @@ Route::set('reports', 'reports/<report>(.<format>)')
         'controller' => 'report',
         'action' => 'index',
         'format' => 'html'
-    ));
+    ));	
 
-// Route::set('reports_list', 'reports')
-    // ->defaults(array(
-        // 'controller' => 'report',
-        // 'action' => 'list'
-    // ));
-	
-	
-	
-	Route::set('reports_generate', 'reports/<report>/generate')
+Route::set('reports_generate', 'reports/<report>/generate')
     ->defaults(array(
         'controller' => 'report',
         'action' => 'generate'
@@ -234,7 +226,6 @@ Route::set('reports_download', 'reports/<report>/download.<format>')
         'action' => 'download',
         'format' => 'html'
     ));
-	
 	
 	
 Route::set('default', '(<controller>(/<action>(/<id>)))')

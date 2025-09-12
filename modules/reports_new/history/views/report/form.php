@@ -4,13 +4,9 @@
  * 19.11.2024 
  * 
  */
-//echo Debug::vars('7', $params);//exit;
-//echo Debug::vars('7-1', array_slice($params,1,1));//exit;
- //echo Debug::vars('8', Arr::get($params, 'org'));exit;
- //$user=Arr::get($params, 'user'); exit;
- $report_name='history';
- $user=Arr::get($params, 'user');
- //echo Debug::vars('12', $user);exit;
+ echo Debug::vars('7', $params);exit;
+ echo Debug::vars('8', Arr::get($params, 'org'));exit;
+ $user=Arr::get($params, 'user'); exit;
 ?>
 <br class="clear">
 <div >
