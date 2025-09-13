@@ -260,11 +260,11 @@ return [
 									'visible' => false,
 								],
 						'stat'=>[
-									'url'     => 'mreports/stat',
+									'url'     => 'reports/example',
 									'icon'    => '',
 									'title'   => 'mreport.stat',
 									'tooltip' => 'mreport.stat',
-									'visible' => false,
+									'visible' => true,
 								],
 						'report1'=>[
 									//'url'     => 'mreports/reportSelect/234',

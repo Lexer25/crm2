@@ -10,46 +10,24 @@ class Controller_Report extends Controller_Template {
     public function action_index()
     {
         $report_name = $this->request->param('report');
-		/* echo Debug::vars('13', Kohana::find_file('views/cards', 'list'));
-		echo Debug::vars('14', Kohana::find_file('classes', 'door'));
-		echo Debug::vars('15', Kohana::find_file('classes/Controller', 'event'));
-		echo Debug::vars('16', Kohana::find_file('', 'qwe', null, true));
-		echo Debug::vars('16-1', Kohana::find_file('', 'history', null, true));
-		echo Debug::vars('17', Kohana::find_file('', 'form', null, true));exit;
-        $content = ViewReport::factory('reports/reports/'.$report_name.'/form', array());
-	  echo Debug::vars('16=16', $content, $report_name);exit; */
-	  
-
-	  // echo Debug::vars('17', Kohana::find_file('reports', 'trr', null, true));
-	  // echo Debug::vars('17', Kohana::find_file('reports\history', 'trr2', null, true));
-	  // echo Debug::vars('17', Kohana::find_file('reports\history', 'form', null, true));//exit;
-	  
-	   // $content = ViewReport::factory($report_name.'\form', array()); 
-	   
-	   // echo Debug::vars('29', $report_name.'\form');
-	   // echo Debug::vars('29', $content);exit;
-        try {
+      //  try {
             $report = Report_Factory::create($report_name);//возвращает экземпляр модели отчета, которая содержит имя, дату, форму для заполнения, форму для результата и набор параметров.
-		//	$report->set_params(array('1'=>'2'));
-			
-			//echo Debug::vars('32',  $report->get_form());exit;
-			// $prom=$report->get_form();
-			// echo Debug::vars('34', $prom);exit;
+					
 			$content = View::factory('report/layout')
+
                 ->set('report_name', $report_name)
-                ->set('report_title', ucfirst($report_name).' Report')
+                ->set('report_title',  $report->report_title)
                 ->set('form_content', $report->get_form())
                 ->set('result_content', '')
                 ->set('active_tab', 'form')
-                ->set('user', $this->user)//переда параметры текущего авторизованного пользователя
 				;
 				//echo Debug::vars('25', $content);exit;
 			$this->template->content = $content;
             
-        } catch (Exception $e) {
-           // $this->response->body('Error: '.$e->getMessage());
-			$this->template->content = 'Error: '.$e->getMessage();
-        }
+        // } catch (Exception $e) {
+          // $this->response->body('Error: '.$e->getMessage());
+			// $this->template->content = 'Error: '.$e->getMessage();
+        // }
     }
     
     /**7.09.2025 генерация данных для отчета
@@ -74,10 +52,10 @@ class Controller_Report extends Controller_Template {
                 'params' => $params
             ));
 			
-          // echo Debug::vars('51', $report);exit;         
+          // echo Debug::vars('51', $params);exit;         
 		  $content = View::factory('report/layout')
                 ->set('report_name', $report_name)
-                ->set('report_title', ucfirst($report_name).' Report')
+                ->set('report_title', $report->report_title)
                 ->set('form_content', $report->get_form())
                 ->set('result_content', $report->render())//данные отчета вставляются в форму layout в раздел result
                 ->set('active_tab', 'result')

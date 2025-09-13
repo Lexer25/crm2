@@ -18,7 +18,7 @@ class Report_Factory {
             }
         }
       
-        return new $class_name();
+        return new $class_name($report_name, $data=null);
     }
     
 	

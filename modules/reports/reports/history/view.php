@@ -17,7 +17,7 @@ $ruid='history2';//r(eport)uid
 
 
 		<?php 
-
+//echo Debug::vars('20', $data);//exit;
 		if( $data instanceof Report) {//если есть переменная дата $data типа Report, то организую вывод данных в таблицу
 		
 		echo Form::open('mreports/export');

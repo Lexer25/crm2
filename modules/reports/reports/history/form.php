@@ -4,27 +4,31 @@
  * 19.11.2024 
  * 
  */
-//echo Debug::vars('7', $params);//exit;
+//echo Debug::vars('7', $params);exit;
 //echo Debug::vars('7-1', array_slice($params,1,1));//exit;
- //echo Debug::vars('8', Arr::get($params, 'org'));exit;
+// echo Debug::vars('8', $user);exit;
  //$user=Arr::get($params, 'user'); exit;
  $report_name='history';
  $user=Arr::get($params, 'user');
- //echo Debug::vars('12', $user);exit;
+ //echo Debug::vars('12', $user);//exit;
 ?>
 <br class="clear">
 <div >
 <?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
 
    <input type="hidden" name="report" value="<?php echo $report_name; ?>">
-
-		<?php echo Form::submit('button', __('button.makeReport')); ?>
+   
+  	<?php 
+		
+		echo Form::submit('button', __('button.makeReport')); ?>
     </div>
 	<?php
 		
 		//echo Form::open(URL::site('reports/'.$report_name.'/generate'));
 		
 		//echo Debug::vars('6', date('Y-m')); exit;
+		echo Debug::vars('30', $user);
+		
 		?>
 		 
 			<br>

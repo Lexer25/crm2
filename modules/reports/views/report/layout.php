@@ -1,6 +1,16 @@
 <?php
 // echo Debug::vars('2', $report_name);//exit;
 // echo Debug::vars('3', $params);//exit;
+//echo Debug::vars('4', $form_content);
+//echo Debug::vars('5', $result_content);
+//echo Debug::vars('6', $user);
+
+/* if(isset($params)){
+	echo Debug::vars('9', $params);
+} else {
+	echo Debug::vars('11 нет params');
+} */
+
 ?>
 
    
