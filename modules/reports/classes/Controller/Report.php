@@ -75,8 +75,8 @@ class Controller_Report extends Controller_Template {
 	
 	public function action_save()
     {
-		echo Debug::vars('74', $_GET);//exit;       
-		echo Debug::vars('75', $_POST);//exit;       
+		//echo Debug::vars('74', $_GET);//exit;       
+		//echo Debug::vars('75', $_POST);//exit;       
 		//echo Debug::vars('73');exit;       
 	   $report_data = Session::instance()->get('current_report');
 	   //$report=Cache::instance()->get(Session::instance()->id());
@@ -121,7 +121,34 @@ class Controller_Report extends Controller_Template {
         // }
     }
     
-    public function action_save_deep()
+	/**13.09.2025
+	*
+	*/
+	public function action_result()
+{
+    $report_name = $this->request->param('report');
+    $report_data = Session::instance()->get('current_report_data');
+    
+    if (!$report_data) {
+        $this->redirect('reports/'.$report_name);
+    }
+
+    $view = View::factory('report/result')
+        ->set('report_name', $report_name)
+        ->set('report_content', $report_data['content'])
+        ->set('params', $report_data['params'])
+        ->set('stats', array(
+            'generation_time' => number_format($report_data['generation_time'], 3) . ' sec',
+            'total_records' => $report_data['total_records']
+        ));
+
+    $this->response->body($view);
+}
+
+
+	/** исходный код от deepseek
+	*/
+    public function action_save_вууз()
     {
 		//echo Debug::vars('73');exit;       
 	   $report_data = Session::instance()->get('current_report');

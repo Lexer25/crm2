@@ -1,24 +1,30 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
+/** 13.09.2025 Отчет о зарегистрированных контактах за указанный месяц
+*
 
-//class Model_Report_regRegestry extends Model
+*/
+
 class Model_Report_regRegestry extends Model_Report_Base {
 	
-	
-	private $selectYear;
-	private $selectMonth;
+		public $report_title='regRegestry'; 
 	 
-	 
-	 public function __construct()
+	 public function __construct($report_name, $data=null)
     {
         parent::__construct();
-        $this->_name = 'regRegestry';
+        $this->_name = $report_name;
+		$result=array(
+			'report_title'=>'report_title_'.$this->_name,
+			'data'=>$data,
+		);
+		$this->set('report', $result);
     }
 
-	//public function getReport($post, $user){
+
 	public function generate($post=array()){
 		
 			//echo Debug::vars('12', $post);//exit;
+//============= подготовка самого отчета============================
 			$report=new Report();
 			$report->org=Kohana::$config->load('main')->get('orgname');
 			$report->titleReport='Количество зарегистрированных сотрудников за '.Arr::get($post, 'monceList');
@@ -107,7 +113,7 @@ class Model_Report_regRegestry extends Model_Report_Base {
 			$report->fileName=$tempFile->fileName;//ссылка на файл список контактов
 			
 			//==========================
-			 $this->set('report', $report);
+			$this->set('report', $report);
 			return $report;
 	}
 	

@@ -1,6 +1,5 @@
 <?php
 // Устанавливаем значения по умолчанию
-//echo Debug::vars('3', $params);//exit;
 
 $date_from = isset($params['report_name']) ? $params['date_from'] : 'example7';
 $date_from = isset($params['date_from']) ? $params['date_from'] : date('Y-m-01');

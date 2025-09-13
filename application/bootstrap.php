@@ -227,6 +227,12 @@ Route::set('reports_download', 'reports/<report>/download.<format>')
         'format' => 'html'
     ));
 	
+Route::set('report_result', 'reports/<report>/result')
+    ->defaults(array(
+        'controller' => 'report',
+        'action' => 'result'
+    ));
+
 	
 Route::set('default', '(<controller>(/<action>(/<id>)))')
 	->defaults(array(

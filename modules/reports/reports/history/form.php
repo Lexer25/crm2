@@ -4,33 +4,30 @@
  * 19.11.2024 
  * 
  */
-//echo Debug::vars('7', $params);exit;
+//echo Debug::vars('7', $params);//exit;
 //echo Debug::vars('7-1', array_slice($params,1,1));//exit;
 // echo Debug::vars('8', $user);exit;
  //$user=Arr::get($params, 'user'); exit;
- $report_name='history';
- $user=Arr::get($params, 'user');
- //echo Debug::vars('12', $user);//exit;
+ // $report_name='history';
+ // $user=Arr::get($params, 'user');
+ //echo Debug::vars('12', $user);exit;
+ $user=new User();
+$reportdatestart = isset($params['reportdatestart']) ? $params['reportdatestart'] : Date::formatted_time('now', "d.m.Y");
+$reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Date::formatted_time('tomorrow', "d.m.Y");
+
+
 ?>
 <br class="clear">
 <div >
 <?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
-
-   <input type="hidden" name="report" value="<?php echo $report_name; ?>">
    
   	<?php 
 		
-		echo Form::submit('button', __('button.makeReport')); ?>
-    </div>
-	<?php
-		
-		//echo Form::open(URL::site('reports/'.$report_name.'/generate'));
-		
-		//echo Debug::vars('6', date('Y-m')); exit;
-		echo Debug::vars('30', $user);
-		
+		echo Form::submit('button', __('button.makeReport')); 
+	
 		?>
-		 
+    </div>
+ 
 			<br>
 			<fieldset>
 				<legend><?php echo __('Журнал событий'); ?></legend>
@@ -42,9 +39,9 @@
                     </th>
                     <td>
                         <div style="padding-bottom: 10px;">
-
-                            <input type="text" size="12" name="reportdatestart" id="carddatestart" value="<?php
-                            echo Cookie::get('reportdatestart', Date::formatted_time('now', "d.m.Y"));?>" />
+							
+							<input type="text" size="12" name="reportdatestart" id="carddatestart" value="<?php echo $reportdatestart;?>" />
+							
                             <br>
                             <span class="error" id="error2" style="color: red; display: none;"><?php echo __('report.emptystarttime'); ?></span>
                         </div>
@@ -57,8 +54,9 @@
                     </th>
                     <td>
                         <div style="padding-bottom: 10px;">
-                            <input type="text" size="12" name="reportdateend" id="carddateend" value="<?php
-                            echo Cookie::get('reportdateend', Date::formatted_time('tomorrow', "d.m.Y"));?>" />
+                           	<input type="text" size="12" name="reportdateend" id="carddateend" value="<?php echo $reportdateend;?>" />
+							
+							
                             <br>
                             <span class="error" id="error3" style="color: red; display: none;"><?php echo __('report.wrongendtime'); ?></span>
                         </div>
@@ -78,11 +76,12 @@
 							
 							$var2=$tree->buildTreeWithReferences($org_tree);
 						
-							$select_org=1;//выбранная организации из предыдущего отчета.
+							//$select_org=1;//выбранная организации из предыдущего отчета.
+							$select_org = isset($params['id_org_select']) ? $params['id_org_select'] : $user->id_orgctrl;
 
 							?>
 							
-							<select name="id_org"  required>
+							<select name="id_org_select"  required>
 							
 								<?php
 								

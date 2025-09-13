@@ -18,6 +18,7 @@
 
 class Model_Report_history extends Model_Report_Base
 {
+	public $report_title='History21';
 	
 	private $selectYear;
 	private $selectMonth;
@@ -31,9 +32,18 @@ class Model_Report_history extends Model_Report_Base
 	*$date_to по какую дату сделать отчет
 	*$select_org - какая организация была выбрана для отчета
 	*/
-	 public function __construct($data=null)
+	 public function __construct($report_name, $data=null)
     {
         parent::__construct();
+		
+		 $this->_name = $report_name;
+		$result=array(
+			'report_title'=>'report_title_'.$this->_name,
+			'data'=>$data,
+		);
+		$this->set('report', $result);
+		
+		
 		$user=new User();//получил данные текущего авторизованного юзера
         $this->_name = 'history';
         $this->titleReport = 'Журнал событий';
@@ -62,7 +72,7 @@ class Model_Report_history extends Model_Report_Base
 			
 			$_report->depatment  =  $org->name;
 			
-			$_report->titlecolumnHist=array('Дата/время', 'Точка прохода', 'Событие', 'Имя, Фамилия','Должность');
+			$_report->titlecolumnHist=array('Дата/время', 'Точка прохода', 'Событие', 'Имя, Фамилия','Должность', 'Отдел');
 				
 			$tempFile=new tempCSV;//в этот файл будут заноситься данные.Открыл файл.
 			$tempFile->makeFile();
@@ -71,11 +81,13 @@ class Model_Report_history extends Model_Report_Base
 			if(true){
 				$timeStart=time(true);
 				//выбираю разрешенные организации.
-				$sql='select distinct og.id_org from organization_getchild(1, '.$user->id_orgctrl. ') og';
+				//$sql='select distinct og.id_org from organization_getchild(1, '.$user->id_orgctrl. ') og';
+				$sql='select distinct og.id_org from organization_getchild(1, '.Arr::get($post, 'id_org_select', $user->id_orgctrl). ') og';
 				
 				$query = DB::query(Database::SELECT, $sql)
 				->execute(Database::instance('fb'))
 				->as_array();
+				//echo Debug::vars('53', $sql);
 				//echo Debug::vars('53', count($query)); exit;
 				if(count($query)>1500) throw new  ExceptionCRM('Количество аргументов SQL запроса превышает 1500. Запрос не может быть выполнен.');
 				foreach ($query as $key=>$value){
@@ -118,11 +130,13 @@ class Model_Report_history extends Model_Report_Base
 					d.name as doorname,
 					et.name as eventname,
 					p.surname||\' \'||p.name||\' \'||p.patronymic,
-					p.post
+					p.post ,
+                    o.name
                     from device d
 					join events e on e.id_dev=d.id_dev and e.datetime between \''.Arr::get($post, 'reportdatestart').'\' and \''.Arr::get($post, 'reportdateend').'\'
 					join people p on p.id_pep=e.ess1
 					join eventtype et on et.id_eventtype=e.id_eventtype
+					 join organization o on o.id_org=p.id_org
 
 					where d.id_dev in ('.implode("," , $dev_list).')
 					and e.ess2 in ('.implode("," ,$org_list).')
@@ -131,7 +145,8 @@ class Model_Report_history extends Model_Report_Base
 				
 					
 			
-				//echo Debug::vars('134', $sql);//exit;
+			//	echo Debug::vars('134', $sql);exit;
+				Log::instance()->add(Log::ERROR, '146 '. $sql);
 				$t2=microtime(true);
 					$query = DB::query(Database::SELECT, $sql)
 					->execute(Database::instance('fb'))
