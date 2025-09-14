@@ -64,9 +64,11 @@
 					</p>
                 <?php endif; ?>
             </div>
+					<?php 
+					echo __('Report ver :ver', array(':ver'=>Kohana::$config->load('config')->get('ver', 0)));
+					?>
         </div>
     </div>
-
     <script>
         function showTab(tabName) {
             document.getElementById('form-tab').classList.add('hidden');

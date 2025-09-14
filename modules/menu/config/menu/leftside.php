@@ -264,7 +264,7 @@ return [
 									'icon'    => '',
 									'title'   => 'mreport.stat',
 									'tooltip' => 'mreport.stat',
-									'visible' => true,
+									'visible' => false,
 								],
 						'report1'=>[
 									//'url'     => 'mreports/reportSelect/234',
