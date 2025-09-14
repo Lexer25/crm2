@@ -15,6 +15,7 @@
 	<br class="clear"/>
 	<div class="content">
 	<?php
+	include Kohana::find_file('views', 'paginatoion_controller_template'); 
 		$sn=0;
 	?>
 		<form id="form_data" name="form_data" action="" method="post">
@@ -27,7 +28,8 @@
 						foreach($report->titleColumn as $key=>$value)
 						{
 							
-							echo '<th class="filter-false sorter-false">' . $value. '</th>';
+							//echo '<th class="filter-false sorter-false">' . $value. '</th>';
+							echo '<th>' . $value. '</th>';
 							
 						}
 						?>
@@ -35,15 +37,14 @@
 				</thead>
 				<tbody>
 						<?php
-						//echo Debug::vars('52', $rowData);exit;
+						
 						foreach($report->rowData as $key=>$value)
 						{
 						echo '<tr>';
-						//echo Debug::vars('55', $value);exit;
+						
 							echo '<td>' . ++$sn. '</td>';
 							foreach($value as $key2=>$value2){
-								//echo Debug::vars('57', $value2);exit;
-							
+								
 								echo '<td>' . $value2. '</td>';
 							}
 						echo '</tr>';
@@ -63,7 +64,7 @@
 		$filePresent=false;
 		if (file_exists($report->fileName)) {
 				// Файл существует
-				echo 'Файл найден';
+				//echo 'Файл найден';
 				$filePresent=true;
 				
 			} else {
@@ -71,7 +72,7 @@
 				echo 'Файл не найден';
 			}
 			
-			if($filePresent){
+			/* if($filePresent){
 			echo Form::open('mreports/export');
 				
 				echo Form::submit('savecsv', __('button.savecsv'));
@@ -81,6 +82,6 @@
 			} else {
 				echo Form::submit('savecsv', __('button.savecsv'), array('disabled'=>'disabled'));
 				
-			}
+			} */
 			?>
 </div>

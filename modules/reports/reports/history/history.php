@@ -54,6 +54,7 @@ class Model_Report_history extends Model_Report_Base
 
 	//public function getReport($post, $user){// 
 		public function generate($post=array()){
+//============= подготовка самого отчета============================
 		$t1=microtime(true);
 			//echo Debug::vars('12', $post);exit;
 			$_report=new Report();
@@ -171,7 +172,7 @@ class Model_Report_history extends Model_Report_Base
 							
 						}
 					
-					//echo Debug::vars('128', $result);exit;
+					
 					if($result) $tempFile->addRow($result);//сохранил строку файла
 					$result=array();//очистил строку с результатом.
 					}

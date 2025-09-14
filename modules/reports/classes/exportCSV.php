@@ -24,12 +24,12 @@ class exportCSV
 		$filePresent=false;
 			if (file_exists($report->fileName)) {
 				// Файл существует
-				echo 'Файл найден';
+				//echo 'Файл найден';
 				$filePresent=true;
 				
 			} else {
 				// Файл не существует
-				echo 'Файл не найден';
+				//echo 'Файл не найден';
 				//throw new  Exception('Файл не найден. Повторите подготовку отчета.');
 				
 			}

@@ -59,7 +59,9 @@
                         <?php echo $result_content; ?>
                     </div>
                 <?php else: ?>
-                    <p>Please generate the report first.</p>
+                    <p>
+					<?php echo __('noDataForReport');?>
+					</p>
                 <?php endif; ?>
             </div>
         </div>

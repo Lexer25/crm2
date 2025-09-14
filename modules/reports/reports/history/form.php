@@ -26,7 +26,7 @@ $reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Da
 		echo Form::submit('button', __('button.makeReport')); 
 	
 		?>
-    </div>
+    
  
 			<br>
 			<fieldset>
@@ -98,7 +98,7 @@ $reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Da
 			<?php 
 			
 			
-			echo Form::submit('button', __('button.makeReport'));
+			//echo Form::submit('button', __('button.makeReport'));
 				
 		echo Form::close();
 			?>

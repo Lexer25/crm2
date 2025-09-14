@@ -7,7 +7,7 @@
 
 class Model_Report_regRegestry extends Model_Report_Base {
 	
-		public $report_title='regRegestry'; 
+		public $report_title='regRegestryReport'; 
 	 
 	 public function __construct($report_name, $data=null)
     {
@@ -73,7 +73,7 @@ class Model_Report_regRegestry extends Model_Report_Base {
 				foreach ($query as $key=>$value)
 				{
 					$query[$key]['MONTFROM']=Arr::get($monthes, $value['MONTFROM']).' ('.$value['MONTFROM'].')';
-					$query[$key]['NAME']=iconv('CP1251', 'UTF-8', Arr::get($value,'NAME'));
+					$query[$key]['NAME']=iconv('CP1251', 'UTF-8//IGNORE', Arr::get($value,'NAME'));
 					
 				}
 			} else {
@@ -94,14 +94,15 @@ class Model_Report_regRegestry extends Model_Report_Base {
 				foreach($value as $key2=>$value2)
 				{
 					
-					$result[]=iconv('CP1251', 'UTF-8//IGNORE', $value2);
+					//$result[]=iconv('CP1251', 'UTF-8//IGNORE', $value2);
+					$result[]=$value2;
 						
 				}
 					//тут добавить запись преобразованной строки в файл. Тогда не надо будет хранить в памяти массив $result
 					//или в сессию писать... дописывать. какая разница?	
 					//echo Debug::vars('86', $result);exit;
-				$tempFile->addRow($result);
-				$result=array();
+				if($result) $tempFile->addRow($result);//сохранил строку файла
+				$result=array();//очистил строку с результатом.
 			}
 				$tempFile->closeFile();
 				

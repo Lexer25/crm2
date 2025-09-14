@@ -24,7 +24,7 @@ class Model_Report_example extends Model_Report_Base {
 	
 	public function generate($post=array())
 	{
-		echo Debug::vars('12', $post);//exit;
+		//echo Debug::vars('12', $post);//exit;
 		$result=array(
 			array('column1'=>'column1', 'column2'=>'column2', 'column3'=>'column3', 'column4'=>Debug::vars($post) ),
 			'report_name'=>$this->_name,

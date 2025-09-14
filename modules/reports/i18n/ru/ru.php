@@ -23,5 +23,12 @@ return array
 	'Parameters'=>'Параметры',
 	'Result'=>'Результаты',
 	'Save Report'=>'Сохранить результат',
+	
+	
+	'regRegestryReport'=>'Регистрация сотрудников',
+	'noDataForReport'=>'Подготовьте данные для отчета заранее.',
+	
+	
+	'History21'=>'Журнал событий',
   
 );

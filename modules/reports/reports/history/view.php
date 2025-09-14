@@ -9,7 +9,7 @@
    // echo Debug::vars('9-9', $report); //exit;
 $data=array();
 if(isset($report)) $data=$report;
-$ruid='history2';//r(eport)uid
+$ruid='history2';//
 	?>
 	</div>
 	<br class="clear">
@@ -17,14 +17,9 @@ $ruid='history2';//r(eport)uid
 
 
 		<?php 
-//echo Debug::vars('20', $data);//exit;
 		if( $data instanceof Report) {//если есть переменная дата $data типа Report, то организую вывод данных в таблицу
 		
-		echo Form::open('mreports/export');
-		//echo Form::submit('savecsv', __('button.savecsv'));
-	
-		//echo Debug::vars('96', $data, $data instanceof Report );exit;
-		
+		//echo Form::open('mreports/export');
 		$t1=microtime(true);
 		if ($data->totalCountRow>1) { 
 		
@@ -76,8 +71,8 @@ $ruid='history2';//r(eport)uid
 		<?php } ?>
 			<?php 	
 			
-			echo Form::hidden('filename', $data->fileName);
-			echo Form::close();
+			// echo Form::hidden('filename', $data->fileName);
+			// echo Form::close();
 		}
 			?>
 	</div>

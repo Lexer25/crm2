@@ -16,7 +16,15 @@
 	<br class="clear"/>
 	<div class="content">
 		<form id="form_data" name="form_data" action="" method="post">
-			<?php echo Debug::vars('19', $report); ?>
+			Здесь будет выводится подготовленный отчет.<br>
+			Ниже приводятся данные, сформированные в файле crm2\modules\reports\reports\example\example.php<br>
+			в методе generate.<br><br><br> 
+			
+			<?php 
+			
+			echo Debug::vars('19', $report); 
+			
+			?>
 			
 		</form>
 		

@@ -11,7 +11,7 @@
  * 13.09.2025 в значение value надо бы подставлять monceList, но не получается: если скрипт раскомментировать, то даже выбор перестает работать.
  */
 
- echo Debug::vars('9', $params);//exit; monceList
+ //echo Debug::vars('9', $params);//exit; monceList
  
  $monceList = isset($params['monceList']) ? $params['monceList'] : '';
  
