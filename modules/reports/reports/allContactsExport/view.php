@@ -28,6 +28,7 @@ $ruid='history2';//
 			echo __('<p>Будут показаны первые 100 событий. Для получения полного отчета нажмите "Сохранить результат".</p>');
 			
 			
+			
 			  $tempFile=new tempCSV;
 			  $tempFile->getFile();
 			 // echo Debug::vars('96', $tempFile->getRow());exit;

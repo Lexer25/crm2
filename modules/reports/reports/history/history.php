@@ -55,7 +55,10 @@ class Model_Report_history extends Model_Report_Base
 	//public function getReport($post, $user){// 
 		public function generate($post=array()){
 //============= подготовка самого отчета============================
-		$t1=microtime(true);
+	
+
+
+			$t1=microtime(true);
 			//echo Debug::vars('12', $post);exit;
 			$_report=new Report();
 			$_report->org=Kohana::$config->load('main')->get('orgname');
@@ -68,16 +71,21 @@ class Model_Report_history extends Model_Report_Base
 			$pep=new Contact($user->id_pep);
 			$_report->fromUser  = $pep->surname.' '.Text::limit_chars($pep->name, 1).'. '.Text::limit_chars($pep->patronymic, 1).'.';
 			
+			//запиманию в кеш текущие параметры отчета
+	Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_reportdatestart',Arr::get($post, 'reportdatestart'));
+	Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_reportdateend',Arr::get($post, 'reportdateend'));
+	Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_id_orgctrl',$user->id_orgctrl);
+	
 			//беру название департамента оператора
 			$org= new Company($user->id_orgctrl);
 			
 			$_report->depatment  =  $org->name;
 			
-			$_report->titlecolumnHist=array('Дата/время', 'Точка прохода', 'Событие', 'Имя, Фамилия','Должность', 'Отдел');
+			$_report->titleColumn=array('Дата/время', 'Точка прохода', 'Событие', 'Имя, Фамилия','Должность', 'Отдел');
 				
 			$tempFile=new tempCSV;//в этот файл будут заноситься данные.Открыл файл.
 			$tempFile->makeFile();
-			$tempFile->addRow($_report->titlecolumnHist);//сохранил заголовок отчета - первая строка.
+			$tempFile->addRow($_report->titleColumn);//сохранил заголовок отчета - первая строка.
 
 			if(true){
 				$timeStart=time(true);

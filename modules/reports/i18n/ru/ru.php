@@ -30,5 +30,10 @@ return array
 	
 	
 	'History21'=>'Журнал событий',
+	
+	
+	
+	'AllContactsExport'=>'Список сотрудников',
+	'orgList'=>'Список организаций',
   
 );

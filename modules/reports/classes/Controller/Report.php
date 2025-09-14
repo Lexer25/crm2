@@ -14,7 +14,6 @@ class Controller_Report extends Controller_Template {
             $report = Report_Factory::create($report_name);//возвращает экземпляр модели отчета, которая содержит имя, дату, форму для заполнения, форму для результата и набор параметров.
 					
 			$content = View::factory('report/layout')
-
                 ->set('report_name', $report_name)
                 ->set('report_title',  $report->report_title)
                 ->set('form_content', $report->get_form())

@@ -30,7 +30,7 @@ abstract class Model_Report_Base {
         // Передаем переменные в форму
         $params = $this->_params;
         $report_name = $this->_name;
-        
+       // echo Debug::vars('33', $report_name.'/form');exit;
         // ob_start();
         // include $this->_form_path;
        // return ob_get_clean();

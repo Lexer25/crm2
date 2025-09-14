@@ -285,7 +285,7 @@ return [
 								],
 						
 						'exportAllContact'=>[
-									'url'     => 'mreports/reportSelect/allContactsExport',
+									'url'     => 'reports/allContactsExport',
 									'icon'    => '',
 									'title'   => 'mreport.allcontact',
 									'tooltip' => 'mreport.allcontact',
