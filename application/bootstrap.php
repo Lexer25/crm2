@@ -149,6 +149,8 @@ Kohana::modules(array(
 	'access' => MODPATH.'access',
 	'setup' => MODPATH.'setup',
 	'doors' => MODPATH.'doors',
+	'backup' => MODPATH.'backup',
+	'scheduler' => MODPATH.'scheduler',
 	));
 	
 	

@@ -1,0 +1,12 @@
+modules/scheduler/
+├── classes/
+│   ├── Scheduler.php
+│   ├── Task.php
+│   └── Task/
+│       ├── Base.php
+│       └── Example.php
+├── config/
+│   └── scheduler.php
+├── vendor/
+│   └── windows_cron.php
+└── init.php
