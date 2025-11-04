@@ -1,7 +1,3 @@
-rem @echo off
-rem cd /d C:\xampp\htdocs\crm2\
-rem php index.php --uri=scheduler/index
+@echo off
+c:\xampp\php\php.exe c:\xampp\htdocs\crm2\modules\minion\minion --task=scheduler
 
-C:\xampp\php\php.exe C:\xampp\htdocs\crm2\index.php --uri=scheduler/index
-
-//C:\xampp\php\php.exe --tasl=index --uri=scheduler/index

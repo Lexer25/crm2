@@ -4,38 +4,29 @@ class Task_Example extends Task_Base {
     
     public function execute()
     {
-        $this->log('Example task executed successfully');
+        $this->log('Starting example task');
         
-        // Пример: очистка временных файлов
-        $this->_clean_temp_files();
+        // Пример работы
+        $this->log('Processing data...');
         
-        // Пример: отправка email
-        $this->_send_notifications();
+        // Имитация работы
+        sleep(1);
+        
+        // Пример: запись в файл
+        $this->_create_test_file();
+        
+        $this->log('Example task completed successfully');
         
         return TRUE;
     }
     
-    protected function _clean_temp_files()
+    protected function _create_test_file()
     {
-        $temp_dir = APPPATH.'cache/temp/';
-        if (is_dir($temp_dir))
-        {
-            $files = glob($temp_dir.'*');
-            $now = time();
-            
-            foreach ($files as $file)
-            {
-                if (is_file($file) && ($now - filemtime($file) > 3600)) // Старше 1 часа
-                {
-                    unlink($file);
-                }
-            }
-        }
-    }
-    
-    protected function _send_notifications()
-    {
-        // Пример отправки уведомлений
-        // Email::factory('Subject', 'Message')->send();
+        $file_path = APPPATH.'cache/example_task_'.date('Y-m-d_H-i-s').'.txt';
+        $content = "Task executed at: ".date('Y-m-d H:i:s')."\n";
+        $content .= "Task name: {$this->_name}\n";
+        
+        file_put_contents($file_path, $content);
+        $this->log("Created test file: {$file_path}");
     }
 }

@@ -1,12 +1,33 @@
 modules/scheduler/
 ├── classes/
-│   ├── Scheduler.php
-│   ├── Task.php
-│   └── Task/
-│       ├── Base.php
-│       └── Example.php
+│   ├── Scheduler.php           # Этот файл
+│   ├── Task.php                # Абстрактный класс Task
+│   ├── Task/
+│   │   ├── Base.php            # Task_Base
+│   │   ├── Example.php         # Task_Example
+│   │   └── Cleanup.php         # Task_Cleanup
+│   └── Minion/
+│       └── Task/
+│           └── Scheduler.php   # Minion_Task_Scheduler
 ├── config/
 │   └── scheduler.php
-├── vendor/
-│   └── windows_cron.php
 └── init.php
+
+
+# Запуск планировщика
+php minion scheduler
+
+# Показать статус
+php minion scheduler --status
+
+# Показать детальную статистику
+php minion scheduler --stats
+
+# Сбросить статистику задачи
+php minion scheduler --reset=example_task
+
+# Запустить конкретную задачу
+php minion scheduler --task=cleanup_task
+
+# Список задач
+php minion scheduler --list

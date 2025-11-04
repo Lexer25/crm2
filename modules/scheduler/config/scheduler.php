@@ -1,11 +1,10 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 return array(
-    // Задачи для выполнения
     'tasks' => array(
         'example_task' => array(
             'class' => 'Task_Example',
-            'schedule' => '* * * * *', // Каждую минуту
+            'schedule' => '*/5 * * * *', // Каждые 5 минут
             'enabled' => TRUE,
         ),
         'cleanup_task' => array(
@@ -15,16 +14,14 @@ return array(
         ),
     ),
     
-    // Настройки логгирования
     'log' => array(
         'enabled' => TRUE,
         'path' => APPPATH.'logs/scheduler.log',
     ),
     
-    // Настройки блокировки (предотвращение параллельного выполнения)
     'lock' => array(
         'enabled' => TRUE,
         'file' => APPPATH.'cache/scheduler.lock',
-        'timeout' => 300, // 5 минут
+        'timeout' => 300,
     ),
 );

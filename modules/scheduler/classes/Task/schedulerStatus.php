@@ -1,27 +1,23 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Controller_Scheduler extends Controller {
+//c:\xampp\php\php.exe c:\xampp\htdocs\crm2\modules\minion\minion --task=schedulerStatus --id_ts=2
+
+ class Task_schedulerStatus extends Minion_Task {
     
-    public function before()
+    /**
+     * Логгирование
+     */
+	 
+	  protected $_options = array(
+        // param name => default value
+     
+        'id_ts'   => '2',
+		);
+		
+		
+     protected function _execute(array $params)
     {
-        // Разрешаем выполнение только через CLI
-        if (PHP_SAPI != 'cli')
-        {
-            throw new HTTP_Exception_403('Access denied');
-        }
-        
-        parent::before();
-    }
-    
-    public function action_index()
-    {
-        $scheduler = Scheduler::factory();
-        $scheduler->run();
-    }
-    
-    public function action_status()
-    {
-        $scheduler = Scheduler::factory();
+         $scheduler = Scheduler::factory();
         $status = $scheduler->get_status();
         
         echo "Scheduler Status:\n";

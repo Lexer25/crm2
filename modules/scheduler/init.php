@@ -1,11 +1,9 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-if (PHP_SAPI == 'cli')
+// Автоматическая загрузка модуля
+if (class_exists('Kohana') && ! Kohana::modules())
 {
-    // Регистрируем CLI маршруты
-    Route::set('scheduler', 'scheduler(/<action>)')
-        ->defaults(array(
-            'controller' => 'scheduler',
-            'action'     => 'index',
-        ));
+    Kohana::modules(array(
+        'scheduler' => MODPATH.'scheduler',
+    ));
 }
