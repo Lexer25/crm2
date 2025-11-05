@@ -13,6 +13,31 @@ modules/scheduler/
 │   └── scheduler.php
 └── init.php
 
+# Основные команды
+php minion scheduler --stats
+php minion scheduler --status
+php minion scheduler --list
+php minion scheduler --task=example_task
+php minion scheduler --reset=example_task
+
+# Запуск планировщика
+php minion scheduler
+php minion scheduler --force
+
+
+
+# Обычный запуск (может показать сообщение о блокировке)
+php minion scheduler
+
+# Принудительный запуск (игнорирует блокировку)
+php minion scheduler --force
+
+# Только снять блокировку
+php minion scheduler --unlock
+
+# Проверить статус блокировки
+php minion scheduler --status
+
 
 # Просмотр зарегистрированных задач
 php minion taskmanager --list
@@ -41,7 +66,7 @@ php minion schedulerinstall --uninstall
 php minion scheduler
 
 
-
+регистрация задач
     --list - список всех задач
 
     --show --name=NAME - детальная информация о задаче
