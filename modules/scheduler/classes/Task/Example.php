@@ -7,7 +7,7 @@ class Task_Example extends Task_Base {
         $this->log('Starting example task');
         
         // Пример работы
-        $this->log('Processing data...');
+        $this->log('10 Processing data...');
         
         // Имитация работы
         sleep(1);
@@ -15,7 +15,7 @@ class Task_Example extends Task_Base {
         // Пример: запись в файл
         $this->_create_test_file();
         
-        $this->log('Example task completed successfully');
+        $this->log('18 Example task completed successfully');
         
         return TRUE;
     }
