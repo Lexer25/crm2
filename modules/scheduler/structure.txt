@@ -14,20 +14,42 @@ modules/scheduler/
 └── init.php
 
 
-# Запуск планировщика
+# Просмотр зарегистрированных задач
+php minion taskmanager --list
+
+# Создание новой задачи
+php minion taskmanager --create --name="new_task" --class="Task_Example" --schedule="*/10 * * * *" --parameters='{"output_file":"/path/to/file.txt"}'
+
+# Включение/выключение задачи
+php minion taskmanager --enable --name="example_task"
+php minion taskmanager --disable --name="example_task"
+
+# Удаление задачи
+php minion taskmanager --delete --name="old_task"
+
+
+# Установка таблиц
+php minion schedulerinstall --install
+
+# Проверка статуса
+php minion schedulerinstall --status
+
+# Удаление (осторожно!)
+php minion schedulerinstall --uninstall
+
+# Запуск планировщика (проверит установку автоматически)
 php minion scheduler
 
-# Показать статус
-php minion scheduler --status
 
-# Показать детальную статистику
-php minion scheduler --stats
 
-# Сбросить статистику задачи
-php minion scheduler --reset=example_task
+    --list - список всех задач
 
-# Запустить конкретную задачу
-php minion scheduler --task=cleanup_task
+    --show --name=NAME - детальная информация о задаче
 
-# Список задач
-php minion scheduler --list
+    --create --name=NAME --class=CLASS --schedule=SCHEDULE - создать задачу
+
+    --update --name=NAME - обновить задачу
+
+    --delete --name=NAME - удалить задачу
+
+    --enable/--disable --name=NAME - включить/выключить задачу

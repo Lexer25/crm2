@@ -264,4 +264,87 @@ class Minion_Task_Scheduler extends Minion_Task {
              . "  php minion scheduler --task=cleanup_task\n"
              . "  php minion scheduler --reset=example_task";
     }
+	
+	// В класс Minion_Task_Scheduler добавьте новые методы:
+
+/**
+ * Показать расширенную статистику из базы данных
+ */
+protected function _show_detailed_statistics()
+{
+    $scheduler = Scheduler::factory();
+    $stats = $scheduler->get_detailed_statistics();
+    $status = $scheduler->get_status();
+    
+    Minion_CLI::write('Detailed Scheduler Statistics:', 'cyan');
+    Minion_CLI::write('==============================', 'cyan');
+    
+    Minion_CLI::write("Total tasks: {$stats['total_tasks']}");
+    Minion_CLI::write("Enabled tasks: {$stats['enabled_tasks']}");
+    Minion_CLI::write("Due tasks: {$stats['due_tasks']}");
+    Minion_CLI::write("Total executions: {$stats['total_runs']}");
+    Minion_CLI::write("Total errors: {$stats['total_errors']}");
+    Minion_CLI::write("Success rate: ".($stats['total_runs'] > 0 ? 
+        round(100 - ($stats['total_errors'] / $stats['total_runs'] * 100), 2) : 0)."%");
+    Minion_CLI::write("Total logs in DB: {$stats['total_logs']}");
+    Minion_CLI::write("Total execution time: ".round($stats['total_duration'], 2)."s");
+    Minion_CLI::write("Average execution time: ".round($stats['avg_duration'], 2)."s");
+    Minion_CLI::write("Max memory usage: ".$scheduler->_format_memory($stats['max_memory']));
+    Minion_CLI::write("Last execution: " . 
+        ($stats['last_execution'] ? date('Y-m-d H:i:s', $stats['last_execution']) : 'Never'));
+}
+
+/**
+ * Показать логи задачи
+ */
+protected function _show_task_logs($task_name, $limit = 10)
+{
+    $scheduler = Scheduler::factory();
+    $logs = $scheduler->get_task_logs($task_name, $limit);
+    
+    if (empty($logs))
+    {
+        Minion_CLI::write("No logs found for task: {$task_name}", 'yellow');
+        return 1;
+    }
+    
+    Minion_CLI::write("Recent logs for task: {$task_name}", 'cyan');
+    Minion_CLI::write("==========================", 'cyan');
+    
+    foreach ($logs as $log)
+    {
+        $status_color = $log->status == 'success' ? 'green' : 'red';
+        $duration = round($log->duration, 2).'s';
+        $memory = $scheduler->_format_memory($log->memory_usage);
+        
+        Minion_CLI::write("[".$log->created_at."] {$log->status} ({$duration}, {$memory})", $status_color);
+        
+        if (!empty($log->output))
+        {
+            $output_lines = explode("\n", trim($log->output));
+            foreach ($output_lines as $line)
+            {
+                if (!empty(trim($line)))
+                {
+                    Minion_CLI::write("  > ".trim($line), 'gray');
+                }
+            }
+        }
+        Minion_CLI::write("");
+    }
+    
+    return 0;
+}
+
+/**
+ * Очистить старые логи
+ */
+protected function _cleanup_logs($days = 30)
+{
+    $scheduler = Scheduler::factory();
+    $deleted_count = $scheduler->cleanup_old_logs($days);
+    
+    Minion_CLI::write("Deleted {$deleted_count} logs older than {$days} days", 'green');
+    return 0;
+}
 }

@@ -14,7 +14,8 @@ class Task_Scheduler extends Minion_Task {
      */
     protected function _execute(array $params)
     {
-        if ($params['list']) {
+//echo Debug::vars('17', $params, $params['list']);exit;       
+	   if ($params['list']) {
             return $this->_list_tasks();
         }
 
