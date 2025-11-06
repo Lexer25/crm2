@@ -62,7 +62,7 @@ class Scheduler {
      */
     protected function _load_tasks_from_database()
     {
-      
+  
 	   try
         {
 	        // Авторегистрация задач при первом запуске
@@ -73,7 +73,7 @@ class Scheduler {
                 SELECT * FROM `scheduler_tasks` 
                 WHERE `enabled` = 1
             ")->as_array();
-      
+  
             foreach ($db_tasks as $db_task)
             {
                 $name = $db_task['name'];
@@ -81,18 +81,27 @@ class Scheduler {
                 if (class_exists($db_task['class']))
                 {
                     // Загружаем состояние задачи
-                    $task_state = $this->_db->query(Database::SELECT, "
+					$sql=__('SELECT * FROM `scheduler_state` 
+                        WHERE `task_id` = :task_id',
+						array(':task_id' => $db_task['id']));
+						
+						
+                  /*   $task_state = $this->_db->query(Database::SELECT, "
                         SELECT * FROM `scheduler_state` 
                         WHERE `task_id` = :task_id
-                    ", array(':task_id' => $db_task['id']))->current();
-          
+                    ", array(':task_id' => $db_task['id']))->current(); */
+					
+					$task_state = $this->_db->query(Database::SELECT, $sql)
+						->current();
+							
+			
                     // Загружаем параметры
                     $parameters = array();
                     if (!empty($db_task['parameters']))
                     {
                         $parameters = json_decode($db_task['parameters'], TRUE);
                     }
-                    
+                   // echo Debug::vars('119', $db_task);exit;
                     $this->_tasks[$name] = array(
                         'instance' => new $db_task['class']($name),
                         'schedule' => $db_task['schedule'],
@@ -105,6 +114,8 @@ class Scheduler {
                         'error_count' => $task_state ? $task_state['total_errors'] : 0,
                         'parameters' => $parameters,
                     );
+					Minion_CLI::write('118 _load_tasks_from_database', 'cyan');
+					
                 }
                 else
                 {
@@ -114,7 +125,7 @@ class Scheduler {
         }
         catch (Exception $e)
         {
-			echo Debug::vars('118');exit;           
+			        
 		   Kohana::$log->add(Log::ERROR, "Error loading tasks from database: ".$e->getMessage());
         }
     }

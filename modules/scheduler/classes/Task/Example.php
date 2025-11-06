@@ -12,7 +12,8 @@ class Task_Example extends Task_Base {
             $this->log('Starting example task');
             
             // Получаем параметры из базы данных или конфигурации
-            $output_file = $this->get_parameter('output_file', APPPATH.'logs/example_output.txt');
+            $output_file = $this->get_parameter('output_file', APPPATH.'logs/example_output'.date('Y-m-d_H-i-s').'.txt');
+			$output_file = APPPATH.'logs/example_output'.date('Y-m-d_H-i-s').'.txt';
             $repeat_count = $this->get_parameter('repeat_count', 1);
             $enable_logging = $this->get_parameter('enable_logging', TRUE);
             $custom_message = $this->get_parameter('custom_message', 'Hello from scheduler!');

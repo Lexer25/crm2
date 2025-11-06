@@ -49,7 +49,7 @@ class Task_Scheduler extends Minion_Task {
         Minion_CLI::write('Starting scheduler...', 'green');
         
         $scheduler = Scheduler::factory();
-//   echo Debug::vars('52', $scheduler);exit;     
+     
         if ($force) {
             Minion_CLI::write('Force mode: ignoring schedule', 'yellow');
         }

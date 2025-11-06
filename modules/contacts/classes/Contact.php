@@ -173,13 +173,9 @@ class Contact
 				':note'			=> $this->note,
 				':post'			=> $this->post
 				));
-				
-				
-				
-				
 
 //echo Debug::vars('127', $sql); exit;			
-					try
+		try
 		{
 					
 			$query = DB::query(Database::INSERT, iconv('UTF-8', 'CP1251',$sql))
