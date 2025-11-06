@@ -7,7 +7,7 @@ class Scheduler_Install {
      */
     public static function install()
     {
-        $db = Database::instance('scheduler');
+        $db = Database::instance('scheduler_db');
         $db->begin();
         echo Debug::vars('12', $db);exit;
         try

@@ -14,7 +14,7 @@ class Scheduler {
     
     public function __construct()
     {
-        $this->_config = Kohana::$config->load('scheduler_db');
+        $this->_config = Kohana::$config->load('scheduler');
         
         // Получаем соединение с БД
         try
@@ -62,17 +62,18 @@ class Scheduler {
      */
     protected function _load_tasks_from_database()
     {
-        try
+      
+	   try
         {
-            // Авторегистрация задач при первом запуске
+	        // Авторегистрация задач при первом запуске
             $this->_auto_register_tasks();
-            
+
             // Загружаем задачи из базы данных
             $db_tasks = $this->_db->query(Database::SELECT, "
                 SELECT * FROM `scheduler_tasks` 
                 WHERE `enabled` = 1
             ")->as_array();
-            
+      
             foreach ($db_tasks as $db_task)
             {
                 $name = $db_task['name'];
@@ -84,7 +85,7 @@ class Scheduler {
                         SELECT * FROM `scheduler_state` 
                         WHERE `task_id` = :task_id
                     ", array(':task_id' => $db_task['id']))->current();
-                    
+          
                     // Загружаем параметры
                     $parameters = array();
                     if (!empty($db_task['parameters']))
@@ -113,7 +114,8 @@ class Scheduler {
         }
         catch (Exception $e)
         {
-            Kohana::$log->add(Log::ERROR, "Error loading tasks from database: ".$e->getMessage());
+			echo Debug::vars('118');exit;           
+		   Kohana::$log->add(Log::ERROR, "Error loading tasks from database: ".$e->getMessage());
         }
     }
     
@@ -122,28 +124,31 @@ class Scheduler {
      */
     protected function _auto_register_tasks()
     {
-        $auto_tasks = Arr::get($this->_config, 'auto_register_tasks', array());
+       
+		$auto_tasks = Arr::get($this->_config, 'auto_register_tasks', array());
         $registered = 0;
-        
+       
         foreach ($auto_tasks as $name => $task_config)
         {
-            try
+           
+		   try
             {
                 // Проверяем существует ли задача
                 $existing_task = $this->_db->query(Database::SELECT, "
                     SELECT id FROM `scheduler_tasks` 
                     WHERE name = :name
                 ", array(':name' => $name))->current();
-                
+              
                 if (!$existing_task)
                 {
                     // Создаем новую задачу
                     $parameters = isset($task_config['parameters']) ? json_encode($task_config['parameters']) : NULL;
-                    
-                    $result = $this->_db->query(Database::INSERT, "
+
+
+					 $sql = __("
                         INSERT INTO `scheduler_tasks` 
                         (name, class, schedule, enabled, parameters, created_at, updated_at) 
-                        VALUES (:name, :class, :schedule, :enabled, :parameters, :created_at, :updated_at)
+                        VALUES (':name', ':class', ':schedule', ':enabled', ':parameters', ':created_at', ':updated_at')
                     ", array(
                         ':name' => $name,
                         ':class' => $task_config['class'],
@@ -153,16 +158,21 @@ class Scheduler {
                         ':created_at' => date('Y-m-d H:i:s'),
                         ':updated_at' => date('Y-m-d H:i:s')
                     ));
-                    
+					
+				//	 echo Debug::vars('162', $sql);exit; 
+			
+			$result = $this->_db->query(Database::INSERT, $sql);
+					
+             // echo Debug::vars('166', $result);exit;    
                     if ($result)
                     {
                         $task_id = $result[0];
                         
                         // Создаем начальное состояние
-                        $this->_db->query(Database::INSERT, "
+                        $sql=__("
                          INSERT INTO `scheduler_state` 
                             (task_id, total_runs, total_errors, updated_at) 
-                            VALUES (:task_id, :total_runs, :total_errors, :updated_at)
+                            VALUES (':task_id', ':total_runs', ':total_errors', ':updated_at')
                         ", array(
                             ':task_id' => $task_id,
                             ':total_runs' => 0,
@@ -170,6 +180,11 @@ class Scheduler {
                             ':updated_at' => date('Y-m-d H:i:s')
                         ));
                         
+				//echo Debug::vars('183', $sql);exit;		
+						 $this->_db->query(Database::INSERT, $sql);
+                        
+						
+						
                         $registered++;
                     }
                 }
@@ -191,7 +206,8 @@ class Scheduler {
      */
     public function run()
     {
-        if ( ! $this->_acquire_lock())
+
+		if ( ! $this->_acquire_lock())
         {
             $this->_log('Scheduler is already running');
             return FALSE;
@@ -201,12 +217,15 @@ class Scheduler {
         {
             $this->_log('Scheduler started');
             $executed_tasks = 0;
-            
+	//echo Debug::vars('220', $this->_tasks);exit;
             foreach ($this->_tasks as $name => &$task)
             {
-                if ($this->_should_run($task['schedule'], $task['last_run']))
+            // echo Debug::vars('223', $name, $task);exit;
+				if ($this->_should_run($task['schedule'], $task['last_run']))
                 {
-                    $this->_execute_task($name, $task);
+				//echo Debug::vars('226');exit;
+					$this->_execute_task($name, $task);
+				
                     $executed_tasks++;
                 }
             }
@@ -228,11 +247,12 @@ class Scheduler {
     protected function _should_run($schedule, $last_run)
     {
         // Если задача никогда не запускалась - запускаем
+		
         if (empty($last_run))
         {
             return TRUE;
         }
-        
+  
         return $this->_is_cron_time($schedule);
     }
     
@@ -244,24 +264,28 @@ class Scheduler {
         $start_time = microtime(TRUE);
         $start_memory = memory_get_usage();
         $output = '';
-        
+  // echo Debug::vars('268');exit;
         try
         {
             $this->_log("Starting task: {$name}");
-            
+         //echo Debug::vars('272');exit;   
             // Устанавливаем параметры выполнения
             $final_parameters = array_merge($task['parameters'], $execution_parameters);
+		//echo Debug::vars('275');exit;
             foreach ($final_parameters as $param_name => $param_value)
             {
+	//echo Debug::vars('274', $task['instance']); exit;
+
                 $task['instance']->set_parameter($param_name, $param_value);
+					//echo Debug::vars('276');exit;
             }
-            
+   // echo Debug::vars('275');exit;        
             // Валидируем параметры
             if (method_exists($task['instance'], 'validate_parameters'))
             {
                 $task['instance']->validate_parameters($final_parameters);
             }
-            
+     //echo Debug::vars('281');exit;       
             // Захватываем вывод задачи
             ob_start();
             $task['instance']->execute();
@@ -302,19 +326,34 @@ class Scheduler {
     }
     
     /**
-     * Сохранение выполнения задачи в базу данных
-     */
-    protected function _save_task_execution(&$task, $status, $duration, $memory_usage, $output, $parameters = array())
+ * Сохранение выполнения задачи в базу данных
+ */
+protected function _save_task_execution(&$task, $status, $duration, $memory_usage, $output, $parameters = array())
+{
+    $task_id = $task['db_task']['id'];
+    $last_run = date('Y-m-d H:i:s');
+    $next_run = date('Y-m-d H:i:s', $this->_calculate_next_run($task['schedule']));
+    
+    // Очищаем output от лишних символов
+    $output = trim($output);
+    
+    // Исправляем пути для Windows
+    if (is_array($parameters))
     {
-        $task_id = $task['db_task']['id'];
-        $last_run = date('Y-m-d H:i:s');
-        $next_run = date('Y-m-d H:i:s', $this->_calculate_next_run($task['schedule']));
-        
+        array_walk_recursive($parameters, function(&$value) {
+            if (is_string($value)) {
+                $value = str_replace('\\', '/', $value);
+            }
+        });
+    }
+    
+    try
+    {
         // Сохраняем лог выполнения
-        $this->_db->query(Database::INSERT, "
+        $sql=__( "
             INSERT INTO `scheduler_logs` 
             (task_id, status, duration, memory_usage, output, parameters, created_at) 
-            VALUES (:task_id, :status, :duration, :memory_usage, :output, :parameters, :created_at)
+            VALUES (':task_id', ':status', ':duration', ':memory_usage', ':output', ':parameters', ':created_at')
         ", array(
             ':task_id' => $task_id,
             ':status' => $status,
@@ -324,6 +363,8 @@ class Scheduler {
             ':parameters' => json_encode($parameters),
             ':created_at' => date('Y-m-d H:i:s')
         ));
+		
+		$this->_db->query(Database::INSERT, $sql);
         
         // Обновляем состояние задачи
         $state_data = array(
@@ -370,7 +411,15 @@ class Scheduler {
                 ':task_id' => $task_id
             ));
         }
+        
+        return TRUE;
     }
+    catch (Exception $e)
+    {
+        $this->_log("Error saving task execution to database: " . $e->getMessage());
+        return FALSE;
+    }
+}
     
     /**
      * Парсинг cron-выражения
@@ -569,17 +618,19 @@ class Scheduler {
      */
     protected function _acquire_lock()
     {
-        if ( ! Arr::get($this->_config, 'lock.enabled', TRUE))
+
+	   if ( ! Arr::get(Arr::get($this->_config, 'lock'),'enabled', TRUE))
             return TRUE;
-            
-        $lock_file = Arr::get($this->_config, 'lock.file', APPPATH.'cache/scheduler.lock');
         
+        $lock_file = Arr::get(Arr::get($this->_config, 'lock'),'file', APPPATH.'cache/scheduler.lock');
+      
         // Проверка существующей блокировки
         if (file_exists($lock_file))
         {
             $lock_time = filemtime($lock_file);
-            $timeout = Arr::get($this->_config, 'lock.timeout', 300);
-            
+          //  $timeout = Arr::get($this->_config, 'lock.timeout', 300);
+			$timeout = Arr::get(Arr::get($this->_config, 'lock'),'timeout', 300);
+       
             if (time() - $lock_time < $timeout)
             {
                 return FALSE; // Блокировка активна
@@ -719,7 +770,8 @@ class Scheduler {
      */
     public function run_task($name, $parameters = array())
     {
-        if (!isset($this->_tasks[$name]))
+        echo Debug::vars('749');exit;
+		if (!isset($this->_tasks[$name]))
         {
             throw new Exception("Task not found: {$name}");
         }
@@ -753,7 +805,7 @@ class Scheduler {
      */
     public function add_task($name, $class, $schedule, $enabled = TRUE, $parameters = array())
     {
-       
+      
 		if (isset($this->_tasks[$name]))
         {
             throw new Exception("Task already exists: {$name}");
@@ -775,7 +827,7 @@ class Scheduler {
                 ':created_at' => date('Y-m-d H:i:s'),
                 ':updated_at' => date('Y-m-d H:i:s')
             ));
-			
+	Minion_CLI::write("779 ".$sql, 'red');		
 			$result = $this->_db->query(Database::INSERT, $sql);
             
             if ($result)

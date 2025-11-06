@@ -10,7 +10,7 @@ return array(
     'lock' => array(
         'enabled' => TRUE,
         'file' => APPPATH.'cache/scheduler.lock',
-        'timeout' => 300,
+        'timeout' => 5,
     ),
     
     // Настройки базы данных

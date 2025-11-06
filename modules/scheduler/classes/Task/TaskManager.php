@@ -194,7 +194,8 @@ class Task_TaskManager extends Minion_Task {
      */
     protected function _create_task($scheduler, $params)
     {
-        $name = $params['name'];
+        
+		$name = $params['name'];
         $class = $params['class'];
         $schedule = $params['schedule'];
         $enabled = $params['enabled'] !== NULL ? (bool)$params['enabled'] : TRUE;
@@ -215,7 +216,7 @@ class Task_TaskManager extends Minion_Task {
                 return 1;
             }
         }
- 
+
         // Validate class exists
         if (!class_exists($class))
         {
@@ -234,7 +235,6 @@ class Task_TaskManager extends Minion_Task {
         
         try
         {
-			
             $scheduler->add_task($name, $class, $schedule, $enabled, $parameters);
             Minion_CLI::write("Task created successfully: {$name}", 'green');
             

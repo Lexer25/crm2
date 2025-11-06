@@ -1,86 +1,55 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-abstract class Task_Base extends Task {
+abstract class Task {
     
-    protected $_parameters = array();
-    protected $_db_task = NULL;
+    protected $_name;
     
     public function __construct($name)
     {
-        parent::__construct($name);
-        $this->_load_parameters_from_database();
+        $this->_name = $name;
     }
     
     /**
-     * Загрузка параметров из базы данных
+     * Основной метод выполнения задачи
      */
-    protected function _load_parameters_from_database()
+    abstract public function execute();
+    
+    /**
+     * Получение имени задачи
+     */
+    public function get_name()
     {
-        try
-        {
-            $db_task = Model_Scheduler_Task::get_by_name($this->_name);
-            if ($db_task->loaded())
-            {
-                $this->_db_task = $db_task;
-                $this->_parameters = $db_task->get_parameters();
-                
-                // Также загружаем параметры из шаблонов
-                $parameter_templates = $db_task->get_parameter_templates();
-                foreach ($parameter_templates as $template)
-                {
-                    if (!isset($this->_parameters[$template->name]))
-                    {
-                        $this->_parameters[$template->name] = $template->get_typed_value();
-                    }
-                }
-            }
-        }
-        catch (Exception $e)
-        {
-            $this->log('Error loading parameters from database: '.$e->getMessage());
-        }
+        return $this->_name;
     }
     
     /**
-     * Получить параметр
+     * Получить параметр (базовая реализация)
      */
-    protected function get_parameter($name, $default = NULL)
+    public function get_parameter($name, $default = NULL)
     {
-        return isset($this->_parameters[$name]) ? $this->_parameters[$name] : $default;
+        return $default;
     }
     
     /**
-     * Получить все параметры
+     * Установить параметр (базовая реализация)
      */
-    protected function get_parameters()
+    public function set_parameter($name, $value)
     {
-        return $this->_parameters;
-    }
-    
-    /**
-     * Установить параметр (только для текущего выполнения)
-     */
-    protected function set_parameter($name, $value)
-    {
-        $this->_parameters[$name] = $value;
+        // Базовая реализация ничего не делает
+        // Должна быть переопределена в дочерних классах
         return $this;
     }
     
     /**
-     * Сохранить параметры в базу данных
+     * Получить все параметры (базовая реализация)
      */
-    protected function save_parameters()
+    public function get_parameters()
     {
-        if ($this->_db_task && $this->_db_task->loaded())
-        {
-            $this->_db_task->set_parameters($this->_parameters);
-            return $this->_db_task->save();
-        }
-        return FALSE;
+        return array();
     }
     
     /**
-     * Получить параметры для Minion
+     * Получить параметры для Minion (базовая реализация)
      */
     public function get_minion_parameters()
     {
@@ -88,12 +57,10 @@ abstract class Task_Base extends Task {
     }
     
     /**
-     * Валидация параметров
+     * Валидация параметров (базовая реализация)
      */
     public function validate_parameters(array $parameters)
     {
         return TRUE;
     }
-    
-    // ... остальные методы ...
 }

@@ -136,7 +136,8 @@ class Model_Scheduler_Task extends ORM {
      */
     public function set_parameter($name, $value)
     {
-        $parameters = $this->get_parameters();
+        echo Debug::vars('139',$name, $value);exit;
+		$parameters = $this->get_parameters();
         $parameters[$name] = $value;
         return $this->set_parameters($parameters);
     }

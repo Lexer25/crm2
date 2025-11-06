@@ -197,7 +197,7 @@ class Kohana_Database_PDO extends Database {
 		{
 			// Return a list of insert id and rows created
 			return array(
-				//$this->_connection->lastInsertId(),//Бухаров
+				$this->_connection->lastInsertId(),//Бухаров
 				$result->rowCount(),
 			);
 		}
