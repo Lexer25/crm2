@@ -57,7 +57,7 @@ class Controller_Scheduler extends Controller_Template {
             $tasks = $scheduler->get_tasks();
             $status = $scheduler->get_status();
             $statistics = $scheduler->get_statistics();
-            echo Debug::vars('60', $tasks);exit;
+           // echo Debug::vars('60', $tasks);exit;
             $this->template->content = View::factory('scheduler/index')
                 ->set('tasks', $tasks)
                 ->set('status', $status)
