@@ -34,7 +34,7 @@ class Scheduler {
             throw new Exception('Scheduler database tables are not installed. Run: php minion schedulerinstall --install');
         }
         
-        $this->_load_tasks_from_database();
+        $this->_load_tasks_from_database();//получаю список задач
     }
     
     /**
@@ -73,10 +73,13 @@ class Scheduler {
                 SELECT * FROM `scheduler_tasks` 
                 WHERE `enabled` = 1
             ")->as_array();
-  
+ 
+ echo Debug::vars('76', $db_tasks);//exit;
+
             foreach ($db_tasks as $db_task)
             {
-                $name = $db_task['name'];
+                echo Debug::vars('79', $db_task);//exit;
+				$name = $db_task['name'];
                 
                 if (class_exists($db_task['class']))
                 {
@@ -84,7 +87,7 @@ class Scheduler {
 					$sql=__('SELECT * FROM `scheduler_state` 
                         WHERE `task_id` = :task_id',
 						array(':task_id' => $db_task['id']));
-						
+			echo Debug::vars('87', $sql);//exit;			
 						
                   /*   $task_state = $this->_db->query(Database::SELECT, "
                         SELECT * FROM `scheduler_state` 
@@ -101,9 +104,9 @@ class Scheduler {
                     {
                         $parameters = json_decode($db_task['parameters'], TRUE);
                     }
-                   // echo Debug::vars('119', $db_task);exit;
+                    echo Debug::vars('119', $db_task);//exit;
                     $this->_tasks[$name] = array(
-                        'instance' => new $db_task['class']($name),
+    //                    'instance' => new $db_task['class']($name),
                         'schedule' => $db_task['schedule'],
                         'db_task' => $db_task,
                         'last_run' => $task_state ? strtotime($task_state['last_run']) : NULL,
@@ -119,7 +122,8 @@ class Scheduler {
                 }
                 else
                 {
-                    Kohana::$log->add(Log::ERROR, "Scheduler task class not found: {$db_task['class']}");
+                    echo Debug::vars('122');exit;
+					Kohana::$log->add(Log::ERROR, "Scheduler task class not found: {$db_task['class']}");
                 }
             }
         }
@@ -128,6 +132,7 @@ class Scheduler {
 			        
 		   Kohana::$log->add(Log::ERROR, "Error loading tasks from database: ".$e->getMessage());
         }
+		echo Debug::vars('131', $this->_tasks);exit;
     }
     
     /**
