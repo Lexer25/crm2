@@ -54,7 +54,7 @@ return array
 	
 	//база данных для щедулера
 		'scheduler_db' => array(// 
-		'type'       => 'pdo',
+		'type'       => 'Pdosqlite',
 		'connection' => array(
        		'dsn'        => 'sqlite:'.APPPATH .'\\Config\\scheduler.sqlite',
 			'persistent' => FALSE,

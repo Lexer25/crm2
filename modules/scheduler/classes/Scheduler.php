@@ -857,7 +857,7 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
                 ':created_at' => date('Y-m-d H:i:s'),
                 ':updated_at' => date('Y-m-d H:i:s')
             ));
-	Minion_CLI::write("779 ".$sql, 'red');		
+	//Minion_CLI::write("779 ".$sql, 'red');		
 			$result = $this->_db->query(Database::INSERT, $sql);
             
             if ($result)
@@ -886,7 +886,7 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
                     ':total_errors' => 0,
                     ':updated_at' => date('Y-m-d H:i:s')
                 ));
-				
+	
 				$this->_db->query(Database::INSERT, $sql);
                 
                 // Перезагружаем задачи

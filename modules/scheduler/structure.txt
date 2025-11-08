@@ -13,6 +13,20 @@ modules/scheduler/
 │   └── scheduler.php
 └── init.php
 
+
+c:\xampp\php\php.exe c:\xampp\htdocs\crm2\modules\minion\minion --task=scheduler
+
+Проверка блокировки
+c:\xampp\php\php.exe c:\xampp\htdocs\crm2\modules\minion\minion --task=scheduler --status=true
+
+c:\xampp\php\php.exe c:\xampp\htdocs\crm2\modules\minion\minion --task=SchedulerInstall --install
+
+добавление задачи:
+c:\xampp\php\php.exe c:\xampp\htdocs\crm2\modules\minion\minion --task=taskmanager --create=true --name="new_task_3" --class="Task_Example" --schedule="*/10 * * * *" --parameters="{\"output_file\":\"c:/rrr/file.txt\"}"
+
+
+
+
 # Основные команды
 php minion scheduler --stats
 php minion scheduler --status

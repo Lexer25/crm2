@@ -77,8 +77,7 @@ class Controller_Scheduler extends Controller_Template {
     {
 	       
 	   $task_name = $this->request->param('id');
-      
-        try {
+         try {
             $scheduler = Scheduler::factory();
             $task = $scheduler->get_task($task_name);
             
@@ -316,7 +315,7 @@ class Controller_Scheduler extends Controller_Template {
      */
     public function action_create()
     {
-        if ($this->request->method() === 'POST') {
+       if ($this->request->method() === 'POST') {
             $this->_create_task_from_post();
         } else {
             $this->_show_create_form();
@@ -340,11 +339,13 @@ class Controller_Scheduler extends Controller_Template {
      */
     protected function _create_task_from_post()
     {
-        $errors = array();
+        
+		$errors = array();
         $available_classes = $this->_get_available_task_classes();
         
         $name = $this->request->post('name');
         $class = $this->request->post('class');
+        $class = $this->request->post('callback');
         $schedule = $this->request->post('schedule');
         $enabled = (bool) $this->request->post('enabled', 1);
         $parameters = $this->request->post('parameters');
@@ -365,7 +366,7 @@ class Controller_Scheduler extends Controller_Template {
         } elseif (!$this->_validate_cron_schedule($schedule)) {
             $errors[] = 'Invalid cron schedule format';
         }
-        
+     
         // Парсим параметры
         $parameters_array = array();
         if (!empty($parameters)) {
@@ -374,22 +375,22 @@ class Controller_Scheduler extends Controller_Template {
                 $errors[] = 'Invalid JSON parameters: ' . json_last_error_msg();
             }
         }
-        
+   
         if (empty($errors)) {
-            try {
+			try {
                 $scheduler = Scheduler::factory();
                 $result = $scheduler->add_task($name, $class, $schedule, $enabled, $parameters_array);
-                
+				echo Debug::vars('383', $result, '/scheduler/task/' . urlencode($name));exit;
                 if ($result) {
-                    $this->redirect('/scheduler/task/' . urlencode($name));
-                } else {
+					$this->redirect('/scheduler/task/' . urlencode($name));
+				} else {
                     $errors[] = 'Failed to create task';
                 }
             } catch (Exception $e) {
                 $errors[] = 'Error creating task: ' . $e->getMessage();
             }
         }
-        
+     
         $this->template->content = View::factory('scheduler/create')
             ->set('available_classes', $available_classes)
             ->set('errors', $errors)

@@ -11,6 +11,11 @@
                 <a href="<?php echo URL::site('scheduler/logs')?>" class="btn btn-outline-secondary">
                     <i class="fas fa-history"></i> View Logs
                 </a>
+				 <a href="<?php echo URL::site('scheduler/create');?>" class="btn btn-outline-success">
+                    <i class="fas fa-plus"></i> Create Task
+                </a>
+				
+				
             </div>
         </div>
         
