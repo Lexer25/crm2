@@ -2,8 +2,8 @@
     <div class="col-12">
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/scheduler">Tasks</a></li>
-                <li class="breadcrumb-item active"><?= HTML::chars($task_name) ?></li>
+                <li class="breadcrumb-item"><a href="<?php echo URL::site('scheduler');?>">Tasks</a></li>
+                <li class="breadcrumb-item active"><?php echo  HTML::chars($task_name) ?></li>
             </ol>
         </nav>
 
@@ -20,15 +20,15 @@
                         <table class="table table-sm">
                             <tr>
                                 <th width="30%">Name:</th>
-                                <td><?= HTML::chars($task_name) ?></td>
+                                <td><?php echo  HTML::chars($task_name) ?></td>
                             </tr>
                             <tr>
                                 <th>Class:</th>
-                                <td><code><?= HTML::chars($task['db_task']['class']) ?></code></td>
+                                <td><code><?php echo  HTML::chars($task['db_task']['class']) ?></code></td>
                             </tr>
                             <tr>
                                 <th>Schedule:</th>
-                                <td><code><?= HTML::chars($task['schedule']) ?></code></td>
+                                <td><code><?php echo  HTML::chars($task['schedule']) ?></code></td>
                             </tr>
                             <tr>
                                 <th>Status:</th>
@@ -54,11 +54,11 @@
                             </tr>
                             <tr>
                                 <th>Created:</th>
-                                <td><?= HTML::chars($task['db_task']['created_at']) ?></td>
+                                <td><?php echo  HTML::chars($task['db_task']['created_at']) ?></td>
                             </tr>
                             <tr>
                                 <th>Updated:</th>
-                                <td><?= HTML::chars($task['db_task']['updated_at']) ?></td>
+                                <td><?php echo  HTML::chars($task['db_task']['updated_at']) ?></td>
                             </tr>
                         </table>
                     </div>
@@ -73,7 +73,7 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <pre class="mb-0"><code><?= json_encode($task['parameters'], JSON_PRETTY_PRINT) ?></code></pre>
+                        <pre class="mb-0"><code><?php echo  json_encode($task['parameters'], JSON_PRETTY_PRINT) ?></code></pre>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -91,20 +91,20 @@
                         <div class="row text-center">
                             <div class="col-4">
                                 <div class="border rounded p-2">
-                                    <h4 class="text-primary mb-0"><?= $task['run_count'] ?></h4>
+                                    <h4 class="text-primary mb-0"><?php echo  $task['run_count'] ?></h4>
                                     <small class="text-muted">Total Runs</small>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="border rounded p-2">
-                                    <h4 class="text-danger mb-0"><?= $task['error_count'] ?></h4>
+                                    <h4 class="text-danger mb-0"><?php echo  $task['error_count'] ?></h4>
                                     <small class="text-muted">Errors</small>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="border rounded p-2">
                                     <h4 class="text-success mb-0">
-                                        <?= $task['run_count'] > 0 ? round(100 - ($task['error_count'] / $task['run_count'] * 100), 1) : 0 ?>%
+                                        <?php echo  $task['run_count'] > 0 ? round(100 - ($task['error_count'] / $task['run_count'] * 100), 1) : 0 ?>%
                                     </h4>
                                     <small class="text-muted">Success Rate</small>
                                 </div>
@@ -117,15 +117,15 @@
                             <tr>
                                 <th>Last Run:</th>
                                 <td>
-                                    <?= $task['last_run'] ? date('Y-m-d H:i:s', $task['last_run']) : 'Never' ?>
+                                    <?php echo  $task['last_run'] ? date('Y-m-d H:i:s', $task['last_run']) : 'Never' ?>
                                     <?php if ($task['last_duration']): ?>
-                                        <br><small class="text-muted">Duration: <?= $task['last_duration'] ?>s</small>
+                                        <br><small class="text-muted">Duration: <?php echo  $task['last_duration'] ?>s</small>
                                     <?php endif; ?>
                                 </td>
                             </tr>
                             <tr>
                                 <th>Next Run:</th>
-                                <td><?= $task['next_run'] ? date('Y-m-d H:i:s', $task['next_run']) : 'Unknown' ?></td>
+                                <td><?php echo  $task['next_run'] ? date('Y-m-d H:i:s', $task['next_run']) : 'Unknown' ?></td>
                             </tr>
                             <tr>
                                 <th>Is Due:</th>
@@ -150,18 +150,18 @@
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <button class="btn btn-primary run-task-btn" data-task="<?= HTML::chars($task_name) ?>">
+                            <button class="btn btn-primary run-task-btn" data-task="<?php echo  HTML::chars($task_name) ?>">
                                 <i class="fas fa-play"></i> Run Task Now
                             </button>
-                            <a href="/scheduler/logs?task_id=<?= $task['db_task']['id'] ?>" class="btn btn-info">
+                            <a href="<?php echo URL::site('scheduler/logs?task_id='.$task['db_task']['id']); ?>" class="btn btn-info">
                                 <i class="fas fa-history"></i> View Execution Logs
                             </a>
                             <div class="form-check form-switch">
                                 <input class="form-check-input task-toggle" type="checkbox" 
-                                       data-task="<?= HTML::chars($task_name) ?>"
-                                       <?= $task['db_task']['enabled'] ? 'checked' : '' ?>>
+                                       data-task="<?php echo  HTML::chars($task_name) ?>"
+                                       <?php echo  $task['db_task']['enabled'] ? 'checked' : '' ?>>
                                 <label class="form-check-label">
-                                    <?= $task['db_task']['enabled'] ? 'Disable Task' : 'Enable Task' ?>
+                                    <?php echo  $task['db_task']['enabled'] ? 'Disable Task' : 'Enable Task' ?>
                                 </label>
                             </div>
                         </div>
@@ -176,7 +176,7 @@
                 <h5 class="card-title mb-0">
                     <i class="fas fa-history"></i> Recent Execution Logs
                 </h5>
-                <a href="/scheduler/logs?task_id=<?= $task['db_task']['id'] ?>" class="btn btn-sm btn-outline-primary">
+                <a href="<?php echo URL::site('scheduler/logs?task_id='.$task['db_task']['id']); ?>" class="btn btn-sm btn-outline-primary">
                     View All Logs
                 </a>
             </div>
@@ -200,8 +200,8 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($logs as $log): ?>
-                                <tr class="<?= $log['status'] === 'success' ? 'log-success' : 'log-error' ?>">
-                                    <td><?= HTML::chars($log['created_at']) ?></td>
+                                <tr class="<?php echo  $log['status'] === 'success' ? 'log-success' : 'log-error' ?>">
+                                    <td><?php echo  HTML::chars($log['created_at']) ?></td>
                                     <td>
                                         <?php if ($log['status'] === 'success'): ?>
                                             <span class="badge bg-success">Success</span>
@@ -209,15 +209,15 @@
                                             <span class="badge bg-danger">Error</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= HTML::chars($log['duration']) ?>s</td>
-                                    <td><?= round($log['memory_usage'] / 1024 / 1024, 2) ?> MB</td>
+                                    <td><?php echo  HTML::chars($log['duration']) ?>s</td>
+                                    <td><?php echo  round($log['memory_usage'] / 1024 / 1024, 2) ?> MB</td>
                                     <td>
                                         <?php if (!empty($log['output'])): ?>
                                             <button class="btn btn-sm btn-outline-secondary" 
                                                     onclick="alert($(this).parent().find('.log-output').text())">
                                                 View Output
                                             </button>
-                                            <div class="log-output d-none"><?= HTML::chars($log['output']) ?></div>
+                                            <div class="log-output d-none"><?php echo  HTML::chars($log['output']) ?></div>
                                         <?php else: ?>
                                             <span class="text-muted">No output</span>
                                         <?php endif; ?>

@@ -5,10 +5,10 @@
                 <i class="fas fa-tasks"></i> Scheduled Tasks
             </h1>
             <div class="btn-group">
-                <a href="/scheduler/stats" class="btn btn-outline-info">
+                <a href="<?php echo URL::site('scheduler/stats');?>" class="btn btn-outline-info">
                     <i class="fas fa-chart-bar"></i> Statistics
                 </a>
-                <a href="/scheduler/logs" class="btn btn-outline-secondary">
+                <a href="<?php echo URL::site('scheduler/logs')?>" class="btn btn-outline-secondary">
                     <i class="fas fa-history"></i> View Logs
                 </a>
             </div>
@@ -163,19 +163,30 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <a href="/scheduler/task/<?= URL::title($name) ?>" 
-                                               class="btn btn-outline-info" title="View Details">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
+										<?php 
+										echo HTML::anchor('/scheduler/task/'.$name, '<i class="fas fa-eye"></i>', array(
+												'class' => 'btn btn-outline-info', 
+												'title' => 'View Details'
+											));
+										
+										?>
+										
+                                           
                                             <button class="btn btn-outline-primary run-task-btn" 
                                                     data-task="<?= HTML::chars($name) ?>" 
                                                     title="Run Now">
                                                 <i class="fas fa-play"></i>
                                             </button>
-                                            <a href="/scheduler/logs?task_id=<?= $task['db_task']['id'] ?>" 
-                                               class="btn btn-outline-secondary" title="View Logs">
-                                                <i class="fas fa-history"></i>
-                                            </a>
+											
+											<?php 
+										echo HTML::anchor('/scheduler/logs?task_id='.$task['db_task']['id'], '<i class="fas fa-history"></i>', array(
+												'class' => 'btn btn-outline-secondary', 
+												'title' => 'View Logs'
+											));
+										
+										?>
+										
+                                          
                                         </div>
                                     </td>
                                 </tr>

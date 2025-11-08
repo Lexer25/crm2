@@ -30,7 +30,7 @@ class Controller_Scheduler extends Controller_Template {
             '//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'
         );
 		
-		//echo Debug::vars('22', Database::instance($this->_db_connection));exit;
+		
     }
     
     /**
@@ -75,7 +75,7 @@ class Controller_Scheduler extends Controller_Template {
      */
     public function action_task()
     {
-	//echo Debug::vars('78');exit;        
+	       
 	   $task_name = $this->request->param('id');
       
         try {
@@ -88,7 +88,7 @@ class Controller_Scheduler extends Controller_Template {
             
             // Получаем логи выполнения
             $logs = $this->_get_task_logs($task['db_task']['id']);
-            
+       
             $this->template->content = View::factory('scheduler/task')
                 ->set('task', $task)
                 ->set('logs', $logs)
@@ -105,11 +105,13 @@ class Controller_Scheduler extends Controller_Template {
      */
     public function action_logs()
     {
-		echo Debug::vars('108');exit;       
-	   
-	   $task_id = $this->request->query('task_id');
-        $page = (int) $this->request->query('page', 1);
-        $limit = 50;
+		/* echo Debug::vars('108', $this->request->query('task_id'));
+		echo Debug::vars('108', $this->request->param('page', 1));exit; */
+		$task_id = $this->request->query('task_id');
+		//$page = (int) $this->request->param('page', 1);
+		$page = $this->request->param('page', 1);
+        //$page=1;
+		$limit = 50;
         $offset = ($page - 1) * $limit;
         
         try {
@@ -118,14 +120,14 @@ class Controller_Scheduler extends Controller_Template {
             // Общее количество логов
             $total_logs_query = "SELECT COUNT(*) as count FROM `scheduler_logs`";
             $total_logs_params = array();
-            
+        
             if ($task_id) {
                 $total_logs_query .= " WHERE task_id = :task_id";
                 $total_logs_params[':task_id'] = $task_id;
             }
             
-            $total_logs = $db->query(Database::SELECT, $total_logs_query, $total_logs_params)->get('count');
-            
+            $total_logs = $db->query(Database::SELECT, __($total_logs_query, $total_logs_params))->get('count');
+        
             // Получаем логи
             $logs_query = "
                 SELECT l.*, t.name as task_name 
@@ -144,7 +146,7 @@ class Controller_Scheduler extends Controller_Template {
             
             $logs_query .= " ORDER BY l.created_at DESC LIMIT :limit OFFSET :offset";
             
-            $logs = $db->query(Database::SELECT, $logs_query, $logs_params)->as_array();
+            $logs = $db->query(Database::SELECT, __($logs_query, $logs_params))->as_array();
             
             // Получаем список задач для фильтра
             $tasks = $db->query(Database::SELECT, "
@@ -170,8 +172,7 @@ class Controller_Scheduler extends Controller_Template {
      */
     public function action_stats()
     {
-		echo Debug::vars('169');exit;
-        try {
+		 try {
             $db = $this->_get_db();
             
             // Общая статистика
@@ -232,7 +233,8 @@ class Controller_Scheduler extends Controller_Template {
      */
     public function action_ajax()
     {
-        $this->auto_render = FALSE;
+    
+	   $this->auto_render = FALSE;
         
         $action = $this->request->param('id');
         $response = array('success' => FALSE);
@@ -278,7 +280,7 @@ class Controller_Scheduler extends Controller_Template {
     protected function _toggle_task($task_name, $enabled)
     {
         $db = $this->_get_db();
-        $db->query(Database::UPDATE, "
+        $db->query(Database::UPDATE, __("
             UPDATE `scheduler_tasks` 
             SET enabled = :enabled, updated_at = :updated_at 
             WHERE name = :name
@@ -286,7 +288,7 @@ class Controller_Scheduler extends Controller_Template {
             ':enabled' => (int)$enabled,
             ':updated_at' => date('Y-m-d H:i:s'),
             ':name' => $task_name
-        ));
+        )));
     }
     
     /**
@@ -295,7 +297,7 @@ class Controller_Scheduler extends Controller_Template {
     protected function _get_task_logs($task_id, $limit = 20)
     {
         $db = $this->_get_db();
-        return $db->query(Database::SELECT, "
+         return $db->query(Database::SELECT, __("
             SELECT * FROM `scheduler_logs` 
             WHERE task_id = :task_id 
             ORDER BY created_at DESC 
@@ -303,8 +305,11 @@ class Controller_Scheduler extends Controller_Template {
         ", array(
             ':task_id' => $task_id,
             ':limit' => $limit
-        ))->as_array();
-    }
+        )))->as_array();
+     
+
+ 	
+	}
     
     /**
      * Создание новой задачи (форма)
@@ -504,16 +509,16 @@ class Controller_Scheduler extends Controller_Template {
             $task_id = $task['db_task']['id'];
             
             // Удаляем логи
-            $db->query(Database::DELETE, "DELETE FROM `scheduler_logs` WHERE task_id = :task_id", 
-                      array(':task_id' => $task_id));
+            $db->query(Database::DELETE, __("DELETE FROM `scheduler_logs` WHERE task_id = :task_id", 
+                      array(':task_id' => $task_id)));
             
             // Удаляем состояние
-            $db->query(Database::DELETE, "DELETE FROM `scheduler_state` WHERE task_id = :task_id", 
-                      array(':task_id' => $task_id));
+            $db->query(Database::DELETE, __("DELETE FROM `scheduler_state` WHERE task_id = :task_id", 
+                      array(':task_id' => $task_id)));
             
             // Удаляем задачу
-            $db->query(Database::DELETE, "DELETE FROM `scheduler_tasks` WHERE id = :task_id", 
-                      array(':task_id' => $task_id));
+            $db->query(Database::DELETE, __("DELETE FROM `scheduler_tasks` WHERE id = :task_id", 
+                      array(':task_id' => $task_id)));
             
             $this->redirect('/scheduler');
             

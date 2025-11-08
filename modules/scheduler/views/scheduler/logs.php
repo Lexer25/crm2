@@ -4,7 +4,7 @@
             <h1>
                 <i class="fas fa-history"></i> Execution Logs
             </h1>
-            <a href="/scheduler" class="btn btn-outline-primary">
+            <a href="<?php echo URL::site('scheduler');?>" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left"></i> Back to Tasks
             </a>
         </div>
@@ -18,15 +18,15 @@
                         <select name="task_id" id="task_filter" class="form-select" onchange="this.form.submit()">
                             <option value="">All Tasks</option>
                             <?php foreach ($tasks as $task): ?>
-                                <option value="<?= $task['id'] ?>" <?= $current_task_id == $task['id'] ? 'selected' : '' ?>>
-                                    <?= HTML::chars($task['name']) ?>
+                                <option value="<?php echo  $task['id'] ?>" <?php echo  $current_task_id == $task['id'] ? 'selected' : '' ?>>
+                                    <?php echo  HTML::chars($task['name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Total Logs:</label>
-                        <div class="form-control-plaintext"><?= $total_logs ?> records</div>
+                        <div class="form-control-plaintext"><?php echo  $total_logs ?> records</div>
                     </div>
                 </form>
             </div>
@@ -61,13 +61,15 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($logs as $log): ?>
-                                <tr class="<?= $log['status'] === 'success' ? 'log-success' : 'log-error' ?>">
-                                    <td><?= HTML::chars($log['created_at']) ?></td>
+                                <tr class="<?php echo  $log['status'] === 'success' ? 'log-success' : 'log-error' ?>">
+                                    <td><?php echo  HTML::chars($log['created_at']) ?></td>
                                     <td>
                                         <?php if ($log['task_name']): ?>
-                                            <a href="/scheduler/task/<?= URL::title($log['task_name']) ?>">
-                                                <?= HTML::chars($log['task_name']) ?>
-                                            </a>
+                                            
+											
+                                            <a href="<?php echo URL::site('/scheduler/task/'.$log['task_name']); ?>">
+                                                <?php echo  HTML::chars($log['task_name']) ?>
+                                           </a>
                                         <?php else: ?>
                                             <span class="text-muted">Unknown Task</span>
                                         <?php endif; ?>
@@ -79,8 +81,8 @@
                                             <span class="badge bg-danger">Error</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= HTML::chars($log['duration']) ?>s</td>
-                                    <td><?= round($log['memory_usage'] / 1024 / 1024, 2) ?> MB</td>
+                                    <td><?php echo  HTML::chars($log['duration']) ?>s</td>
+                                    <td><?php echo  round($log['memory_usage'] / 1024 / 1024, 2) ?> MB</td>
                                     <td>
                                         <?php if (!empty($log['output'])): ?>
                                             <button class="btn btn-sm btn-outline-secondary" 
@@ -88,7 +90,7 @@
                                                 View Output
                                             </button>
                                             <div class="log-details d-none mt-2 p-2 bg-light border rounded">
-                                                <pre class="mb-0 small"><?= HTML::chars($log['output']) ?></pre>
+                                                <pre class="mb-0 small"><?php echo  HTML::chars($log['output']) ?></pre>
                                             </div>
                                         <?php else: ?>
                                             <span class="text-muted">No output</span>
@@ -106,9 +108,9 @@
                         <nav aria-label="Logs pagination">
                             <ul class="pagination justify-content-center mb-0">
                                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                                    <li class="page-item <?= $i == $current_page ? 'active' : '' ?>">
-                                        <a class="page-link" href="/scheduler/logs?page=<?= $i ?><?= $current_task_id ? '&task_id='.$current_task_id : '' ?>">
-                                            <?= $i ?>
+                                    <li class="page-item <?php echo  $i == $current_page ? 'active' : '' ?>">
+                                        <a class="page-link" href="<?php echo URL::site('scheduler/logs?page='.$i.($current_task_id ? '&task_id='.$current_task_id : '')) ?>">
+                                            <?php echo  $i ?>
                                         </a>
                                     </li>
                                 <?php endfor; ?>

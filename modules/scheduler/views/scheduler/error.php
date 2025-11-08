@@ -8,7 +8,7 @@
         </div>
         
         <div class="text-center mt-4">
-            <a href="/scheduler" class="btn btn-primary">
+            <a href="<?php echo URL::site('scheduler');?> class="btn btn-primary">
                 <i class="fas fa-arrow-left"></i> Back to Tasks
             </a>
         </div>

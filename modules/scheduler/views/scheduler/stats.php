@@ -4,7 +4,7 @@
             <h1>
                 <i class="fas fa-chart-bar"></i> Scheduler Statistics
             </h1>
-            <a href="/scheduler" class="btn btn-outline-primary">
+            <a href="<?php echo URL::site('scheduler');?>" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left"></i> Back to Tasks
             </a>
         </div>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?></title>
-    
+    <base href="http://<?php echo Kohana::$config->load('config_newcrm')->iphost.'/'.Kohana::$config->load('config_newcrm')->siteurl;?>/">
     <!-- Styles -->
     <?php foreach ($styles as $style): ?>
         <link href="<?= $style ?>" rel="stylesheet">
@@ -29,18 +29,18 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/scheduler">
+            <a class="navbar-brand" href="<?php echo URL::site('scheduler');?>">
                 <i class="fas fa-tasks"></i> Task Scheduler
             </a>
             
             <div class="navbar-nav">
-                <a class="nav-link" href="/scheduler">
+                <a class="nav-link" href="<?php echo URL::site('scheduler');?>">
                     <i class="fas fa-list"></i> Tasks
                 </a>
-                <a class="nav-link" href="/scheduler/logs">
+                <a class="nav-link" href="<?php echo URL::site('scheduler/logs');?>">
                     <i class="fas fa-history"></i> Execution Logs
                 </a>
-                <a class="nav-link" href="/scheduler/stats">
+                <a class="nav-link" href="<?php echo URL::site('scheduler/stats');?>">
                     <i class="fas fa-chart-bar"></i> Statistics
                 </a>
             </div>
