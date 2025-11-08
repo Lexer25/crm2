@@ -132,7 +132,7 @@ class Scheduler {
     protected function _auto_register_tasks()
     {
        
-		$auto_tasks = Arr::get($this->_config, 'auto_register_tasks', array());
+		$auto_tasks = Arr::get($this->_config, 'auto_register_tasks_', array());
         $registered = 0;
        
         foreach ($auto_tasks as $name => $task_config)
