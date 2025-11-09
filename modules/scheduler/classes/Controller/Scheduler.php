@@ -380,7 +380,7 @@ class Controller_Scheduler extends Controller_Template {
 			try {
                 $scheduler = Scheduler::factory();
                 $result = $scheduler->add_task($name, $class, $schedule, $enabled, $parameters_array);
-				echo Debug::vars('383', $result, '/scheduler/task/' . urlencode($name));exit;
+				
                 if ($result) {
 					$this->redirect('/scheduler/task/' . urlencode($name));
 				} else {
@@ -462,10 +462,11 @@ class Controller_Scheduler extends Controller_Template {
     public function action_delete()
     {
         $task_name = $this->request->param('id');
-        
-        if ($this->request->method() === 'POST') {
-            $this->_delete_task($task_name);
+       if ($this->request->method() === 'POST') {
+          
+		   $this->_delete_task($task_name);
         } else {
+			
             $this->_show_delete_confirmation($task_name);
         }
     }
@@ -478,7 +479,7 @@ class Controller_Scheduler extends Controller_Template {
         try {
             $scheduler = Scheduler::factory();
             $task = $scheduler->get_task($task_name);
-            
+   
             if (!$task) {
                 throw new Exception("Task not found: {$task_name}");
             }
@@ -498,10 +499,11 @@ class Controller_Scheduler extends Controller_Template {
      */
     protected function _delete_task($task_name)
     {
-        try {
+        echo Debug::vars('503', $task_name);exit;   
+		try {
             $scheduler = Scheduler::factory();
             $task = $scheduler->get_task($task_name);
-            
+         
             if (!$task) {
                 throw new Exception("Task not found: {$task_name}");
             }

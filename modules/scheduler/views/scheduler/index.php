@@ -183,13 +183,19 @@
                                                 <i class="fas fa-play"></i>
                                             </button>
 											
-											<?php 
+										<?php 
 										echo HTML::anchor('/scheduler/logs?task_id='.$task['db_task']['id'], '<i class="fas fa-history"></i>', array(
 												'class' => 'btn btn-outline-secondary', 
 												'title' => 'View Logs'
 											));
 										
 										?>
+										
+										
+										<a href="<?php echo URL::site('scheduler/delete/'.$name); ?>" class="btn btn-danger"
+           title="Delete" onclick="return confirm('Are you sure?')">
+            <i class="glyphicon glyphicon-trash"></i>
+        </a>
 										
                                           
                                         </div>

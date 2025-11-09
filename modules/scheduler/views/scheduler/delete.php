@@ -1,4 +1,7 @@
-<?php defined('SYSPATH') or die('No direct script access.'); ?>
+<?php defined('SYSPATH') or die('No direct script access.'); 
+echo Debug::vars('2', $task);exit;
+echo Debug::vars('3', $task->name);exit;
+?>
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
