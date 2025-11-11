@@ -69,7 +69,7 @@ abstract class Task_Base extends Task {
                     }
                 }
                 
-                $this->log("Loaded parameters from database: " . count($this->_parameters) . " parameters");
+               // $this->log("Loaded parameters from database: " . count($this->_parameters) . " parameters");
             }
             else
             {

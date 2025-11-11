@@ -114,7 +114,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tasks as $name => $task): ?>
+                                <?php 
+								//echo Debug::vars('118', $tasks);
+								foreach ($tasks as $name => $task): ?>
                                 <?php 
                                     $task_status = $status[$name];
                                     $is_due = $task_status['is_due'];
@@ -127,9 +129,14 @@
                                         <br>
                                         <small class="text-muted"><?= HTML::chars($task_status['class']) ?></small>
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input task-toggle" type="checkbox" 
+                                          <br>123  
+											
+											<input class="form-check-input task-toggle" type="checkbox" 
                                                    data-task="<?= HTML::chars($name) ?>"
                                                    <?= $task['db_task']['enabled'] ? 'checked' : '' ?>>
+												   
+											<br>456	   
+											
                                             <label class="form-check-label small">
                                                 <?= $task['db_task']['enabled'] ? 'Enabled' : 'Disabled' ?>
                                             </label>

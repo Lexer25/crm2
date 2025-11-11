@@ -65,7 +65,7 @@
             
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Running...');
             
-            $.post('/scheduler/ajax/run_task', {task_name: taskName}, function(response) {
+            $.post('scheduler/ajax/run_task', {task_name: taskName}, function(response) {
                 if (response.success) {
                     btn.html('<i class="fas fa-check"></i> Success');
                     setTimeout(function() {
@@ -85,7 +85,7 @@
             var taskName = checkbox.data('task');
             var enabled = checkbox.is(':checked');
             
-            $.post('/scheduler/ajax/toggle_task', {
+            $.post('scheduler/ajax/toggle_task', {
                 task_name: taskName,
                 enabled: enabled
             }, function(response) {
@@ -98,7 +98,7 @@
         
         // Автообновление статуса
         function updateTaskStatus(taskName, element) {
-            $.post('/scheduler/ajax/get_task_status', {task_name: taskName}, function(response) {
+            $.post('scheduler/ajax/get_task_status', {task_name: taskName}, function(response) {
                 if (response.success && response.task) {
                     var task = response.task;
                     var statusHtml = '';

@@ -68,10 +68,18 @@ class Scheduler {
             $this->_auto_register_tasks();
 
             // Загружаем задачи из базы данных
-            $db_tasks = $this->_db->query(Database::SELECT, "
+        /*     $db_tasks = $this->_db->query(Database::SELECT, "
                 SELECT * FROM `scheduler_tasks` 
                 WHERE `enabled` = 1
+            ")->as_array(); */
+ 
+            $db_tasks = $this->_db->query(Database::SELECT, "
+                SELECT * FROM `scheduler_tasks` 
+                
             ")->as_array();
+ 
+ 
+ 
  
             foreach ($db_tasks as $db_task)
             {
@@ -792,7 +800,7 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
      */
     public function get_task($name)
     {
-        return isset($this->_tasks[$name]) ? $this->_tasks[$name] : NULL;
+		return isset($this->_tasks[$name]) ? $this->_tasks[$name] : NULL;
     }
     
     /**
@@ -800,7 +808,6 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
      */
     public function run_task($name, $parameters = array())
     {
-        echo Debug::vars('749');exit;
 		if (!isset($this->_tasks[$name]))
         {
             throw new Exception("Task not found: {$name}");

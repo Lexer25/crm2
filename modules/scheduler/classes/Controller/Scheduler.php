@@ -232,8 +232,7 @@ class Controller_Scheduler extends Controller_Template {
      */
     public function action_ajax()
     {
-    
-	   $this->auto_render = FALSE;
+ 	   $this->auto_render = FALSE;
         
         $action = $this->request->param('id');
         $response = array('success' => FALSE);
@@ -248,9 +247,9 @@ class Controller_Scheduler extends Controller_Template {
                     break;
                     
                 case 'toggle_task':
-                    $task_name = $this->request->post('task_name');
-                    $enabled = $this->request->post('enabled');
-                    $this->_toggle_task($task_name, $enabled);
+				    $task_name = $this->request->post('task_name');
+					$enabled = $this->request->post('enabled');
+				    $this->_toggle_task($task_name, $enabled);
                     $response = array('success' => TRUE, 'message' => 'Task updated');
                     break;
                     
@@ -278,16 +277,29 @@ class Controller_Scheduler extends Controller_Template {
      */
     protected function _toggle_task($task_name, $enabled)
     {
-        $db = $this->_get_db();
-        $db->query(Database::UPDATE, __("
+      $db = $this->_get_db();
+/*         $db->query(Database::UPDATE, __("
             UPDATE `scheduler_tasks` 
             SET enabled = :enabled, updated_at = :updated_at 
             WHERE name = :name
         ", array(
             ':enabled' => (int)$enabled,
-            ':updated_at' => date('Y-m-d H:i:s'),
-            ':name' => $task_name
+            ':updated_at' => '\''.date('Y-m-d H:i:s').'\'',
+            ':name' => '\''.$task_name.'\''
+        ))); */
+		
+		$db->query(Database::UPDATE, __("
+            UPDATE `scheduler_tasks` 
+			SET enabled = 1 - enabled,
+				updated_at = :updated_at 
+			WHERE name = :name
+        ", array(
+            ':enabled' => (int)$enabled,
+            ':updated_at' => '\''.date('Y-m-d H:i:s').'\'',
+            ':name' => '\''.$task_name.'\''
         )));
+		
+		
     }
     
     /**
