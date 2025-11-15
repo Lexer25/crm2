@@ -64,6 +64,17 @@
                                           rows="2" placeholder="Optional task description"><?php echo isset($task['description']) ? HTML::chars($task['description']) : ''; ?></textarea>
                             </div>
                         </div>
+						
+						<!-- Параметры -->
+                        <div class="form-group">
+                            <label for="param" class="col-sm-3 control-label">param</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" id="param" name="param" 
+                                          rows="2" placeholder="Optional task param"><?php echo isset($task['param']) ? HTML::chars($task['param']) : ''; ?></textarea>
+                            </div>
+                        </div>
+						
+						
 
                         <!-- Schedule Type -->
                         <div class="form-group">

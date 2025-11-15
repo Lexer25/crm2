@@ -840,7 +840,7 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
     /**
      * Добавить новую задачу
      */
-    public function add_task($name, $class, $schedule, $enabled = TRUE, $parameters = array())
+    public function add_task($name, $class, $schedule, $enabled = TRUE, $parameters = array(), $description = null)
     {
       
 		if (isset($this->_tasks[$name]))
@@ -853,8 +853,8 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
             $parameters_json = !empty($parameters) ? json_encode($parameters) : NULL;
             
             $sql= __("INSERT INTO `scheduler_tasks` 
-                (name, class, schedule, enabled, parameters, created_at, updated_at) 
-                VALUES (':name', ':class', ':schedule', ':enabled', ':parameters', ':created_at', ':updated_at')
+                (name, class, schedule, enabled, parameters, created_at, updated_at, description) 
+                VALUES (':name', ':class', ':schedule', ':enabled', ':parameters', ':created_at', ':updated_at', ':description')
             ", array(
                 ':name' => $name,
                 ':class' => $class,
@@ -862,8 +862,10 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
                 ':enabled' => (int)$enabled,
                 ':parameters' => $parameters_json,
                 ':created_at' => date('Y-m-d H:i:s'),
-                ':updated_at' => date('Y-m-d H:i:s')
+                ':updated_at' => date('Y-m-d H:i:s'),
+                ':description' => $description
             ));
+			//echo Debug::vars('868', $sql);exit;
 	//Minion_CLI::write("779 ".$sql, 'red');		
 			$result = $this->_db->query(Database::INSERT, $sql);
             

@@ -65,7 +65,7 @@
                 </div>
 
                 <!-- Параметры -->
-                <?php if (!empty($task['parameters'])): ?>
+                <?php if (!empty($task['db_task']['parameters'])): ?>
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
@@ -73,10 +73,30 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <pre class="mb-0"><code><?php echo  json_encode($task['parameters'], JSON_PRETTY_PRINT) ?></code></pre>
+                        <pre class="mb-0"><code><?php echo  json_encode($task['db_task']['parameters'], JSON_PRETTY_PRINT) ?></code></pre>
                     </div>
                 </div>
                 <?php endif; ?>
+				
+				
+				 <!-- Описание заданчи -->
+                <?php if (!empty($task['db_task']['description'])): ?>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cog"></i> Description
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <pre class="mb-0"><code><?php echo  $task['db_task']['description']; ?></code></pre>
+                    </div>
+                </div>
+                <?php endif; ?>
+				
+				
+				
+				
+				
             </div>
 
             <!-- Статистика и действия -->

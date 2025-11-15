@@ -81,7 +81,7 @@ class Controller_Scheduler extends Controller_Template {
          try {
             $scheduler = Scheduler::factory();
             $task = $scheduler->get_task($task_name);
-            
+   // echo Debug::vars('84', $task);exit;        
             if (!$task) {
                 throw new Exception("Task not found: {$task_name}");
             }
@@ -352,16 +352,19 @@ class Controller_Scheduler extends Controller_Template {
      */
     protected function _create_task_from_post()
     {
-   
+  // echo Debug::vars('355', $_POST);exit;
 		$errors = array();
         $available_classes = $this->_get_available_task_classes();
         
         $name = $this->request->post('name');
-        $class = $this->request->post('class');
+        $description = $this->request->post('description');
+        $parameters = $this->request->post('param');
+        $schedule_type = $this->request->post('schedule_type');
         $class = $this->request->post('callback');
         $schedule = $this->request->post('schedule');
         $enabled = (bool) $this->request->post('enabled', 1);
-        $parameters = $this->request->post('parameters');
+        //$parameters = $this->request->post('parameters');
+        $timeout = $this->request->post('timeout');
         
         // Валидация
         if (empty($name)) {
@@ -388,11 +391,11 @@ class Controller_Scheduler extends Controller_Template {
                 $errors[] = 'Invalid JSON parameters: ' . json_last_error_msg();
             }
         }
-   
+  //echo Debug::vars('397', $name, $class, $schedule, $enabled, $parameters_array, $description);exit; 
         if (empty($errors)) {
 			try {
                 $scheduler = Scheduler::factory();
-                $result = $scheduler->add_task($name, $class, $schedule, $enabled, $parameters_array);
+                $result = $scheduler->add_task($name, $class, $schedule, $enabled, $parameters_array, $description);
                
             } catch (Exception $e) {
                 $errors[] = 'Error creating task: ' . $e->getMessage();
