@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.'); 
-echo Debug::vars('2', $task);exit;
-echo Debug::vars('3', $task->name);exit;
+//echo Debug::vars('2', $task);//exit;
+//echo Debug::vars('3', $task->name);//exit;
 ?>
 <div class="container">
     <div class="row">
@@ -26,21 +26,21 @@ echo Debug::vars('3', $task->name);exit;
                             <table class="table table-condensed">
                                 <tr>
                                     <th width="30%">Name:</th>
-                                    <td><strong><?php echo HTML::chars($task['name']); ?></strong></td>
+                                    <td><strong><?php echo HTML::chars($task['db_task']['name']); ?></strong></td>
                                 </tr>
                                 <tr>
                                     <th>Schedule:</th>
                                     <td><code><?php echo HTML::chars($task['schedule']); ?></code></td>
                                 </tr>
                                 <tr>
-                                    <th>Callback:</th>
-                                    <td><code><?php echo HTML::chars($task['callback']); ?></code></td>
+                                    <th>Callback (class):</th>
+                                    <td><code><?php echo HTML::chars($task['db_task']['class']); ?></code></td>
                                 </tr>
                                 <tr>
                                     <th>Status:</th>
                                     <td>
-                                        <span class="label label-<?php echo $task['enabled'] ? 'success' : 'default'; ?>">
-                                            <?php echo $task['enabled'] ? 'Enabled' : 'Disabled'; ?>
+                                        <span class="label label-<?php echo $task['db_task']['enabled'] ? 'success' : 'default'; ?>">
+                                            <?php echo $task['db_task']['enabled'] ? 'Enabled' : 'Disabled'; ?>
                                         </span>
                                     </td>
                                 </tr>
@@ -78,7 +78,7 @@ echo Debug::vars('3', $task->name);exit;
                         </div>
 
                         <form method="post" class="form-horizontal">
-                            <?php echo Form::csrf(); ?>
+                            <?php //echo Form::csrf(); ?>
                             
                             <div class="form-group">
                                 <div class="col-sm-12">
@@ -94,7 +94,7 @@ echo Debug::vars('3', $task->name);exit;
                             <div class="form-group">
                                 <div class="col-sm-12">
                                     <button type="submit" class="btn btn-danger btn-lg btn-block" 
-                                            id="delete-btn" disabled>
+                                            id="delete-btn" disabled-->
                                         <i class="glyphicon glyphicon-trash"></i> Delete Task Permanently
                                     </button>
                                 </div>
@@ -120,7 +120,7 @@ echo Debug::vars('3', $task->name);exit;
             </div>
 
             <!-- Additional warning for active tasks -->
-            <?php if (isset($task) && $task && $task['enabled']): ?>
+            <?php if (isset($task) && $task && $task['db_task']['enabled']): ?>
             <div class="panel panel-warning">
                 <div class="panel-heading">
                     <h4 class="panel-title">

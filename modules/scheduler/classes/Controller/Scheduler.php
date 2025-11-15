@@ -511,8 +511,7 @@ class Controller_Scheduler extends Controller_Template {
      */
     protected function _delete_task($task_name)
     {
-        echo Debug::vars('503', $task_name);exit;   
-		try {
+       try {
             $scheduler = Scheduler::factory();
             $task = $scheduler->get_task($task_name);
          

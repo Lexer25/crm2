@@ -200,9 +200,13 @@
 										
 										
 										<a href="<?php echo URL::site('scheduler/delete/'.$name); ?>" class="btn btn-danger"
-           title="Delete" onclick="return confirm('Are you sure?')">
-            <i class="glyphicon glyphicon-trash"></i>
-        </a>
+											   title="Delete" onclick="return confirm('Are you sure?')">
+												<i class="glyphicon glyphicon-trash"></i>
+											</a>
+											
+									
+</a>
+	
 										
                                           
                                         </div>
