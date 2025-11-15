@@ -94,7 +94,7 @@
                             <div class="form-group">
                                 <div class="col-sm-12">
                                     <button type="submit" class="btn btn-danger btn-lg btn-block" 
-                                            id="delete-btn" disabled-->
+                                            
                                         <i class="glyphicon glyphicon-trash"></i> Delete Task Permanently
                                     </button>
                                 </div>

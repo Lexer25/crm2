@@ -871,18 +871,7 @@ protected function _save_task_execution(&$task, $status, $duration, $memory_usag
             {
                 $task_id = $result[0];
                 
-                // Создаем начальное состояние
-               /*  $this->_db->query(Database::INSERT, "
-                    INSERT INTO `scheduler_state` 
-                    (task_id, total_runs, total_errors, updated_at) 
-                    VALUES (:task_id, :total_runs, :total_errors, :updated_at)
-                ", array(
-                    ':task_id' => $task_id,
-                    ':total_runs' => 0,
-                    ':total_errors' => 0,
-                    ':updated_at' => date('Y-m-d H:i:s')
-                )); */
-				
+              		
 				$sql=__( "
                     INSERT INTO `scheduler_state` 
                     (task_id, total_runs, total_errors, updated_at) 

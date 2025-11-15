@@ -30,6 +30,7 @@ class Controller_Scheduler extends Controller_Template {
             '//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'
         );
 		
+		//echo Debug::vars('33', get_class_methods(get_class($this)));exit;
 		
     }
     
@@ -351,7 +352,7 @@ class Controller_Scheduler extends Controller_Template {
      */
     protected function _create_task_from_post()
     {
-        
+   
 		$errors = array();
         $available_classes = $this->_get_available_task_classes();
         
@@ -392,17 +393,20 @@ class Controller_Scheduler extends Controller_Template {
 			try {
                 $scheduler = Scheduler::factory();
                 $result = $scheduler->add_task($name, $class, $schedule, $enabled, $parameters_array);
-				
-                if ($result) {
+               
+            } catch (Exception $e) {
+                $errors[] = 'Error creating task: ' . $e->getMessage();
+				$result=false;
+            }
+        }
+		
+		 if ($result) {
 					$this->redirect('/scheduler/task/' . urlencode($name));
 				} else {
                     $errors[] = 'Failed to create task';
                 }
-            } catch (Exception $e) {
-                $errors[] = 'Error creating task: ' . $e->getMessage();
-            }
-        }
-     
+				
+				
         $this->template->content = View::factory('scheduler/create')
             ->set('available_classes', $available_classes)
             ->set('errors', $errors)
@@ -511,8 +515,9 @@ class Controller_Scheduler extends Controller_Template {
      */
     protected function _delete_task($task_name)
     {
-       try {
-            $scheduler = Scheduler::factory();
+   
+	 try {
+			$scheduler = Scheduler::factory();
             $task = $scheduler->get_task($task_name);
          
             if (!$task) {
@@ -521,7 +526,7 @@ class Controller_Scheduler extends Controller_Template {
             
             $db = $this->_get_db();
             $task_id = $task['db_task']['id'];
-            
+        
             // Удаляем логи
             $db->query(Database::DELETE, __("DELETE FROM `scheduler_logs` WHERE task_id = :task_id", 
                       array(':task_id' => $task_id)));
@@ -533,12 +538,13 @@ class Controller_Scheduler extends Controller_Template {
             // Удаляем задачу
             $db->query(Database::DELETE, __("DELETE FROM `scheduler_tasks` WHERE id = :task_id", 
                       array(':task_id' => $task_id)));
+     
             
-            $this->redirect('/scheduler');
-            
+         
         } catch (Exception $e) {
-            $this->template->content = View::factory('scheduler/error')
+			$this->template->content = View::factory('scheduler/error')
                 ->set('error', $e->getMessage());
         }
+		$this->redirect('scheduler');
     }
 }

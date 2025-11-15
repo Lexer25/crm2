@@ -12,5 +12,6 @@
                 <i class="fas fa-arrow-left"></i> Back to Tasks
             </a>
         </div>
+		
     </div>
 </div>
