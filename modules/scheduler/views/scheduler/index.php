@@ -129,13 +129,9 @@
                                         <br>
                                         <small class="text-muted"><?= HTML::chars($task_status['class']) ?></small>
                                         <div class="form-check form-switch">
-                                          <br>123  
-											
-											<input class="form-check-input task-toggle" type="checkbox" 
+                                         	<input class="form-check-input task-toggle" type="checkbox" 
                                                    data-task="<?= HTML::chars($name) ?>"
                                                    <?= $task['db_task']['enabled'] ? 'checked' : '' ?>>
-												   
-											<br>456	   
 											
                                             <label class="form-check-label small">
                                                 <?= $task['db_task']['enabled'] ? 'Enabled' : 'Disabled' ?>
@@ -176,7 +172,7 @@
                                     <td>
                                         <div class="btn-group btn-group-sm">
 										<?php 
-										echo HTML::anchor('/scheduler/task/'.$name, '<i class="fas fa-eye"></i>', array(
+										echo HTML::anchor('/scheduler/task/'.$name, '<i class="fas fa-eye"></i>Detail', array(
 												'class' => 'btn btn-outline-info', 
 												'title' => 'View Details'
 											));
@@ -187,11 +183,11 @@
                                             <button class="btn btn-outline-primary run-task-btn" 
                                                     data-task="<?= HTML::chars($name) ?>" 
                                                     title="Run Now">
-                                                <i class="fas fa-play"></i>
+                                                <i class="fas fa-play"></i>Run
                                             </button>
 											
 										<?php 
-										echo HTML::anchor('/scheduler/logs?task_id='.$task['db_task']['id'], '<i class="fas fa-history"></i>', array(
+										echo HTML::anchor('/scheduler/logs?task_id='.$task['db_task']['id'], '<i class="fas fa-history"></i>Log', array(
 												'class' => 'btn btn-outline-secondary', 
 												'title' => 'View Logs'
 											));
@@ -201,13 +197,8 @@
 										
 										<a href="<?php echo URL::site('scheduler/delete/'.$name); ?>" class="btn btn-danger"
 											   title="Delete" onclick="return confirm('Are you sure?')">
-												<i class="glyphicon glyphicon-trash"></i>
+												<i class="glyphicon glyphicon-trash"></i>Delete
 											</a>
-											
-									
-</a>
-	
-										
                                           
                                         </div>
                                     </td>
