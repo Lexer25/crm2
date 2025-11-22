@@ -45,7 +45,7 @@ class Scheduler {
       
 		try
         {
-            // Проверяем существование основной таблицы
+           	// Проверяем существование основной таблицы
             $result = $this->_db->query(Database::SELECT, "SELECT 1 FROM `scheduler_tasks` LIMIT 1");
 			
             return TRUE;

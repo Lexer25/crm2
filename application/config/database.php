@@ -51,16 +51,5 @@ return array
        		'dsn'        => 'sqlite:'.APPPATH .'\\Config\\acl_config.sqlite',
 			'persistent' => FALSE,
     )),
-	
-	//база данных для щедулера
-		'scheduler_db' => array(// 
-		'type'       => 'Pdosqlite',
-		'connection' => array(
-       		'dsn'        => 'sqlite:'.APPPATH .'\\Config\\scheduler.sqlite',
-			'persistent' => FALSE,
-    )),
-	
-
-
 );
 
