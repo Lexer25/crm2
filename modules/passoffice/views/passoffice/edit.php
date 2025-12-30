@@ -361,7 +361,7 @@ if ($alert) { ?>
 													if (isset($card)) echo Arr::get($card, 'ID_CARD'); 
 													
 												?>
-												<input type="hidden" size="12" maxlength="8"  id="idcard" name="idcard" value="<?php if (isset($card)) echo $guest->rfid; ?>" />	
+												<input type="hidden" size="12" maxlength="8"  id="idcard" name="idcard" value="<?php if (isset($card)) echo $guest->rfid; ?>" required/>	
 													
 												<?php } else {
 												?>

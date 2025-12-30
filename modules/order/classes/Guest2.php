@@ -32,7 +32,8 @@ class Guest2
 
 	//public $timeplan;//плановое время прихода
 
-	
+	public $login;
+	public $pswd;
 	public $id = 0;// id_pep гостя
 	
 	public $timeplan;
@@ -42,87 +43,51 @@ class Guest2
 	
 	
 	public function __construct($id_pep = null)
-	{
-		if(!is_null($id_pep)){
-			
-		$sql='select p.id_pep
-		,p.id_org
-		, p.surname
-		, p.name
-		, p.patronymic
-		, p.numdoc
-		, p.datedoc
-		, p."ACTIVE" as is_active
-		, p.flag
-		, p.sysnote
-		, p.note
-		, p.time_stamp
-		, p.tabnum
-		
-		from PEOPLE p
+{
+    if (!is_null($id_pep)) {
+        $sql = 'select p.id_pep
+            ,p.id_org
+            ,p.surname
+            ,p.name
+            ,p.patronymic
+            ,p.numdoc
+            ,p.datedoc
+            ,p."ACTIVE" as is_active
+            ,p.flag
+            ,p.sysnote
+            ,p.note
+            ,p.time_stamp
+            ,p.tabnum
+            ,p.pswd
+            ,p.login
+            from PEOPLE p
+            where p.id_pep='.$id_pep;
 
-        where p.id_pep='.$id_pep;
+        $query = Arr::flatten(DB::query(Database::SELECT, $sql)
+            ->execute(Database::instance('fb'))
+            ->as_array()
+        );
+        $this->id_pep = $id_pep;
+        $this->name = iconv('CP1251', 'UTF-8', Arr::get($query, 'NAME', ''));
+        $this->surname = iconv('CP1251', 'UTF-8', Arr::get($query, 'SURNAME', ''));
+        $this->patronymic = iconv('CP1251', 'UTF-8', Arr::get($query, 'PATRONYMIC', ''));
+        $this->id_org = Arr::get($query, 'ID_ORG');
+        $this->numdoc = iconv('CP1251', 'UTF-8', Arr::get($query, 'NUMDOC', ''));
+        $this->docdate = Arr::get($query, 'DATEDOC'); // Дата уже в формате DD.MM.YYYY
+        $this->is_active = Arr::get($query, 'IS_ACTIVE');
+        $this->sysnote = iconv('CP1251', 'UTF-8', Arr::get($query, 'SYSNOTE', ''));
+        $this->note = iconv('CP1251', 'UTF-8', Arr::get($query, 'NOTE', ''));
+        $this->time_stamp = Arr::get($query, 'TIME_STAMP');
+        $this->tabnum = Arr::get($query, 'TABNUM');
 
-		// $sql='select p.id_guest
-		// , p.surname
-		// , p.name
-		// , p.patronymic
-		// , p.docnum
-		// , p.placedoc
-		// , p.docdate
-		
-		// from GUEST p
-
-        // where p.id_guest='.$id_pep;
-		//	echo Debug::vars('73',$sql);//exit;
-		
-		
-		
-		
-	
-	// 	$query = Arr::flatten(DB::query(Database::SELECT, $sql)
-    //    // ->param(':id_guest', $id_pep)
-    //     ->execute(Database::instance('fb'))
-    //     ->as_array());
-	// 	//echo Debug::vars('83', $query);//exit;
-
-	// 	$this->id_pep = $id_pep;
-    // 	$this->name = Arr::get($query, 'name');
-    // 	$this->surname = Arr::get($query, 'SURNAME');
-    // 	$this->patronymic = Arr::get($query, 'PATRONYMIC');
-
-
-	$query= Arr::flatten(DB::query(Database::SELECT, $sql)
-				->execute(Database::instance('fb'))
-				->as_array()
-				);
-		$this->id_pep=$id_pep;
-		$this->name=Arr::get($query, 'NAME');
-		$this->surname=Arr::get($query, 'SURNAME');
-		$this->patronymic=Arr::get($query, 'PATRONYMIC');
-		$this->id_org=Arr::get($query, 'ID_ORG');
-		$this->numdoc=Arr::get($query, 'NUMDOC');
-		$this->datedoc=Arr::get($query, 'DATEDOC');
-		$this->is_active=Arr::get($query, 'IS_ACTIVE');
-		$this->sysnote=Arr::get($query, 'SYSNOTE');
-		$this->note=Arr::get($query, 'NOTE');
-		$this->time_stamp=Arr::get($query, 'TIME_STAMP');
-		$this->tabnum=Arr::get($query, 'TABNUM');
-		//$this->rfid=Arr::get($query, 'RFID');
-		//$this->grz=Arr::get($query, 'GRZ');
-		
-		$sql='select  c.id_cardtype, count(c.id_card) from card c
-			where c.id_pep='.$id_pep.'
-			group by c.id_cardtype';
-		$this->count_identificator=	DB::query(Database::SELECT, $sql)
-				->execute(Database::instance('fb'))
-				->as_array();
-		//$this->cadlist=new Key($id_pep);
-		
-		
-		}
-		//echo Debug::vars('90',$this);exit;
-	}
+        $sql = 'select c.id_cardtype, count(c.id_card) from card c
+            where c.id_pep='.$id_pep.'
+            group by c.id_cardtype';
+        $this->count_identificator = DB::query(Database::SELECT, $sql)
+            ->execute(Database::instance('fb'))
+            ->as_array();
+    }
+}
 	
 	/*
 	возвращает список идентификаторов указанного типа
@@ -187,14 +152,16 @@ class Guest2
 		$this->id_pep=Arr::get($result, 'GEN_ID');
 		
 		//echo Debug::vars('109', Arr::get($result, 'GEN_ID')); exit;
-		$sql=__('INSERT INTO people (id_pep, id_db, surname, name, patronymic, id_org, note) 
-                VALUES (:id,1, \':surname\', \':name\', \':patronymic\',:org,  \':note\')', array
+		$sql=__('INSERT INTO people (id_pep, id_db, surname, name, patronymic, id_org, numdoc, datedoc, note) 
+                VALUES (:id,1, \':surname\', \':name\', \':patronymic\',:org, \':numdoc\', \':datedoc\',  \':note\')', array
 			(
 				':id'			=> $this->id_pep,
 				':surname'		=> iconv('UTF-8', 'CP1251',$this->surname),
 				':name'			=> iconv('UTF-8', 'CP1251',$this->name),
 				':patronymic'	=> iconv('UTF-8', 'CP1251',$this->patronymic),
 				':org'			=> $this->idOrgGuest,
+				':numdoc'       => iconv('UTF-8', 'CP1251', $this->numdoc),
+				':datedoc'      => $this->docdate,
 				':note'			=> iconv('UTF-8', 'CP1251',$this->note))
 				);
 
@@ -223,7 +190,7 @@ class Guest2
 					
 					
 					
-					$this->setAclDefault();// заполнение таблицы SS_ACCESSUSER
+					//$this->setAclDefault();// заполнение таблицы SS_ACCESSUSER
 					return $this->id_pep;
 
 				} catch (Exception $e) {
@@ -257,50 +224,17 @@ class Guest2
 	/*
 	Добавление пользователя в таблицу ss_accessuser в соответствии с правами организации.
 	*/
-	public function setAclDefault()
-	{
-		$sql='select sso.id_accessname from  ss_accessorg sso
-		where sso.id_org='.$this->idOrgGuest;
-		
-		try
-		{
-			
-			$query = DB::query(Database::SELECT, $sql)
-				->execute(Database::instance('fb'))
-				->as_array();
-				//echo Debug::vars('158', $query); exit;
-			foreach ($query as $key=>$value){
-				$sql2='INSERT INTO SS_ACCESSUSER (ID_DB,ID_PEP,ID_ACCESSNAME,USERNAME) VALUES (1,'.$this->id_pep.','.Arr::get($value, 'ID_ACCESSNAME').',\'ADMIN\')';
-				//echo Debug::vars('158', $sql2); exit;
-				try {
-						$query = DB::query(Database::INSERT, $sql2)
-						->execute(Database::instance('fb'));
-						$this->actionResult=0;
-						
-				} catch (Exception $e) {
-				
-					$this->actionResult=3;
-					//$this->actionDesc=__('guest.addTabNumErr', array(':surname'=>$this->surname,':name'=>$this->name,':patronymic'=>$this->patronymic,':tabnum'=>$this->tabnum));
-					Log::instance()->add(Log::DEBUG, '178 '.$e->getMessage());
-					return 3;
-				}
-			
-			}
-			
-			$this->actionResult=0;
-			return 0;
-			//$this->actionDesc=__('guest.addTabNumOk', array(':surname'=>$this->surname,':name'=>$this->name,':patronymic'=>$this->patronymic,':tabnum'=>$this->tabnum));
-		
-		} catch (Exception $e) {
-			
-			$this->actionResult=3;
-			//$this->actionDesc=__('guest.addTabNumErr', array(':surname'=>$this->surname,':name'=>$this->name,':patronymic'=>$this->patronymic,':tabnum'=>$this->tabnum));
-			Log::instance()->add(Log::DEBUG, '178 '.$e->getMessage());
-			return 3;
-			
-		}
-		
-	}
+	public function setAclDefault($id_pep, $id_accessname)
+{
+    $deleteSql = 'DELETE FROM SS_ACCESSUSER WHERE ID_PEP = ' . (int)$id_pep;
+    DB::query(Database::DELETE, $deleteSql)->execute(Database::instance('fb'));
+    
+    $insertSql = 'INSERT INTO SS_ACCESSUSER (ID_DB, ID_PEP, ID_ACCESSNAME, USERNAME) VALUES (1, ' . (int)$id_pep . ', ' . (int)$id_accessname . ', \'ADMIN\')';
+    DB::query(Database::INSERT, $insertSql)->execute(Database::instance('fb'));
+    
+    $this->actionResult = 0;
+    return 0;
+}
 	
 	
 	public function WsetTabNum()
@@ -335,7 +269,7 @@ class Guest2
 	{
 		
 			$sql='update people p
-			set p.datedoc=\''.$this->datedoc.'\',
+			set p.datedoc=\''.$this->docdate.'\',
 			p.numdoc=\''.$this->numdoc.'\'
 			where p.id_pep='.$this->id_pep;
 		//echo Debug::vars('147', $sql); exit; 
@@ -639,47 +573,477 @@ WHERE (ID_PEP = 7607) AND (ID_DB = 1);
 
 	*
 	*/
-	public function update($id_pep)
-	{
-		//перенос гостя в Архив
-	
-		// $sql=__('update people (id_pep, id_db, surname, name, patronymic, id_org, note) 
-        //         VALUES (:id,1, \':surname\', \':name\', \':patronymic\',:org,  \':note\')', array
-		// 	(
-		// 		':id'			=> $this->id_pep,
-		// 		':surname'		=> iconv('UTF-8', 'CP1251',$this->surname),
-		// 		':name'			=> iconv('UTF-8', 'CP1251',$this->name),
-		// 		':patronymic'	=> iconv('UTF-8', 'CP1251',$this->patronymic),
-		// 		':org'			=> $this->idOrgGuest,
-		// 		':note'			=> iconv('UTF-8', 'CP1251',$this->note))
-		// 		);
-		$sql='UPDATE PEOPLE
-	SET 
-    SURNAME = \''.iconv('UTF-8', 'CP1251',$this->surname).'\',
-    NAME = \''.iconv('UTF-8', 'CP1251',$this->name).'\',
-    PATRONYMIC = \''.iconv('UTF-8', 'CP1251',$this->patronymic).'\',
-     NUMDOC = \''.iconv('UTF-8', 'CP1251', $this->numdoc).'\',
-    DATEDOC = NULL,
-    PLACEDOC = NULL,
-    NOTE = \''.iconv('UTF-8', 'CP1251',$this->note).'\'
-   
-WHERE (ID_PEP = '.$this->id_pep.') AND (ID_DB = 1)';
-//echo Debug::vars('605', $sql, $this);exit;
-		try {		
-		
-			$query = DB::query(Database::UPDATE, $sql)
-				->execute(Database::instance('fb'));
-			return 0;	
-				
-					} catch (Exception $e) {
-				Log::instance()->add(Log::DEBUG, $e->getMessage());
-				
-				return 3;
-			
-		}	
-		
-	}
-	
-	
-	
+
+
+
+protected function formatDateForFirebird($date)
+{
+    if (!$date) {
+        return null;
+    }
+    try {
+        $dateObj = DateTime::createFromFormat('d.m.Y', $date);
+        if ($dateObj && $dateObj->format('d.m.Y') === $date) {
+            return $dateObj->format('Y-m-d');
+        }
+    } catch (Exception $e) {
+        Log::instance()->add(Log::DEBUG, 'Invalid date format: ' . $date);
+    }
+    return null;
+}
+
+public static function getPeopleById($id_pep_array)
+{
+    $result = [];
+    if (empty($id_pep_array)) {
+        return $result;
+    }
+
+    $id_pep_array = array_map('intval', $id_pep_array);
+    $id_pep_list = implode(',', $id_pep_array);
+
+    $sql = 'SELECT p.id_pep, p.surname, p.name, p.patronymic
+            FROM PEOPLE p
+            WHERE p.id_pep IN ('.$id_pep_list.')';
+
+    try {
+        $query = DB::query(Database::SELECT, $sql)
+            ->execute(Database::instance('fb'))
+            ->as_array();
+
+        foreach ($query as $row) {
+            $result[] = [
+                'id_pep' => $row['ID_PEP'],
+                'surname' => iconv('CP1251', 'UTF-8', Arr::get($row, 'SURNAME', '')),
+                'name' => iconv('CP1251', 'UTF-8', Arr::get($row, 'NAME', '')),
+                'patronymic' => iconv('CP1251', 'UTF-8', Arr::get($row, 'PATRONYMIC', ''))
+            ];
+        }
+    } catch (Exception $e) {
+        Log::instance()->add(Log::DEBUG, 'Error fetching people by id_pep: ' . $e->getMessage());
+    }
+
+    return $result;
+}
+
+public function update($id_pep)
+{
+    $formattedDate = $this->formatDateForFirebird($this->docdate);
+    $sql = 'UPDATE PEOPLE
+        SET 
+        SURNAME = \''.iconv('UTF-8', 'CP1251', addslashes($this->surname)).'\',
+        NAME = \''.iconv('UTF-8', 'CP1251', addslashes($this->name)).'\',
+        PATRONYMIC = \''.iconv('UTF-8', 'CP1251', addslashes($this->patronymic)).'\',
+        NUMDOC = \''.iconv('UTF-8', 'CP1251', addslashes($this->numdoc)).'\',
+        DATEDOC = '.($formattedDate ? '\''.addslashes($formattedDate).'\'' : 'NULL').',
+        PLACEDOC = NULL,
+        NOTE = \''.iconv('UTF-8', 'CP1251', addslashes($this->note)).'\'
+        WHERE (ID_PEP = '.(int)$this->id_pep.') AND (ID_DB = 1)';
+    try {        
+        $query = DB::query(Database::UPDATE, $sql)
+            ->execute(Database::instance('fb'));
+        return 0;    
+    } catch (Exception $e) {
+        Log::instance()->add(Log::DEBUG, $e->getMessage());
+        return 3;
+    }    
+}
+
+	public function getOrganizations() {
+        $organizations = [];
+        try {
+            $result = DB::select('ID_ORG', 'NAME')
+                ->from('ORGANIZATION')
+                ->execute(Database::instance('fb'))
+                ->as_array();
+            foreach ($result as $row) {
+                $name = trim(iconv('CP1251', 'UTF-8//IGNORE', $row['NAME']));
+                if (!empty($name)) {
+                    $organizations[] = [
+                        'id' => $row['ID_ORG'],
+                        'name' => $name,
+                    ];
+                }
+            }
+
+        } catch (Exception $e) {
+            Log::instance()->add(Log::ERROR, 'Ошибка при загрузке организаций: ' . $e->getMessage());
+        }
+        return $organizations;
+    }
+
+    public function addPeople() {
+            $query = DB::query(Database::SELECT, 'SELECT gen_id(gen_people_id, 1) FROM rdb$database')
+                ->execute(Database::instance('fb'));
+            $this->id = $query->current()['GEN_ID'];
+            //$this->name = $query->current()['NAME'];
+
+            $sql = 'INSERT INTO people (id_pep, id_db, surname, name, patronymic, id_org, login, pswd) 
+                    VALUES (:id_pep, :id_db, :surname, :name, :patronymic, :id_org, :login, :pswd)';
+
+            DB::query(Database::INSERT, $sql)
+                ->parameters(array(
+                    ':id_pep' => $this->id,
+                    ':id_db' => 1,
+                    ':surname' => iconv('UTF-8', 'CP1251', $this->surname),
+                    ':name' => iconv('UTF-8', 'CP1251', $this->name),
+                    ':patronymic' => iconv('UTF-8', 'CP1251', $this->patronymic),
+                    ':id_org' => $this->idOrgGuest,
+                    ':login' => $this->login,
+                    ':pswd' => $this->pswd, 
+                ))
+                ->execute(Database::instance('fb'));
+            $tabnum_query = DB::query(Database::SELECT, 'SELECT p.tabnum FROM people p WHERE p.id_pep = :id')
+                ->param(':id', $this->id)
+                ->execute(Database::instance('fb'));
+            $this->tabnum = $tabnum_query->get('TABNUM');
+
+            $this->setAclDefault();
+
+            $this->actionResult = 0;
+			//echo Debug::vars('744', $this->id);exit;
+            return $this->id;
+    }
+
+public function getPeopleWithLogin() {
+    $sql = "SELECT 
+                p.ID_PEP AS ID_PEP, 
+                p.SURNAME AS SURNAME, 
+                p.NAME AS NAME, 
+                p.PATRONYMIC AS PATRONYMIC,
+                p.ID_ORG AS ID_ORG,
+				p.LOGIN AS LOGIN,
+                o.NAME AS ORG_NAME
+            FROM people p
+            LEFT JOIN organization o ON o.ID_ORG = p.ID_ORG
+            WHERE p.LOGIN IS NOT NULL 
+              AND p.LOGIN != ''
+              AND p.PSWD IS NOT NULL
+              AND p.PSWD != ''";
+    
+    $query = DB::query(Database::SELECT, $sql)
+        ->execute(Database::instance('fb'));
+    
+    $result = [];
+    foreach ($query->as_array() as $row) {
+        $result[] = [
+            'ID_PEP' => $row['ID_PEP'],
+            'SURNAME' => !empty($row['SURNAME']) ? iconv('CP1251', 'UTF-8', $row['SURNAME']) : '',
+            'NAME' => !empty($row['NAME']) ? iconv('CP1251', 'UTF-8', $row['NAME']) : '',
+            'PATRONYMIC' => !empty($row['PATRONYMIC']) ? iconv('CP1251', 'UTF-8', $row['PATRONYMIC']) : '',
+            'ID_ORG' => $row['ID_ORG'],
+			'LOGIN' => $row['LOGIN'],
+            'ORG_NAME' => !empty($row['ORG_NAME']) ? iconv('CP1251', 'UTF-8', $row['ORG_NAME']) : ''
+        ];
+    }
+    
+    return $result;
+}
+
+public function getUserById($id){
+	$sql = 'SELECT p.id_pep, p.surname, p.name, p.patronymic FROM people p
+	WHERE p.id_pep='.$id;
+
+
+	$query = DB::query(Database::SELECT, $sql)
+        ->execute(Database::instance('fb'));
+    
+    $result = [];
+    foreach ($query->as_array() as $row) {
+        $result[] = [
+            'ID_PEP' => $row['ID_PEP'],
+            'SURNAME' => !empty($row['SURNAME']) ? iconv('CP1251', 'UTF-8', $row['SURNAME']) : '',
+            'NAME' => !empty($row['NAME']) ? iconv('CP1251', 'UTF-8', $row['NAME']) : '',
+            'PATRONYMIC' => !empty($row['PATRONYMIC']) ? iconv('CP1251', 'UTF-8', $row['PATRONYMIC']) : ''
+        ];
+    }
+    
+    return $result;
+}
+
+
+public function getPersonDetails($id_pep)
+{
+    $sql = "SELECT 
+                p.ID_PEP, 
+                p.SURNAME, 
+                p.NAME, 
+                p.PATRONYMIC,
+                p.ID_ORG,
+                o.NAME AS ORG_NAME,
+                p.LOGIN,
+                p.TABNUM,
+                p.NUMDOC,
+                p.DATEDOC,
+                p.NOTE
+            FROM people p
+            LEFT JOIN organization o ON o.ID_ORG = p.ID_ORG
+            WHERE p.ID_PEP = :id_pep";
+    
+    try {
+        $query = DB::query(Database::SELECT, $sql)
+            ->param(':id_pep', $id_pep)
+            ->execute(Database::instance('fb'));
+        
+        if ($query->count() === 0) {
+            return [];
+        }
+        
+        $row = $query->current();
+        
+        return [
+            'ID_PEP' => $row['ID_PEP'],
+            'SURNAME' => !empty($row['SURNAME']) ? iconv('CP1251', 'UTF-8', $row['SURNAME']) : '',
+            'NAME' => !empty($row['NAME']) ? iconv('CP1251', 'UTF-8', $row['NAME']) : '',
+            'PATRONYMIC' => !empty($row['PATRONYMIC']) ? iconv('CP1251', 'UTF-8', $row['PATRONYMIC']) : '',
+            'ID_ORG' => $row['ID_ORG'],
+            'ORG_NAME' => !empty($row['ORG_NAME']) ? iconv('CP1251', 'UTF-8', $row['ORG_NAME']) : '',
+            'LOGIN' => !empty($row['LOGIN']) ? $row['LOGIN'] : '',
+            'TABNUM' => !empty($row['TABNUM']) ? $row['TABNUM'] : '',
+            'NUMDOC' => !empty($row['NUMDOC']) ? iconv('CP1251', 'UTF-8', $row['NUMDOC']) : '',
+            'DATEDOC' => !empty($row['DATEDOC']) ? $row['DATEDOC'] : '',
+            'NOTE' => !empty($row['NOTE']) ? iconv('CP1251', 'UTF-8', $row['NOTE']) : ''
+        ];
+        
+    } catch (Exception $e) {
+        Log::instance()->add(Log::ERROR, 'Ошибка при получении данных пользователя: ' . $e->getMessage());
+        return [];
+    }
+}
+
+public function getLastIdPep(){
+	$sql = 'SELECT max(id_pep) as last_id_pep FROM people';
+	$query = DB::query(Database::SELECT, $sql)
+	->execute(Database::instance('fb'));
+	$result = $query->as_array();
+	return $result;
+}
+
+public function getOrderByIdpep($id_pep){
+	$sql = 'SELECT * FROM GUESTORDER
+	where id_guest='.$id_pep;
+	$query = DB::query(Database::SELECT, $sql)
+	->execute(Database::instance('fb'));
+	$result = $query->as_array();
+	return $result;
+}
+
+public function updateOrder($id_pep, $id_guest, $id_org, $id_buro) {
+        // Генерация нового ID для GUESTORDER
+        $id = DB::query(Database::SELECT,
+              'SELECT gen_id(GEN_GUESTORDER_ID, 1) FROM rdb$database')
+              ->execute(Database::instance('fb'))
+              ->get('GEN_ID');
+
+        // Текущее время в формате Firebird
+        $currentTime = date('Y-m-d H:i:s');
+        $timeValid = date('Y-m-d H:i:s', strtotime('+1 day'));
+
+        // Используем явный SQL с правильной обработкой NULL
+        $id_buro_value = ($id_buro !== null && $id_buro !== '') ? $id_buro : 'NULL';
+        $sql = "INSERT INTO GUESTORDER 
+                (ID_GUESTORDER, ID_DB, ID_PEP, ID_PEPORDER, ID_GUEST, ID_ORG, 
+                 TIMEORDER, TIMEVISIT, TIMESANCTION, TIMEPLAN, TIMEVALID, REMARK, ID_BURO) 
+                VALUES 
+                ($id, 1, $id_pep, NULL, $id_guest, $id_org, 
+                 '$currentTime', NULL, NULL, '$currentTime', '$timeValid', NULL, $id_buro_value)";
+
+        // Выполняем вставку заказа
+        DB::query(Database::INSERT, $sql)
+            ->execute(Database::instance('fb'));
+
+        // Обновляем таблицу people
+        $updatePeopleSql = "UPDATE people SET id_org = 2 WHERE id_pep = $id_guest";
+        DB::query(Database::UPDATE, $updatePeopleSql)
+            ->execute(Database::instance('fb'));
+
+		//echo Debug::vars('857', $updatePeopleSql);exit;
+
+        $this->actionResult = 0;
+        return 0;
+
+}
+
+public function updateExistingOrder($id_guestorder, $id_pep, $id_guest, $id_org, $id_buro) {
+        // Обновляем существующую запись в GUESTORDER
+        $id_buro_value = ($id_buro !== null && $id_buro !== '') ? $id_buro : 'NULL';
+        $sql = "UPDATE GUESTORDER 
+                SET ID_PEP = $id_pep, ID_GUEST = $id_guest, ID_ORG = $id_org, ID_BURO = $id_buro_value
+                WHERE ID_GUESTORDER = $id_guestorder";
+
+        // Выполняем обновление заказа
+        DB::query(Database::UPDATE, $sql)
+            ->execute(Database::instance('fb'));
+
+        // ИСПРАВЛЕНО: НЕ обновляем таблицу people - организация берется только из GUESTORDER
+        // $updatePeopleSql = "UPDATE people SET id_org = $id_org WHERE id_pep = $id_guest";
+        // DB::query(Database::UPDATE, $updatePeopleSql)
+        //     ->execute(Database::instance('fb'));
+
+        $this->actionResult = 0;
+        return 0;
+}
+
+public function getOrg(){
+	$sql = 'SELECT * FROM organization
+	where id_parent = 1';
+	$query = DB::query(Database::SELECT, $sql)
+	->execute(Database::instance('fb'));
+	$result = $query->as_array();
+	return $result;
+}
+
+
+    public function getEvents($id_pep) {
+        
+		$sql = 'SELECT 
+                e.ID_EVENT,
+                e.ID_EVENTTYPE,
+                e.DATETIME,
+                e.ESS1,
+                e.NOTE,
+                e.ID_CARD,
+                e.ID_DEV,
+                d.NAME AS DEVICE_NAME,
+                et.NAME,
+                CASE
+                    WHEN (e.ID_EVENTTYPE = 40 AND e.NOTE = \'add_accessname\') THEN (SELECT '. iconv('UTF-8', 'CP1251', '\'Добавлена категория доступа \'').' || an.name FROM accessname an WHERE an.id_accessname = e.ESS2)
+                    WHEN (e.ID_EVENTTYPE = 40 AND e.NOTE = \'del_accessname\') THEN (SELECT '. iconv('UTF-8','CP1251', '\'Удалена категория доступа \'').'  || an.name FROM accessname an WHERE an.id_accessname = e.ESS2)
+                    WHEN (e.ID_EVENTTYPE = 40 AND e.NOTE = \'change_org\') THEN (SELECT '. iconv('UTF-8', 'CP1251',  '\'Произошло перемещение в \'').'  || org.name FROM organization org WHERE org.id_org = e.ESS2)
+                END AS NOTE2
+                FROM EVENTS e
+                JOIN EVENTTYPE et ON e.ID_EVENTTYPE = et.ID_EVENTTYPE
+                LEFT JOIN DEVICE d ON e.ID_DEV = d.ID_DEV
+                WHERE e.ESS1 = :id_pep
+                ORDER BY e.DATETIME desc';
+
+
+
+
+
+        $query = DB::query(Database::SELECT, $sql)
+            ->param(':id_pep', $id_pep);
+//echo Debug::vars('898',$sql, $query); exit;
+        $result = $query->execute(Database::instance('fb'))
+                       ->as_array();
+
+        return $result;
+    }
+
+
+	public function getPersonById($id_pep) {
+        $sql = "SELECT 
+                    p.ID_PEP AS ID_PEP, 
+                    p.SURNAME AS SURNAME, 
+                    p.NAME AS NAME, 
+                    p.PATRONYMIC AS PATRONYMIC,
+                    p.ID_ORG AS ID_ORG,
+                    p.LOGIN AS LOGIN,
+                    o.NAME AS ORG_NAME
+                FROM people p
+                LEFT JOIN organization o ON o.ID_ORG = p.ID_ORG
+                WHERE p.LOGIN IS NOT NULL 
+                  AND p.LOGIN != ''
+                  AND p.PSWD IS NOT NULL
+                  AND p.PSWD != ''
+                  AND p.ID_PEP = :id_pep";
+        
+        $query = DB::query(Database::SELECT, $sql)
+            ->param(':id_pep', $id_pep)
+            ->execute(Database::instance('fb'));
+        
+        $result = $query->as_array();
+        
+        if (empty($result)) {
+            return null;
+        }
+        
+        $row = $result[0];
+        
+        return [
+            'ID_PEP' => $row['ID_PEP'],
+            'SURNAME' => !empty($row['SURNAME']) ? iconv('CP1251', 'UTF-8', $row['SURNAME']) : '',
+            'NAME' => !empty($row['NAME']) ? iconv('CP1251', 'UTF-8', $row['NAME']) : '',
+            'PATRONYMIC' => !empty($row['PATRONYMIC']) ? iconv('CP1251', 'UTF-8', $row['PATRONYMIC']) : '',
+            'ID_ORG' => $row['ID_ORG'],
+            'LOGIN' => $row['LOGIN'],
+            'ORG_NAME' => !empty($row['ORG_NAME']) ? iconv('CP1251', 'UTF-8', $row['ORG_NAME']) : ''
+        ];
+    }
+	public function getAccessUser($id_pep){
+    $sql = "SELECT
+                an.name
+            FROM ss_accessuser ss
+            JOIN accessname an on ss.id_accessname = an.id_accessname
+            where ss.id_pep= :id_pep";
+    $query = DB::query(Database::SELECT, $sql)
+    ->param(':id_pep', $id_pep)
+    ->execute(Database::instance('fb'));
+    $result = $query->as_array();
+    
+    if (empty($result)) {
+        return null;
+    }
+    
+    $accessList = [];
+    foreach ($result as $row) {
+        $accessList[] = [
+            'NAME' => iconv('CP1251', 'UTF-8', $row['NAME'])
+        ];
+    }
+    
+    return $accessList;
+}
+
+public function getPersonByDocument($numdoc) {
+    if (empty($numdoc)) {
+        return null;
+    }
+    
+    try {
+        // Конвертируем в CP1251 для поиска в базе
+        $numdoc_encoded = iconv('UTF-8', 'CP1251', $numdoc);
+        
+        // Выполняем запрос к базе данных
+        $sql = 'SELECT SURNAME, NAME, PATRONYMIC, DATEDOC, ID_PEP
+                FROM PEOPLE
+                WHERE NUMDOC = \''.$numdoc_encoded.'\'';
+        
+        $query = DB::query(Database::SELECT, $sql)
+            ->execute(Database::instance('fb'));
+        
+        // Проверяем, найдены ли данные
+        if ($query->count() > 0) {
+            $result = $query->current();
+            
+            // Преобразуем результат в массив с конвертацией кодировки
+            $person = array(
+                'SURNAME' => iconv('CP1251', 'UTF-8', $result['SURNAME']),
+                'NAME' => iconv('CP1251', 'UTF-8', $result['NAME']),
+                'PATRONYMIC' => iconv('CP1251', 'UTF-8', $result['PATRONYMIC']),
+                'DOCDATE' => $result['DATEDOC'],
+                'ID_PEP' => $result['ID_PEP']
+            );
+            
+            return $person;
+        }
+        
+        return null;
+        
+    } catch (Exception $e) {
+        // Логируем общие ошибки
+        Log::instance()->add(Log::ERROR, 'Error in getPersonByDocument: ' . $e->getMessage());
+        return null;
+    }
+}
+
+public function getPersonByDocumentParts($docnum1, $docnum2, $doc_type) {
+    if (empty($docnum1) || empty($docnum2) || empty($doc_type)) {
+        return null;
+    }
+    
+    $numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
+    
+    return $this->getPersonByDocument($numdoc);
+}
 }

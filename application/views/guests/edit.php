@@ -320,7 +320,7 @@ if ($alert) { ?>
 									<tbody>
 										<tr>
 											<th align="right" style="padding-right: 10px;">
-												<label for="idcard"><?php echo __('contact.cardid'); ?></label>
+												<label for="idcard"><?php echo __('contact.cardid'); ?>*</label>
 											</th>
 											<td>
 												<div style="padding-bottom: 10px;">
@@ -330,7 +330,7 @@ if ($alert) { ?>
 													if (isset($card)) echo Arr::get($card, 'ID_CARD'); 
 													
 												?>
-												<input type="hidden" size="12" maxlength="8"  id="idcard" name="idcard" value="<?php if (isset($card)) echo $guest->rfid; ?>" />	
+												<input type="hidden" size="12" maxlength="8"  id="idcard" name="idcard" value="<?php if (isset($card)) echo $guest->rfid; ?>"/>	
 													
 												<?php } else {
 												?>

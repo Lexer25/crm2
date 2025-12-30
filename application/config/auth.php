@@ -7,7 +7,7 @@ return array(
 	'driver'       => 'City',
 	'hash_method'  => 'sha256',
 	'hash_key'     => '2287314',
-	'lifetime'     => 60,
+	'lifetime'     => 28800,
 	//'session_type' => Session::$default,
 	'session_type' => Session::$default,
 	'session_key'  => 'auth_user_crm',

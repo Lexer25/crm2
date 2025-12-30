@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
-/** 13.09.пример модели для отчетов
-*
+/** 13.09.2025 пример модели для отчетов
+* это модель, которая готовит данные для формы (раздел __construct) и готовит результат (раздел generate)
 */
 class Model_Report_example extends Model_Report_Base {
 	
@@ -12,11 +12,10 @@ class Model_Report_example extends Model_Report_Base {
 	 public function __construct($report_name, $data=null)
     {
         parent::__construct();
-		//echo Debug::vars('19', $report_name, $data=null);exit;
-        $this->_name = $report_name;
+	    $this->_name = $report_name;//имя отчета надо задавать как свойство (см. стр. 9)
 		$result=array(
 			'report_title'=>'report_title_'.$this->_name,
-			'data'=>$data,
+			'data'=>$data,//$data - набор параметров для form передаются в форму
 		);
 		$this->set('report', $result);
     }
@@ -24,8 +23,8 @@ class Model_Report_example extends Model_Report_Base {
 	
 	public function generate($post=array())
 	{
-		//echo Debug::vars('12', $post);//exit;
-		$result=array(
+		
+		$result=array( //это пример подготовленного отчета
 			array('column1'=>'column1', 'column2'=>'column2', 'column3'=>'column3', 'column4'=>Debug::vars($post) ),
 			'report_name'=>$this->_name,
 		);

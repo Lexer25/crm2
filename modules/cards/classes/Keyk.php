@@ -372,7 +372,8 @@ class Keyk
 			->param(':id_pep', $id_pep)
 			->param(':cardType', $cardType)
 			->execute(Database::instance('fb'));
-		
+		//echo Debug::vars('375', $query);exit;
+		//echo Debug::vars('377',$query->as_array());exit;
 		return $query->as_array();
 	}
 	

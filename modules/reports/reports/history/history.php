@@ -68,13 +68,14 @@ class Model_Report_history extends Model_Report_Base
 		
 			// беру ФИО оператора
 			$user=new User();
+			//echo Debug::vars('71', $user); exit;
 			$pep=new Contact($user->id_pep);
 			$_report->fromUser  = $pep->surname.' '.Text::limit_chars($pep->name, 1).'. '.Text::limit_chars($pep->patronymic, 1).'.';
 			
 			//запиманию в кеш текущие параметры отчета
-	Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_reportdatestart',Arr::get($post, 'reportdatestart'));
-	Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_reportdateend',Arr::get($post, 'reportdateend'));
-	Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_id_orgctrl',$user->id_orgctrl);
+	// Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_reportdatestart',Arr::get($post, 'reportdatestart'));
+	// Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_reportdateend',Arr::get($post, 'reportdateend'));
+	// Cache::instance()->set($user->id_pep.'_'.$this->report_title.'_id_orgctrl',$user->id_orgctrl);
 	
 			//беру название департамента оператора
 			$org= new Company($user->id_orgctrl);
@@ -106,7 +107,14 @@ class Model_Report_history extends Model_Report_Base
 				
 				
 				//выбираю разрешенные точки прохода.
-				$sql='select distinct dg.id_dev from DEVGROUP_GETCHILD(1, '.$user->id_devgroup.') dg
+				
+				if(is_null($user->id_devgroup)){
+					$devGroup= 1;
+				} else {
+					$devGroup=$user->id_devgroup;
+				}
+				//$sql='select distinct dg.id_dev from DEVGROUP_GETCHILD(1, '.$user->id_devgroup.') dg
+				$sql='select distinct dg.id_dev from DEVGROUP_GETCHILD(1, '.$devGroup.') dg
 				where dg.id_dev is not null';
 				//echo Debug::vars('62', $sql);exit;
 				$query = DB::query(Database::SELECT, $sql)
@@ -151,11 +159,7 @@ class Model_Report_history extends Model_Report_Base
 					and e.ess2 in ('.implode("," ,$org_list).')
 					and e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
 					 ';
-				
-					
 			
-			//	echo Debug::vars('134', $sql);exit;
-				Log::instance()->add(Log::ERROR, '146 '. $sql);
 				$t2=microtime(true);
 					$query = DB::query(Database::SELECT, $sql)
 					->execute(Database::instance('fb'))

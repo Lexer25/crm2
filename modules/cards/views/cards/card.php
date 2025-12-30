@@ -239,17 +239,17 @@ if (isset($alert)) { ?>
 
 					</td>
 					<td width="5%">
-					<fieldset>
+					
+					<fieldset style="padding-left: 25px; background-color:<?php $ffon='#dff0d8'; echo $ffon;?>">
 							<legend><?php echo __('Категории доступа, присвоенные сотруднику'); ?></legend>
 						<?php
-							//echo Debug::vars('216', $key_acl);
-							if(isset($key_acl))
+							//echo Debug::vars('216', $contact_acl);
+							if(isset($contact_acl))
 							{
-								foreach($key_acl as $key=>$value)
-								{
-									echo iconv('CP1251', 'UTF-8', Arr::get($value, 'NAME')).'<br>';
-									
-								}
+								foreach($contact_acl as $key=>$value)
+									{
+										echo '<li>'.iconv('CP1251','UTF-8',  Arr::get($value, 'NAME')).'</li>';
+									}
 							} else {
 								echo __('Нет категорий доступа, присвоенных сотруднику.');
 							}

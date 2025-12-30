@@ -1,0 +1,105 @@
+<?php
+/**Форма для выбора параметров отчета history Журнал событий
+ * номер отчета 234
+ * 19.11.2024 
+ * 
+ */
+//echo Debug::vars('7', $params);//exit;
+//echo Debug::vars('7-1', array_slice($params,1,1));//exit;
+// echo Debug::vars('8', $user);exit;
+ //$user=Arr::get($params, 'user'); exit;
+ // $report_name='history';
+ // $user=Arr::get($params, 'user');
+ //echo Debug::vars('12', $user);exit;
+ $user=new User();
+$reportdatestart = isset($params['reportdatestart']) ? $params['reportdatestart'] : Date::formatted_time('now', "d.m.Y");
+$reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Date::formatted_time('tomorrow', "d.m.Y");
+
+
+?>
+<br class="clear">
+<div >
+<?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
+   
+  	<?php 
+		
+		echo Form::submit('button', __('button.makeReport')); 
+	
+		?>
+    
+ 
+			<br>
+			<fieldset>
+				<legend><?php echo __('Журнал событий'); ?></legend>
+				 <table cellspacing="5" cellpadding="5">
+                <tbody>
+                <tr>
+                    <th align="right" style="padding-right: 10px;">
+                        <label for="reportdatestart"><?php echo __('report.datestart'); ?></label>
+                    </th>
+                    <td>
+                        <div style="padding-bottom: 10px;">
+							
+							<input type="text" size="12" name="reportdatestart" id="carddatestart" value="<?php echo $reportdatestart;?>" />
+							
+                            <br>
+                            <span class="error" id="error2" style="color: red; display: none;"><?php echo __('report.emptystarttime'); ?></span>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th align="right" style="padding-right: 10px;">
+                        <label for="reportdateend"><?php echo __('report.dateend'); ?></label>
+                    </th>
+                    <td>
+                        <div style="padding-bottom: 10px;">
+                           	<input type="text" size="12" name="reportdateend" id="carddateend" value="<?php echo $reportdateend;?>" />
+							
+							
+                            <br>
+                            <span class="error" id="error3" style="color: red; display: none;"><?php echo __('report.wrongendtime'); ?></span>
+                        </div>
+                    </td>
+                </tr>
+
+
+                </tbody>
+            </table>
+			
+
+						
+						<?php 
+							//$id_orgctrl=23;//орагизация, которой может управлять текущий авторизованный пользователь.
+							$org_tree = Model::Factory('Company')->getOrgListForOnce($user->id_orgctrl);
+							$tree=new Tree();
+							
+							$var2=$tree->buildTreeWithReferences($org_tree);
+						
+							//$select_org=1;//выбранная организации из предыдущего отчета.
+							$select_org = isset($params['id_org_select']) ? $params['id_org_select'] : $user->id_orgctrl;
+
+							?>
+							
+							<select name="id_org_select"  required>
+							
+								<?php
+								
+								
+									echo $tree->out_options($var2, $select_org);
+									
+								?>
+							</select>
+							
+
+					
+							
+			</fieldset>				
+			<?php 
+			
+			
+			//echo Form::submit('button', __('button.makeReport'));
+				
+		echo Form::close();
+			?>
+</div>

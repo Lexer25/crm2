@@ -1,5 +1,5 @@
-<!DOCTYPE HTML> 
-<html lang="ru">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
@@ -9,13 +9,15 @@
 
 <?php foreach ($scripts as $script) echo HTML::script($script, NULL, NULL, TRUE), "\n" ?>
 
-
+<!--[if lt IE 9]>
+<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+<![endif]-->
 </head>
 <body>
 
 	<div id="kodoc-header">
 		<div class="container">
-			<a href="http://localhost:8080/crm2" id="kodoc-logo">
+			<a href="http://localhost/crm2" id="kodoc-logo">
 				<img src="<?php echo Route::url('docs/media', array('file' => 'img/artonit.png')) ?>" />
 			</a>
 			<div id="kodoc-menu">

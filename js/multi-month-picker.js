@@ -1,6 +1,3 @@
-//https://www.jqueryscript.net/time-clock/multi-month-picker.html
-
-
 (function ($) {
     'use strict';
 

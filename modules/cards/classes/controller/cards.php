@@ -427,7 +427,9 @@ class Controller_Cards extends Controller_Template
 		if(!($key->check(constants::idRfid) OR $key->check(constants::idGrz))) $this->redirect('cards');
 
 		$loads = Model::factory('Card')->getLoads(Arr::get($post, 'key_type'));
-				
+		//echo Debug::vars('430', $key); //exit;	
+		//echo Debug::vars('430-1',  Model::factory('Contact')->contact_acl($key->id_pep )); exit;	
+		$contact_acl = Model::factory('Contact')->contact_acl($key->id_pep );//список категорий доступа, выданных контакту			
 		
 		$fl = $this->session->get('alert');
 		$this->session->delete('alert');
@@ -442,7 +444,7 @@ class Controller_Cards extends Controller_Template
 			->bind('arrAlert', $arrAlert)
 			->bind('mode', $mode)
 			->bind('filter', $filter)
-			//->bind('pagination', $pagination)
+			->bind('contact_acl', $contact_acl)
 			;
 		} else {
 			

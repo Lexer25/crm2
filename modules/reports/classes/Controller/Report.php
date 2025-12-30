@@ -78,27 +78,15 @@ class Controller_Report extends Controller_Template {
 		//echo Debug::vars('75', $_POST);//exit;       
 		//echo Debug::vars('73');exit;       
 	   $report_data = Session::instance()->get('current_report');
-	   //$report=Cache::instance()->get(Session::instance()->id());
-		$report=Arr::get(Arr::get($report_data,'data'), 'report');
-        //echo Debug::vars('75', $report_data);//exit;
-        //echo Debug::vars('78', $report);//exit;
+	 	$report=Arr::get(Arr::get($report_data,'data'), 'report');
         if (!$report_data) {
             $this->redirect('reports');
         }
-        
-		//echo Debug::vars('80',$report_data );exit;
-        // try {
-          // $report=Cache::instance()->get(Session::instance()->id());
-			//Session::instance()->delete('report');//очищаю сессию от отчета
-			//echo Debug::vars('121', $report);exit;
-			$csv=new ExportCsv($report);
-			//echo Debug::vars('118', $csv->filename);exit;
+     		$csv=new ExportCsv($report);
 			if($csv->makeOk) 
 			{
-				//echo Debug::vars('125', $this);exit;
-				$content = Model::Factory('mreport')->send_file($csv->filename);//передача файла через браузер
-				//удалить файл с диска, чтобы не занимал место
-			//echo Debug::vars('129', $content);exit;
+				//$content = Model::Factory('mreport')->send_file($csv->filename);//передача файла через браузер
+				$content = $this->send_file($csv->filename);//передача файла через браузер
 				if (file_exists($csv->filename)) {
 					if (unlink($csv->filename)) {
 						echo "Файл успешно удален!"; exit;
@@ -234,4 +222,37 @@ class Controller_Report extends Controller_Template {
             'attachment; filename="'.$filename.'"');
         $this->response->body($report->render());
     }
+	
+	public function send_file ($filePath, $file_dest='test')// скачать указанный файл в браузер
+	{
+			//https://habr.com/ru/post/151795/
+		set_time_limit(0);
+		ignore_user_abort(true);
+		$file_dest='report_'.date('Y_m_d_H-i-s').'.csv';
+		if (!file_exists($filePath)) {
+			die('File not found');
+		}
+		
+		header('Content-Type: application/octet-stream');
+		header('Content-Disposition: attachment; filename="'.basename($file_dest).'"');
+		header('Content-Length: ' . filesize($filePath));
+		
+		$chunkSize = 1024 * 1024; // 1MB chunks
+		$handle = fopen($filePath, 'rb');
+		
+		while (!feof($handle)) {
+			echo fread($handle, $chunkSize);
+			ob_flush();
+			flush();
+		}
+		
+		fclose($handle);
+		
+		// Удаляем файл
+		unlink($filePath);
+		
+		exit;
+	}
+	
+	
 }

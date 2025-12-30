@@ -131,7 +131,7 @@ Kohana::modules(array(
 	 'database'   => MODPATH.'database',   // Database access
 	 'image'      => MODPATH.'image',      // Image manipulation
 	 'minion'     => MODPATH.'minion',     // CLI Tasks
-	 'orm'        => MODPATH.'orm',        // Object Relationship Mapping
+	 //'orm'        => MODPATH.'orm',        // Object Relationship Mapping
 	 'unittest'   => MODPATH.'unittest',   // Unit testing
 	 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	'pagination' => MODPATH . 'pagination', // Paging of results
@@ -143,20 +143,14 @@ Kohana::modules(array(
 	'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
 	'kohana-acl' => MODPATH . 'kohana-acl', // подключение модуля Passoffice
 	'menu' => MODPATH.'menu',
+	//'mreports' => MODPATH.'report',
 	'report' => MODPATH.'reports',
 	'companies' => MODPATH.'companies',
 	'monitors' => MODPATH.'monitors',
 	'access' => MODPATH.'access',
 	'setup' => MODPATH.'setup',
 	'doors' => MODPATH.'doors',
-	'backup' => MODPATH.'backup',
-	'scheduler' => MODPATH.'scheduler',
 	));
-	
-	
-
-
-
 /*
 Добавляю хранение настроек в базе данных
 
@@ -201,40 +195,7 @@ Route::set('edit', 'companies/delete((/<id>)(/<parent>))')
 		'controller' => 'order',
 		'action'     => 'edit',
 	)); 
-	
-Route::set('reports', 'reports/<report>(.<format>)')
-    ->defaults(array(
-        'controller' => 'report',
-        'action' => 'index',
-        'format' => 'html'
-    ));	
-
-Route::set('reports_generate', 'reports/<report>/generate')
-    ->defaults(array(
-        'controller' => 'report',
-        'action' => 'generate'
-    ));
-
-Route::set('reports_save', 'reports/<report>/save')
-    ->defaults(array(
-        'controller' => 'report',
-        'action' => 'save'
-    ));
-
-Route::set('reports_download', 'reports/<report>/download.<format>')
-    ->defaults(array(
-        'controller' => 'report',
-        'action' => 'download',
-        'format' => 'html'
-    ));
-	
-Route::set('report_result', 'reports/<report>/result')
-    ->defaults(array(
-        'controller' => 'report',
-        'action' => 'result'
-    ));
-
-	
+    
 Route::set('default', '(<controller>(/<action>(/<id>)))')
 	->defaults(array(
 		'controller' => 'dashboard',

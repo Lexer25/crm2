@@ -17,6 +17,15 @@ $reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Da
 
 
 ?>
+
+<script language="javascript">
+$(document).ready(function () {
+//change selectboxes to selectize mode to be searchable
+$("select").find('option[value="1"]').attr('disabled','disabled').attr('value','');
+$("select").select2();
+});
+</script>
+
 <br class="clear">
 <div >
 <?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
@@ -30,7 +39,7 @@ $reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Da
  
 			<br>
 			<fieldset>
-				<legend><?php echo __('AllContactExport'); ?></legend>
+				<legend><?php echo __('AllContactsExport'); ?></legend>
 
 						
 						<?php 
@@ -45,7 +54,7 @@ $reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Da
 
 							?>
 							
-							<select name="id_org_select"  required>
+							<select name="id_org_select" required>
 							
 								<?php
 								

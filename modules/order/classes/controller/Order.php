@@ -147,40 +147,95 @@ class Controller_Order extends Controller_Template
 	*Организация вывода списка гостей или архива на экран. Вариант вывода определяется mode
 	*режим работы (гость или архив) заданы в this и в сессии)
 	*/
-	public function action_index($filter = null)
-	{
-		//echo Debug::vars(Session::instance()->as_array());exit;
-		$po = Model::factory('Order'); // Создаем объект модели
-   		$mode = Session::instance()->get('mode'); // Получаем режим (guest_mode или archive_mode)
+public function action_index($filter = null)
+{
+    $po = Model::factory('Order');
+    $mode = Session::instance()->get('mode');
+    $user = new User();
+    $id_pep = $user->id_pep;
+    $user_role = $user->id_role;
+    $guest = new Guest2();
+    $org = $guest->getOrganizations();
 
-	// $session = Session::instance();
-	// $auth_user = $session->get('auth_user_crm');
-	// $id_pep = $auth_user['ID_PEP'];
+    $buro = new Buro();
+    $access_names = [];
+    $current_accesses = [];
 
-	$user = new User();
-	$id_pep = $user->id_pep;
+    if ($user_role == 2) {
+        $user_buros = $buro->getIdBuroForUser($id_pep);
+        if (!empty($user_buros)) {
+            foreach ($user_buros as $user_buro) {
+                $accesses = $buro->getBuroAccesses($user_buro['id_buro']);
+                $current_accesses = array_merge($current_accesses, Arr::pluck($accesses, 'id_accessname'));
+            }
+            $current_accesses = array_unique($current_accesses);
+            $access_names = $buro->getAccessName();
+        }
+    }
 
-	//echo Debug::vars($id_pep);exit;
-	//$id_org = $auth_user['ID_ORG'];
+    $show_all = isset($_GET['show_all']) && $_GET['show_all'] == 1;
 
-    $list = $po->getListNowOrder($id_pep, $mode); // Получаем массив данных из модели
+    $list = $po->getListNowOrder($id_pep, $mode, $user_role, '', $show_all);
+    
+    foreach ($list as &$pep) {
+        // Concatenate full name
+        $surname = isset($pep['GUEST_SURNAME']) ? $pep['GUEST_SURNAME'] : '';
+        $name = isset($pep['GUEST_NAME']) ? $pep['GUEST_NAME'] : '';
+        $patronymic = isset($pep['GUEST_PATRONYMIC']) ? $pep['GUEST_PATRONYMIC'] : '';
+        $pep['fio'] = trim("$surname $name $patronymic");
 
-	//echo Debug::vars($list);exit;
+        // Process document number
+        $numdoc = isset($pep['NUMDOC']) ? $pep['NUMDOC'] : '';
+        $pep['doc_display'] = '-';
+        if ($numdoc && $numdoc !== '#@') {
+            $parts = explode('#', $numdoc);
+            $series = !empty($parts[0]) ? $parts[0] : '-';
+            $number = '-';
+            $id_doc = 0;
+            $doc_type = 'Неизвестный тип';
 
+            if (isset($parts[1])) {
+                $number_parts = explode('@', $parts[1]);
+                $number = !empty($number_parts[0]) ? $number_parts[0] : '-';
+                $id_doc = isset($number_parts[1]) ? (int)$number_parts[1] : 0;
+                $docs = Documents::getDoc();
+                $doc_type = ($id_doc && isset($docs[$id_doc])) 
+                    ? $docs[$id_doc]['docname'] 
+                    : 'Неизвестный тип';
+            }
+
+            if ($series !== '-' || $number !== '-' || $doc_type !== 'Неизвестный тип') {
+                //Log::instance()->add(Log::DEBUG, 'NUMDOC parts: series=' . $series . ', number=' . $number . ', id_doc=' . $id_doc . ', doc_type=' . $doc_type);
+                $pep['doc_display'] = 'Серия: ' . HTML::chars(iconv('CP1251', 'UTF-8//IGNORE', $series)) . 
+                                     ' Номер: ' . HTML::chars(iconv('CP1251', 'UTF-8//IGNORE', $number)) . 
+                                     ' Тип: ' . HTML::chars($doc_type);
+            } else {
+                //Log::instance()->add(Log::DEBUG, 'No valid parts in NUMDOC for id_guest=' . $pep['ID_GUEST'] . ': ' . $numdoc);
+                $pep['doc_display'] = '-';
+            }
+        } else {
+            //Log::instance()->add(Log::DEBUG, 'Empty or invalid NUMDOC for id_guest=' . $pep['ID_GUEST'] . ': ' . $numdoc);
+            $pep['doc_display'] = '-';
+        }
+    }
+    unset($pep); // Unset reference to avoid unintended side effects
 
     $fl = $this->session->get('alert');
     $arrAlert = $this->session->get('arrAlert');
     $this->session->delete('alert');
     $this->session->delete('arrAlert');
-    
+    $mode = 'neworder';
+
     $this->template->content = View::factory('order/list')
-        ->bind('people', $list) // Передаем массив в представление
+        ->bind('mode', $mode)
+        ->bind('people', $list)
         ->bind('alert', $fl)
         ->bind('arrAlert', $arrAlert)
         ->bind('filter', $filter)
-        ->bind('pagination', $pagination); // Предполагается
-	}
-
+        ->bind('user', $user)
+        ->bind('org', $org)
+        ->bind('pagination', $pagination);
+}
 	/*
 	обработка POST-запросов
 	11.11.2023 сохранение информации по гостю.
@@ -237,16 +292,19 @@ class Controller_Order extends Controller_Template
 					$guest->patronymic=Arr::get($_POST, 'patronymic','');
 					$guest->surname=Arr::get($_POST, 'surname','');
 					
-					
+					$docnum1 = Arr::get($_POST, 'docnum1', '');
+					$docnum2 = Arr::get($_POST, 'docnum2', '');
+					$doc_type = Arr::get($_POST, 'doc_type', '');
+					$guest->numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
 					//$guest->numdoc=Arr::get($_POST, 'numdoc','');
-					//$guest->datedoc=Arr::get($_POST, 'datedoc','');
+					$guest->docdate=Arr::get($_POST, 'datedoc','');
 					//$guest->note=Arr::get($_POST, 'note','');
 					
 					$guest->note=Arr::get($_POST, 'note','');
 					//echo Debug::vars('246', $guest);exit;
 
 
-					
+					//echo Debug::vars('252', $_POST);exit;
 					//echo Debug::vars('249',$guest->addGuest());exit;
 
 
@@ -266,11 +324,17 @@ class Controller_Order extends Controller_Template
 					$timevalid = DateTime::createFromFormat('d.m.Y', $cardDateEnd);
 					if($guest->addGuest() >= 0) { // если гость добавлен успешно (пока без карты), то то формирую запись о заказе гостя
 						//echo Debug::vars($guest);exit;
+
 						
-						$alert=__('guest.addOK', array(':surname'=>$guest->surname,':name'=>$guest->name,':patronymic'=>$guest->patronymic,':id_pep'=>$guest->id));
+						
+							$alert=__('guest.addOK', array(':surname'=>$guest->surname,':name'=>$guest->name,':patronymic'=>$guest->patronymic,':id_pep'=>$guest->id));
 							
 							// присвоение категории доступа по умолчанию для организации Гость.
-							
+							if($id_buro = Arr::get($_POST, 'selected_buro')) {
+							$buro = new Buro();
+							if(!$buro->addGuestToBuro($guest->id_pep, $id_buro)) {
+							}
+						}
 							
 							$order=new Order();//формирую ордер (заказ пропуска)
 							
@@ -284,20 +348,27 @@ class Controller_Order extends Controller_Template
 							$order->timeplan="'" . $timeplan->format('Y-m-d H:i:s') . "'";//во сколько ждем гостя
 							$order->timevalid="'" . $timevalid->format('Y-m-d H:i:s') . "'";;//до какого времени ждем гостя
 							$order->remark=Arr::get($_POST, 'note','');//комментарии (цель визита, например).
+                            $order->id_buro=Arr::get($_POST, 'selected_buro');
+                            //echo Debug::vars('352', $order, '323232', $order->id_buro);exit;
 							//echo Debug::vars($order);exit;
-							if($order->add())
+							//echo Debug::vars('330', $order->add());exit;
+							if($order->add() === 0)
 							{
-								
+								//echo Debug::vars('привет');exit;
 								//вставка заявки прошла успешно.
 								$arrAlert[]=array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
-									$alert=$alert.'<br>'.  __('guest.addRfidOk', array(':id_card'=>$key->id_card));
-									
+								
+								$alert= __('Заявка успешно создана', array());
+								//echo Debug::vars('337');exit;
+								Session::instance()->set('ok_mess', array('result'=>$alert));	
 								
 							} else {
 								
 								//вставка заявки прошла с ошибкой.
 								//echo Debug::vars('262 не удалось вставить гостя', $guest->addGuest());exit;
-									$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>'guest.noDocForSave');
+								$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>'guest.noDocForSave');
+								$alert = __('Ошибка создания заявки', array());
+								Session::instance()->set('e_mess', array('result'=>$alert));
 							}
 							
 							
@@ -310,71 +381,685 @@ class Controller_Order extends Controller_Template
 						
 					}
 					//Session::instance()->set('alert', __('contact.key_occuped_NO'));
-					
+				
 				$this->redirect('order/edit/0/newguest');
 			break;
 			/** ручная отметка о выходе либо обновление данных гостя
 			*Если нажата кнопка submit - это отметка о выходе
 			* если нажата кнопка button - это обновление данных о госте, возврат на эту страницу
 			*/
+
+			case 'savenewwithcard':
+    // Получаем данные из POST
+    $idcard = Arr::get($_POST, 'idcard', null);
+    $rfidmode = Arr::get($_POST, 'rfidmode', null);
+    
+    // Получаем организацию или используем значение по умолчанию
+    $id_org = Arr::get($_POST, 'org_selector', null);
+    
+    // Если организация не выбрана, используем значение по умолчанию (например, 2)
+    if (empty($id_org)) {
+        $id_org = 2; // или любое другое значение по умолчанию
+    }
+    
+    // Сохраняем выбранную организацию в сессии для корректного отображения
+    Session::instance()->set('form_data', array('org_selector' => $id_org));
+
+    $guest = new Guest2();
+    
+    // Заполняем данные гостя
+    $guest->name = Arr::get($_POST, 'name', '');
+    $guest->patronymic = Arr::get($_POST, 'patronymic', '');
+    $guest->surname = Arr::get($_POST, 'surname', '');
+    
+    // Проверяем обязательность фамилии для neworder
+    if (empty($guest->surname)) {
+        $alert = __('Фамилия обязательна для создания заявки', array());
+        Session::instance()->set('e_mess', array('result'=>$alert));
+        $this->redirect('order/edit/0/neworder');
+        return;
+    }
+    
+    // Проверяем обязательность бюро для neworder, если бюро больше одного
+    $user = new User();
+    if ($user->count_buro > 1) {
+        $id_buro = Arr::get($_POST, 'selected_buro');
+        if (empty($id_buro)) {
+            $alert = __('Выберите бюро пропусков', array());
+            Session::instance()->set('e_mess', array('result'=>$alert));
+            $this->redirect('order/edit/0/neworder');
+            return;
+        }
+    }
+    
+    $docnum1 = Arr::get($_POST, 'docnum1', '');
+    $docnum2 = Arr::get($_POST, 'docnum2', '');
+    $doc_type = Arr::get($_POST, 'doc_type', '');
+    $guest->numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
+    $guest->docdate = Arr::get($_POST, 'datedoc', '');
+    $guest->note = Arr::get($_POST, 'note', '');
+	
+    
+    $id_pep_user = $user->id_pep;
+	$id_buro = Arr::get($_POST, 'selected_buro');
+    
+    // Даты действия карты
+    $cardDateStart = isset($_POST['carddatestart']) ? trim($_POST['carddatestart']) : date('d.m.Y');
+    $cardDateEnd = isset($_POST['carddateend']) ? trim($_POST['carddateend']) : date('d.m.Y', strtotime('+1 day'));
+    $timeplan = DateTime::createFromFormat('d.m.Y', $cardDateStart);
+    $timevalid = DateTime::createFromFormat('d.m.Y', $cardDateEnd);
+    
+    if($guest->addGuest() >= 0) {
+        $alert=__('guest.addOK', array(
+            ':surname'=>$guest->surname,
+            ':name'=>$guest->name,
+            ':patronymic'=>$guest->patronymic,
+            ':id_pep'=>$guest->id
+        ));
+        $id_pep = $guest->id_pep;
+        
+        $order = new Order();
+        $order->id_pep = $id_pep_user;
+        $order->id_guest = $id_pep;
+        $order->id_org = $id_org; // Используем организацию (или значение по умолчанию)
+        $order->timeorder = '\'now\'';
+        $order->timeplan = "'" . $timeplan->format('Y-m-d H:i:s') . "'";
+        $order->timevalid = "'" . $timevalid->format('Y-m-d H:i:s') . "'";
+        $order->remark = Arr::get($_POST, 'note','');
+        $order->id_buro = $id_buro;
+        //echo Debug::vars('456', $order->add());exit;
+        if($order->add() === 0) {
+            $arrAlert[] = array(
+                'actionResult' => $guest->actionResult, 
+                'actionDesc' => $guest->actionDesc
+            );
+            
+            $alert = __('Заявка успешно создана', array());
+            Session::instance()->set('ok_mess', array('result'=>$alert));
+            
+            // Обработка карты
+            if (!empty($idcard)) {
+                $key = new Keyk($idcard);
+                $check = $key->check(1);
+                
+                if(is_null($check)) {
+                    $key->id_card = $idcard;
+                    $key->timestart = Arr::get($_POST, 'carddatestart');
+                    $key->timeend = Arr::get($_POST, 'carddateend');
+                    $key->id_pep = $guest->id_pep;
+                    $key->flag = 1;
+                    $key->rfidmode = $rfidmode;
+                    $id_pep1 = $id_pep;
+                    $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
+                    
+                    if ($id_accessname) {
+                        $guest->setAclDefault($id_pep1, $id_accessname);
+                    }
+                    
+                    if($key->addRfid() == 0) {
+                        $arrAlert[] = array(
+                            'actionResult' => $guest->actionResult, 
+                            'actionDesc' => $guest->actionDesc
+                        );
+                        $alert = __('Карта успешно выдана', array());
+                        Session::instance()->set('ok_mess', array('result'=>$alert));
+                        $this->session->set('mode', 'guest_mode');
+                    } else {
+                        $alert = __('Ошибка выдачи карты', array());
+                        Session::instance()->set('e_mess', array('result'=>$alert));
+                    }
+                } else {
+                    $alert = __('guest.key_occuped', array(
+                        ':idcard' => $idcard,
+                        ':id_pep' => $check,
+                        ':name' => $guest->name,
+                        ':surname' => $guest->surname,
+                        ':patronymic' => $guest->patronymic
+                    ));
+                    Session::instance()->set('e_mess', array('result'=>$alert));
+                }
+            }
+        } else {
+            $alert = __('Ошибка создания заявки', array());
+            Session::instance()->set('e_mess', array('result'=>$alert));
+        }
+    } else {
+        // Если гость не был добавлен
+        $alert = __('Ошибка добавления гостя', array());
+        Session::instance()->set('e_mess', array('result'=>$alert));
+        $this->redirect('order/edit/0/neworder');
+        return;
+    }
+    
+    
+    // Перенаправляем на страницу редактирования этого гостя в режиме buro
+    $this->redirect('order/edit/' . $guest->id_pep . '/buro');
+    //$this->redirect('order/guest');
+	break;
+
+
+			//06.08.2025
+			//Данный кейс нужен для создания повторной заявки из архива
+			case 'newguestorder':
+				$guest=new Guest2(Arr::get($_POST,'id_pep', 0));
+				$id_guest = $guest->id_pep;
+				//echo Debug::vars('487', $id_guest);exit;
+				//$org = '3';
+				//$org = $guest->id_org=Arr::get ($_POST, 'id_org','');
+				//$name = $guest->name=Arr::get($_POST, 'name','');
+				$get = $guest->getOrderByIdpep($id_guest);
+				$id_pep = $get[0]['ID_PEP'];
+				$id_org = $get[0]['ID_ORG'];
+                //$user = new User();
+                $id_buro = Arr::get($_POST, 'selected_buro');
+				//echo Debug::vars('Привет');exit;
+				//echo Debug::vars('475', $guest->updateOrder($id_pep, $id_guest, $id_org));exit;
+				if($guest->updateOrder($id_pep, $id_guest, $id_org, $id_buro) === 0)
+							{
+								
+									$arrAlert[]=array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
+                
+									$alert= __('Заявка успешно обновлена', array());
+									//echo Debug::vars('337');exit;
+									Session::instance()->set('ok_mess', array('result'=>$alert));
+									//echo Debug::vars('Привет');exit;
+								
+							} else {
+								
+								//вставка заявки прошла с ошибкой.
+								//echo Debug::vars('262 не удалось вставить гостя', $guest->addGuest());exit;
+									$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>'guest.noDocForSave');
+									$alert = __('Ошибка обновления заявки', array());
+									Session::instance()->set('e_mess', array('result'=>$alert));
+							}
+				$this->redirect('order/guest');
+                //$this->redirect('order/edit/'.$id_guest);
+				$arrAlert[]=array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
+				$alert= __('Заявка успешно обновлена', array());
+				//echo Debug::vars('337');exit;
+				Session::instance()->set('ok_mess', array('result'=>$alert));
+				break;
+            
+            case 'newguestorder2':
+    $guest = new Guest2(Arr::get($_POST,'id_pep', 0));
+    $id_guest = $guest->id_pep;
+    
+    $get = $guest->getOrderByIdpep($id_guest);
+    
+    // Проверяем, что данные получены
+    if (empty($get) || !isset($get[0])) {
+        $alert = __('Ошибка: данные заявки не найдены', array());
+        Session::instance()->set('e_mess', array('result'=>$alert));
+        $this->redirect('order/edit/'.$id_guest);
+        break;
+    }
+    $user = new User();
+    $id_pep = $user->id_pep;
+    //echo Debug::vars('597', $id_pep);exit;
+    $id_org = $get[0]['ID_ORG'];
+    $id_buro = Arr::get($_POST, 'selected_buro');
+    
+    if($guest->updateOrder($id_pep, $id_guest, $id_org, $id_buro) === 0) {
+        $arrAlert[] = array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
+        $alert = __('Заявка успешно обновлена', array());
+        Session::instance()->set('ok_mess', array('result'=>$alert));
+        
+        // Обработка карты - добавляем логику выдачи карты
+        $idcard = Arr::get($_POST, 'idcard', null);
+        $rfidmode = Arr::get($_POST, 'rfidmode', null);
+        
+        if (!empty($idcard)) {
+            $key = new Keyk($idcard);
+            $check = $key->check(1);
+            
+            if(is_null($check)) {
+                $key->id_card = $idcard;
+                $key->timestart = Arr::get($_POST, 'carddatestart');
+                $key->timeend = Arr::get($_POST, 'carddateend');
+                $key->id_pep = $guest->id_pep;
+                $key->flag = 1;
+                $key->rfidmode = $rfidmode;
+                $id_pep1 = $id_guest;
+                $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
+                
+                if ($id_accessname) {
+                    $guest->setAclDefault($id_pep1, $id_accessname);
+                }
+                
+                if($key->addRfid() == 0) {
+                    $arrAlert[] = array(
+                        'actionResult' => $guest->actionResult, 
+                        'actionDesc' => $guest->actionDesc
+                    );
+                    $alert = __('Карта успешно выдана', array());
+                    Session::instance()->set('ok_mess', array('result'=>$alert));
+                    $this->session->set('mode', 'guest_mode');
+                } else {
+                    $alert = __('Ошибка выдачи карты', array());
+                    Session::instance()->set('e_mess', array('result'=>$alert));
+                }
+            } else {
+                $alert = __('guest.key_occuped', array(
+                    ':idcard' => $idcard,
+                    ':id_pep' => $check,
+                    ':name' => $guest->name,
+                    ':surname' => $guest->surname,
+                    ':patronymic' => $guest->patronymic
+                ));
+                Session::instance()->set('e_mess', array('result'=>$alert));
+            }
+        }
+    } else {
+        $arrAlert[] = array('actionResult'=>3, 'actionDesc'=>'guest.noDocForSave');
+        $alert = __('Ошибка обновления заявки', array());
+        Session::instance()->set('e_mess', array('result'=>$alert));
+    }
+    
+    // Правильный редирект
+    //$this->redirect('order/edit/'.$id_guest);
+	$this->redirect('order/guest');
+    break;
+	case 'newguestorder3':
+    $guest = new Guest2(Arr::get($_POST,'id_pep', 0));
+    $id_guest = $guest->id_pep;
+    
+    $get = $guest->getOrderByIdpep($id_guest);
+    
+    // Проверяем, что данные получены
+    if (empty($get) || !isset($get[0])) {
+        $alert = __('Ошибка: данные заявки не найдены', array());
+        Session::instance()->set('e_mess', array('result'=>$alert));
+        $this->redirect('order/edit/'.$id_guest);
+        break;
+    }
+    $user = new User();
+    $id_pep = $user->id_pep;
+    //echo Debug::vars('597', $id_pep);exit;
+    $id_org = $get[0]['ID_ORG'];
+    $id_buro = Arr::get($_POST, 'selected_buro');
+    
+    if($guest->updateOrder($id_pep, $id_guest, $id_org, $id_buro) === 0) {
+        $arrAlert[] = array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
+        $alert = __('Заявка успешно обновлена', array());
+        Session::instance()->set('ok_mess', array('result'=>$alert));
+        
+        // Обработка карты - добавляем логику выдачи карты
+        $idcard = Arr::get($_POST, 'idcard', null);
+        $rfidmode = Arr::get($_POST, 'rfidmode', null);
+        
+        if (!empty($idcard)) {
+            $key = new Keyk($idcard);
+            $check = $key->check(1);
+            
+            if(is_null($check)) {
+                $key->id_card = $idcard;
+                $key->timestart = Arr::get($_POST, 'carddatestart');
+                $key->timeend = Arr::get($_POST, 'carddateend');
+                $key->id_pep = $guest->id_pep;
+                $key->flag = 1;
+                $key->rfidmode = $rfidmode;
+                $id_pep1 = $id_guest;
+                $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
+                
+                if ($id_accessname) {
+                    $guest->setAclDefault($id_pep1, $id_accessname);
+                }
+                
+                if($key->addRfid() == 0) {
+                    $arrAlert[] = array(
+                        'actionResult' => $guest->actionResult, 
+                        'actionDesc' => $guest->actionDesc
+                    );
+                    $alert = __('Карта успешно выдана', array());
+                    Session::instance()->set('ok_mess', array('result'=>$alert));
+                    $this->session->set('mode', 'guest_mode');
+                } else {
+                    $alert = __('Ошибка выдачи карты', array());
+                    Session::instance()->set('e_mess', array('result'=>$alert));
+                }
+            } else {
+                $alert = __('guest.key_occuped', array(
+                    ':idcard' => $idcard,
+                    ':id_pep' => $check,
+                    ':name' => $guest->name,
+                    ':surname' => $guest->surname,
+                    ':patronymic' => $guest->patronymic
+                ));
+                Session::instance()->set('e_mess', array('result'=>$alert));
+            }
+        }
+    } else {
+        $arrAlert[] = array('actionResult'=>3, 'actionDesc'=>'guest.noDocForSave');
+        $alert = __('Ошибка обновления заявки', array());
+        Session::instance()->set('e_mess', array('result'=>$alert));
+    }
+    
+    // Правильный редирект
+    $this->redirect('order/edit/'.$id_guest);
+    //$this->redirect('order/guest');
+            
 			case 'forceexit':// ручная отметка о выходе
 				
-				//echo Debug::vars('312',$_POST);//exit;
+				Log::instance()->add(Log::ERROR, '663-000 forceExit!!!');
 				
-				
+			//if(false){ //выключатель удаления карты через веб-панель true -удаление выполнляется,  false - удаление не выполняется.	Бухаров А.В. 26.10.2025
+			if(true){ //выключатель удаления карты через веб-панель true -удаление выполнляется,  false - удаление не выполняется.	Бухаров А.В. 26.10.2025
 				$guest=new Guest2(Arr::get($_POST,'id_pep', 0));
-				//echo Debug::vars('326', $guest);exit;
 				$guest->idOrgGuest = $this->idOrgGuest;// указал организацию гостя
 				$guest->idOrgGuestArchive =$this->idOrgGuestArchive;//указал организацию архива
-					
-				
-								
-				//удаляю карту у гостя - не реализовано 7.07.2025
-				/*
-				я предлагаю сделать гостю метод "Удалить все его карты". Быстро и сердито.
-				Вызывать этот метод здесь всегда.
-				
-				*/
+
 				if($guest->forceexit()==0){
-					// перемещаю в архив
+					
 					$guest->moveToArchive();
-					//делаю запись о ручном удалении карты
-					/*
-					не реализовано 7.07.2025
 					
-					*/
-					$alert=__('guest.forceexitOK', array(':name'=>iconv('CP1251', 'UTF-8',$guest->name),':surname'=>iconv('CP1251', 'UTF-8',$guest->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$guest->patronymic)));
-					Session::instance()->set('alert',$alert);
-					
-				} else {
-					$alert=__('guest.forceexitErr', array(':name'=>iconv('CP1251', 'UTF-8',$guest->name),':surname'=>iconv('CP1251', 'UTF-8',$guest->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$guest->patronymic)));
-					Session::instance()->set('alert',$alert);
-					
-				}
+					$alert = __('guest.forceexitOK', array(
+						':name' => $guest->name,
+						':surname' => $guest->surname,
+						':patronymic' =>  $guest->patronymic
+					));
+					Session::instance()->set('alert', $alert);
+
+					} else {
+						$alert = __('guest.forceexitErr', array(
+							':name' => @iconv('CP1251', 'UTF-8//IGNORE', $guest->name) ?: $guest->name,
+							':surname' => @iconv('CP1251', 'UTF-8//IGNORE', $guest->surname) ?: $guest->surname,
+							':patronymic' => @iconv('CP1251', 'UTF-8//IGNORE', $guest->patronymic) ?: $guest->patronymic
+						));
+						Session::instance()->set('alert', $alert);
+					}
+			} else {
+				Log::instance()->add(Log::ERROR, '690-000 forceExit отключен!!!');
+			}
 					$this->redirect('order');
-			break;
+				break;
+
+			case 'consent':
+    			$this->redirect('order/PersonalData/'.$id);
+    			break;
+
+
+            case 'consent1':
+                // Получаем организацию или используем значение по умолчанию
+                    $id_org = Arr::get($_POST, 'org_selector', null);
+                    
+                    // Если организация не выбрана, используем значение по умолчанию (например, 2)
+                    if (empty($id_org)) {
+                        $id_org = 2; // или любое другое значение по умолчанию
+                    }
+
+                    $guest = new Guest2();
+                    
+                    // Заполняем данные гостя - только фамилия обязательна для согласия
+                    $guest->surname = Arr::get($_POST, 'surname', '');
+                    $guest->name = Arr::get($_POST, 'name', '');
+                    $guest->patronymic = Arr::get($_POST, 'patronymic', '');
+                    
+                    $docnum1 = Arr::get($_POST, 'docnum1', '');
+                    $docnum2 = Arr::get($_POST, 'docnum2', '');
+                    $doc_type = Arr::get($_POST, 'doc_type', '');
+                    $guest->numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
+                    $guest->docdate = Arr::get($_POST, 'datedoc', '');
+                    $guest->note = Arr::get($_POST, 'note', '');
+                    
+                    
+                    $user = new User();
+                    $id_pep_user = $user->id_pep;
+                    $id_buro = Arr::get($_POST, 'selected_buro');
+                    
+                    // Даты действия карты
+                    $cardDateStart = isset($_POST['carddatestart']) ? trim($_POST['carddatestart']) : date('d.m.Y');
+                    $cardDateEnd = isset($_POST['carddateend']) ? trim($_POST['carddateend']) : date('d.m.Y', strtotime('+1 day'));
+                    $timeplan = DateTime::createFromFormat('d.m.Y', $cardDateStart);
+                    $timevalid = DateTime::createFromFormat('d.m.Y', $cardDateEnd);
+                    
+                    if($guest->addGuest() >= 0) {
+                        $alert=__('guest.addOK', array(
+                            ':surname'=>$guest->surname,
+                            ':name'=>$guest->name,
+                            ':patronymic'=>$guest->patronymic,
+                            ':id_pep'=>$guest->id
+                        ));
+                        $id_pep = $guest->id_pep;
+                        
+                        $order = new Order();
+                        $order->id_pep = $id_pep_user;
+                        $order->id_guest = $id_pep;
+                        $order->id_org = $id_org; // Используем организацию (или значение по умолчанию)
+                        $order->timeorder = '\'now\'';
+                        $order->timeplan = "'" . $timeplan->format('Y-m-d H:i:s') . "'";
+                        $order->timevalid = "'" . $timevalid->format('Y-m-d H:i:s') . "'";
+                        $order->remark = Arr::get($_POST, 'note','');
+                        $order->id_buro = $id_buro;
+                        
+                        if($order->add() === 0) {
+                            $arrAlert[] = array(
+                                'actionResult' => $guest->actionResult, 
+                                'actionDesc' => $guest->actionDesc
+                            );
+                            
+                            $alert = __('Заявка успешно создана', array());
+                            Session::instance()->set('ok_mess', array('result'=>$alert));
+                            
+                            // Обработка карты
+                            if (!empty($idcard)) {
+                                $key = new Keyk($idcard);
+                                $check = $key->check(1);
+                                
+                                if(is_null($check)) {
+                                    $key->id_card = $idcard;
+                                    $key->timestart = Arr::get($_POST, 'carddatestart');
+                                    $key->timeend = Arr::get($_POST, 'carddateend');
+                                    $key->id_pep = $guest->id_pep;
+                                    $key->flag = 1;
+                                    $key->rfidmode = $rfidmode;
+                                    $id_pep1 = $id_pep;
+                                    $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
+                                    
+                                    if ($id_accessname) {
+                                        $guest->setAclDefault($id_pep1, $id_accessname);
+                                    }
+                                    
+                                    if($key->addRfid() == 0) {
+                                        $arrAlert[] = array(
+                                            'actionResult' => $guest->actionResult, 
+                                            'actionDesc' => $guest->actionDesc
+                                        );
+                                        $alert = __('Карта успешно выдана', array());
+                                        Session::instance()->set('ok_mess', array('result'=>$alert));
+                                        $this->session->set('mode', 'guest_mode');
+                                    } else {
+                                        $alert = __('Ошибка выдачи карты', array());
+                                        Session::instance()->set('e_mess', array('result'=>$alert));
+                                    }
+                                } else {
+                                    $alert = __('guest.key_occuped', array(
+                                        ':idcard' => $idcard,
+                                        ':id_pep' => $check,
+                                        ':name' => $guest->name,
+                                        ':surname' => $guest->surname,
+                                        ':patronymic' => $guest->patronymic
+                                    ));
+                                    Session::instance()->set('e_mess', array('result'=>$alert));
+                                }
+                            }
+                        } else {
+                            $alert = __('Ошибка создания заявки', array());
+                            Session::instance()->set('e_mess', array('result'=>$alert));
+                        }
+                    }
+                    
+                    
+                    $id = $guest->id_pep;
+                    $this->redirect('order/PersonalData/'.$id);
+                    break;
+
+			case 'consent2':
+    // Для согласия организация не обязательна - используем значение по умолчанию
+    $id_org = Arr::get($_POST, 'org_selector', null);
+    if (empty($id_org)) {
+        $id_org = 2; // значение по умолчанию
+    }
+
+    $guest = new Guest2();
+    
+    // Заполняем данные гостя - только фамилия обязательна для согласия
+    $guest->surname = Arr::get($_POST, 'surname', '');
+    $guest->name = Arr::get($_POST, 'name', '');
+    $guest->patronymic = Arr::get($_POST, 'patronymic', '');
+    
+    $docnum1 = Arr::get($_POST, 'docnum1', '');
+    $docnum2 = Arr::get($_POST, 'docnum2', '');
+    $doc_type = Arr::get($_POST, 'doc_type', '');
+    $guest->numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
+    $guest->docdate = Arr::get($_POST, 'datedoc', '');
+    $guest->note = Arr::get($_POST, 'note', '');
+    $guest->id_org = 2;
+    $user = new User();
+    $id_pep_user = $user->id_pep;
+    $id_buro = Arr::get($_POST, 'selected_buro');
+    
+    // Добавляем гостя в бюро
+    $buro = new Buro();
+    //$guest2 = new Guest()
+    //echo Debug::vars('594', $guest);exit;
+    //$buro->addGuestToBuro($id_pep, $id_buro); - ЕЕ НАДО ПЕРЕМЕСТИТЬ
+    
+    // Даты действия карты
+    $cardDateStart = isset($_POST['carddatestart']) ? trim($_POST['carddatestart']) : date('d.m.Y');
+    $cardDateEnd = isset($_POST['carddateend']) ? trim($_POST['carddateend']) : date('d.m.Y', strtotime('+1 day'));
+    $timeplan = DateTime::createFromFormat('d.m.Y', $cardDateStart);
+    $timevalid = DateTime::createFromFormat('d.m.Y', $cardDateEnd);
+    
+    if($guest->addGuest() >= 0) {
+        $alert = __('guest.addOK', array(
+            ':surname' => $guest->surname,
+            ':name' => $guest->name,
+            ':patronymic' => $guest->patronymic,
+            ':id_pep' => $guest->id
+        ));
+        //echo Debug::vars('611', $guest);exit;
+        $id_pep = $guest->id_pep;
+        //echo Debug::vars('613', $id_pep);exit;
+        //$buro->addGuestToBuro($id_pep, $id_buro);
+        
+        $order = new Order();
+        $order->id_pep = $id_pep_user;
+        $order->id_guest = $id_pep;
+        $order->id_org = $id_org; 
+        $order->timeorder = '\'now\'';
+        $order->timeplan = "'" . $timeplan->format('Y-m-d H:i:s') . "'";
+        $order->timevalid = "'" . $timevalid->format('Y-m-d H:i:s') . "'";
+        $order->remark = Arr::get($_POST, 'note','');
+        $order->id_buro=$id_buro;
+        
+        if($order->add() === 0) {
+            $arrAlert[] = array(
+                'actionResult' => $guest->actionResult, 
+                'actionDesc' => $guest->actionDesc
+            );
+            
+            $alert = __('Заявка успешно создана', array());
+            Session::instance()->set('ok_mess', array('result'=>$alert));
+            
+            // Обработка карты (если нужно)
+            $idcard = Arr::get($_POST, 'idcard', null);
+            $rfidmode = Arr::get($_POST, 'rfidmode', null);
+            
+            if (!empty($idcard)) {
+                $key = new Keyk($idcard);
+                $check = $key->check(1);
+                
+                if(is_null($check)) {
+                    $key->id_card = $idcard;
+                    $key->timestart = Arr::get($_POST, 'carddatestart');
+                    $key->timeend = Arr::get($_POST, 'carddateend');
+                    $key->id_pep = $guest->id_pep;
+                    $key->flag = 1;
+                    $key->rfidmode = $rfidmode;
+                    $id_pep1 = $id_pep;
+                    $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
+                    
+                    if ($id_accessname) {
+                        $guest->setAclDefault($id_pep1, $id_accessname);
+                    }
+                    
+                    if($key->addRfid() == 0) {
+                        $arrAlert[] = array(
+                            'actionResult' => $guest->actionResult, 
+                            'actionDesc' => $guest->actionDesc
+                        );
+                        $alert = __('Карта успешно выдана', array());
+                        Session::instance()->set('ok_mess', array('result'=>$alert));
+                        $this->session->set('mode', 'guest_mode');
+                    } else {
+                        $alert = __('Ошибка выдачи карты', array());
+                        Session::instance()->set('e_mess', array('result'=>$alert));
+                    }
+                } else {
+                    $alert = __('guest.key_occuped', array(
+                        ':idcard' => $idcard,
+                        ':id_pep' => $check,
+                        ':name' => $guest->name,
+                        ':surname' => $guest->surname,
+                        ':patronymic' => $guest->patronymic
+                    ));
+                    Session::instance()->set('e_mess', array('result'=>$alert));
+                }
+            }
+        } else {
+            $alert = __('Ошибка создания заявки', array());
+            Session::instance()->set('e_mess', array('result'=>$alert));
+        }
+    }
+    
+    // Перенаправляем на страницу PersonalData
+    $id = $guest->id_pep;
+    $this->redirect('order/PersonalData/'.$id);
+    break;
+
+
+
 			
 			case 'reissue':// выдача карты уже известному гостю + обновление данных о госте
 				//проверка что карта не выдана какому-нибудь гостю
 				//echo Debug::vars('366', $idcard, $_POST);exit;
 
-
+				
 				$guest=new Guest2(Arr::get($_POST,'id_pep', 0));
+				//echo Debug::vars('527', $guest);exit;
 				$guest->name=Arr::get($_POST, 'name','');
 				$guest->patronymic=Arr::get($_POST, 'patronymic','');
 				$guest->surname=Arr::get($_POST, 'surname','');
-				$guest->numdoc=Arr::get($_POST, 'docnum1','').'#'.Arr::get($_POST, 'docnum2','');
-				$guest->datedoc=Arr::get($_POST, 'datedoc','');
+				$docnum1 = Arr::get($_POST, 'docnum1', '');
+				$docnum2 = Arr::get($_POST, 'docnum2',  '');
+				$doc_type = Arr::get($_POST, 'doc_type', '');
+				$guest->numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
+				$guest->docdate=Arr::get($_POST, 'datedoc','');
 				$guest->note=Arr::get($_POST, 'note','');
 				$guest -> update($guest->id);
-				
+				//echo Debug::vars('373', $guest -> update($guest->id));exit;
 				
 				$order=new Order(Arr::get($_POST, 'id_order', 0));
 				//echo Debug::vars('383', $_POST);exit;
 				$order->timestart=Arr::get($_POST, 'carddatestart');
 				$order->timeend=Arr::get($_POST, 'carddateend');
 				//echo Debug::vars('385', $order);exit;
-				//$order -> update($order -> id_order, $order -> timestart, $order -> timeend);
+				
+				// Обновляем организацию в заказе
+				$id_org = Arr::get($_POST, 'org_selector', null);
+				if (!empty($id_org)) {
+					$get = $guest->getOrderByIdpep($guest->id_pep);
+					if (!empty($get) && isset($get[0])) {
+						$id_pep_user = $get[0]['ID_PEP'];
+						// Получаем id_buro из формы, если не выбрано - используем текущее значение
+						$id_buro = Arr::get($_POST, 'selected_buro');
+						if (empty($id_buro) && isset($get[0]['ID_BURO'])) {
+							$id_buro = $get[0]['ID_BURO'];
+						}
+						// ИСПРАВЛЕНО: Обновляем существующую запись вместо создания новой
+						$guest->updateExistingOrder($get[0]['ID_GUESTORDER'], $id_pep_user, $guest->id_pep, $id_org, $id_buro);
+					}
+				}
 				
 
 
@@ -392,13 +1077,23 @@ class Controller_Order extends Controller_Template
 							$key->id_pep=$guest->id_pep;
 							$key->flag=1;
 							$key->rfidmode=$rfidmode;
+							$id_pep = $guest->id_pep;
+							$id_accessname = Arr::get($_POST, 'ACCESS_NAME');
+							if ($id_accessname) {
+        						$guest->setAclDefault($id_pep, $id_accessname);
+    						}
+							//echo Debug::vars('435', $id_accessname);exit;
+							//echo Debug::vars('433',$id_pep);exit;
 							
 							//присвоедние карты RFID
 							if($key->addRfid()==0) { //сохраняю карту RFID
 									// перемещаю гостя в Гость
 								//$guest->moveToGuest();	
-								$alert=__('guest.addRfidOk', array(':id_card'=>$key->id_card));
-								$this->session->set('mode', 'guest_mode');
+								$arrAlert[]=array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
+                
+								$alert= __('Карта успешно выдана', array());
+								//echo Debug::vars('337');exit;
+								Session::instance()->set('ok_mess', array('result'=>$alert));
 								//throw new Exception($alert, 271);
 							} else {
 							    //$alert=__('guest.addRfidErr', array(':id_card'=>$key->id_card));
@@ -413,27 +1108,117 @@ class Controller_Order extends Controller_Template
 					//карта выдана сотруднику с id_pep=$check
 					
 					$anypeople=new Guest2($check);
+                    //echo Debug::vars('630', $anypeople);exit;
 					
 					//Session::instance()->set('alert', __('contact.key_occuped_'.$check));
-					$alert=__('guest.key_occuped', array(':idcard'=>$idcard, ':id_pep'=>$anypeople->id_pep,':name'=>iconv('CP1251', 'UTF-8',$anypeople->name),':surname'=>iconv('CP1251', 'UTF-8',$anypeople->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$anypeople->patronymic)));
-					
-					$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>$alert);
-					
-					Session::instance()->set('arrAlert',$arrAlert);
+					$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>'guest.noDocForSave');
+					$alert = __('Ошибка выдачи карты. Карта выдана гостю: :name :surname :pn' , array(':name'=>$anypeople->name,
+                ':surname'=>$anypeople->surname, ':pn'=>$anypeople->patronymic));
+                //$alert = __('Ошибка выдачи карты '.HTML::anchor('order/edit/'.$anypeople->id_pep, '888').':name :surname :pn' , array(':name'=>$anypeople->name,
+               // ':surname'=>$anypeople->surname, ':pn'=>$anypeople->patronymic));
+					Session::instance()->set('e_mess', array('result'=>$alert));
 				//throw new Exception($alert, 274);
 				}
 			}else{
 				//$alert .= '<br>' . __('guest.card_already_registered', array(':id_card' => $idcard));
+				
+				// Обновляем организацию в заказе даже если карта не выдана
+				$id_org = Arr::get($_POST, 'org_selector', null);
+				if (!empty($id_org)) {
+					$get = $guest->getOrderByIdpep($guest->id_pep);
+					if (!empty($get) && isset($get[0])) {
+						$id_pep_user = $get[0]['ID_PEP'];
+						// Получаем id_buro из формы, если не выбрано - используем текущее значение
+						$id_buro = Arr::get($_POST, 'selected_buro');
+						if (empty($id_buro) && isset($get[0]['ID_BURO'])) {
+							$id_buro = $get[0]['ID_BURO'];
+						}
+						// ИСПРАВЛЕНО: Обновляем существующую запись вместо создания новой
+						$guest->updateExistingOrder($get[0]['ID_GUESTORDER'], $id_pep_user, $guest->id_pep, $id_org, $id_buro);
+					}
+				}
 			}
 			// Session::instance()->set('alert', $alert);
     		// $arrAlert[] = array('actionResult' => 0, 'actionDesc' => $alert);
     		// Session::instance()->set('arrAlert', $arrAlert);
     		// $this->redirect('order/edit/' . $id);
+			//$this->session->set('mode', 'buro');
+			
+			// Получаем текущий режим из POST или используем guest_mode по умолчанию
+			$current_mode = Arr::get($_POST, 'mode', 'guest_mode');
+			
+			// Если карта заполнена, перенаправляем на список гостей, иначе остаемся на той же странице
+			if (!empty($idcard)) {
+				$this->redirect('order/guest');
+			} else {
+				$this->redirect('order/edit/' . $guest->id_pep . '/' . $current_mode);
+			}
+			break;
+			
+			case 'update':
+				// Обновление данных гостя без карты
+				$id_pep = Arr::get($_POST, 'id_pep', 0);
+				if ($id_pep > 0) {
+					$guest = new Guest2($id_pep);
+					
+					// Обновляем данные гостя
+					$guest->name = Arr::get($_POST, 'name', '');
+					$guest->patronymic = Arr::get($_POST, 'patronymic', '');
+					$guest->surname = Arr::get($_POST, 'surname', '');
+					$docnum1 = Arr::get($_POST, 'docnum1', '');
+					$docnum2 = Arr::get($_POST, 'docnum2', '');
+					$doc_type = Arr::get($_POST, 'doc_type', '');
+					$guest->numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
+					$guest->docdate = Arr::get($_POST, 'datedoc', '');
+					$guest->note = Arr::get($_POST, 'note', '');
+					
+					// Обновляем данные гостя
+					if ($guest->update($guest->id_pep) === 0) {
+						// Получаем организацию из формы
+						$id_org = Arr::get($_POST, 'org_selector', null);
+						if (!empty($id_org)) {
+							// Обновляем существующий заказ с новой организацией
+							$get = $guest->getOrderByIdpep($id_pep);
+							if (!empty($get) && isset($get[0])) {
+								$id_pep_user = $get[0]['ID_PEP'];
+								// Получаем id_buro из формы, если не выбрано - используем текущее значение
+								$id_buro = Arr::get($_POST, 'selected_buro');
+								if (empty($id_buro) && isset($get[0]['ID_BURO'])) {
+									$id_buro = $get[0]['ID_BURO'];
+								}
+								// Обновляем существующую запись вместо создания новой
+								$guest->updateExistingOrder($get[0]['ID_GUESTORDER'], $id_pep_user, $id_pep, $id_org, $id_buro);
+							}
+						}
+						
+						$alert = __('Данные гостя успешно обновлены', array());
+						Session::instance()->set('ok_mess', array('result'=>$alert));
+					} else {
+						$alert = __('Ошибка обновления данных гостя', array());
+						Session::instance()->set('e_mess', array('result'=>$alert));
+					}
+					
+					// Получаем текущий режим из POST или используем guest_mode по умолчанию
+					$current_mode = Arr::get($_POST, 'mode', 'guest_mode');
+					
+					// Если карта заполнена, перенаправляем на список гостей, иначе остаемся на той же странице
+					$idcard = Arr::get($_POST, 'idcard', null);
+					if (!empty($idcard)) {
+						$this->redirect('order/guest');
+					} else {
+						$this->redirect('order/edit/' . $id_pep . '/' . $current_mode);
+					}
+				} else {
+					$alert = __('Ошибка: не указан ID гостя', array());
+					Session::instance()->set('e_mess', array('result'=>$alert));
+					$this->redirect('order/edit/0/neworder');
+				}
 			break;
 	}
 			
 		//$this->redirect('order');
-		$this->redirect('order/edit/' . $id);
+		// $this->redirect('order/edit/' . $id);
+		// Убираем общий redirect, так как каждый case уже делает свой redirect
 	}
 
 	
@@ -446,52 +1231,144 @@ class Controller_Order extends Controller_Template
 	*/
 	
 
-	public function action_edit()
-{
-    //echo Debug::vars('415', $_POST);exit;
-    $id_pep = $this->request->param('id'); // кого редактируем
-    $mode = $this->request->param('mode'); // режим работы
+	public function action_edit() {
+        
+            $id_pep = $this->request->param('id');
+            $mode = $this->request->param('mode');
+            //echo Debug::vars('811', $mode);exit;
+            $user = new User();
+            //echo Debug::vars('677', $user->id_role);exit;
+            if ($user->id_role == 2 || $user->id_role == 1) {
+                if ($mode == 'guest_mode') {
+                    $mode = 'buro';
+                }
+            }
+            $force_org = $this->request->query('id_org');
+            $guest = new Guest2();
+            $org = $guest->getOrg();
+            //echo Debug::vars('1079', $org);exit;
+            $pd = new PD($id_pep);
+            $signature_url = $pd->getSignatureUrl($id_pep);
+            $signature_path = $pd->checkSignatureSingle($id_pep);
+            $org_tree = Model::Factory('Company')->getOrgList();
+            $fl = $this->session->get('alert');
+            $arrAlert = $this->session->get('arrAlert');
+            
+            // Получаем настройки приложения
+            $app_settings = $this->getSettings();
+            
+            $this->session->delete('alert');
+            $this->session->delete('arrAlert');
+            $doc = new Documents();
+            $topbuttonbar = View::factory('order/topbuttonbar', array(
+                'id_pep' => $id_pep,
+                '_is_active' => 'edit',
+            ));
+            $guest = new Guest2();
+            $person = $guest->getPersonDetails($id_pep);
+            
+            $surname = !empty($person['SURNAME']) ? trim($person['SURNAME']) : 'Unknown';
+            $name = !empty($person['NAME']) ? trim($person['NAME']) : 'Unknown';
+            $patronymic = !empty($person['PATRONYMIC']) ? trim($person['PATRONYMIC']) : '';
+            
+            // Получаем текущую организацию гостя из GUESTORDER
+            $current_org_id = null;
+            if ($id_pep > 0) {
+                // Получаем организацию из таблицы GUESTORDER
+                $guest_order = $guest->getOrderByIdpep($id_pep);
+                if (!empty($guest_order) && isset($guest_order[0]['ID_ORG'])) {
+                    $current_org_id = $guest_order[0]['ID_ORG'];
+                } else {
+                    // Если организация не найдена, используем значение по умолчанию
+                    $current_org_id = 2;
+                }
+            } else {
+                // Для новых гостей используем значение по умолчанию
+                $current_org_id = 2;
+            }
+            
+            // Убираем принудительную установку дефолтной организации
+            
+            // Проверяем кодировку
+            if (!mb_check_encoding($surname, 'UTF-8') || !mb_check_encoding($name, 'UTF-8') || !mb_check_encoding($patronymic, 'UTF-8')) {
+                $surname = iconv('CP1251', 'UTF-8//IGNORE', $surname);
+                $name = iconv('CP1251', 'UTF-8//IGNORE', $name);
+                $patronymic = iconv('CP1251', 'UTF-8//IGNORE', $patronymic);
+            }
+            
+            $full_name = trim("$surname $name $patronymic");
+            $full_name = preg_replace('/\s+/', ' ', $full_name);
+            $key = new Keyk();
+            $cardlist = $key->getListByPeople($id_pep, 1);
+            
+            
+            $buro = new Buro();
+        $buro_accesses = array();
+        $selected_access = array();
+        if ($user->id_role == 2 || $user->id_role == 1) {
+            $user_buros = $buro->getUserBuros($user->id_pep);
+            //echo Debug::vars('725', $buro->getUserBuros($user->id_pep));exit;
+            $unique_accesses = array(); // Для хранения уникальных доступов по ID
 
-    $force_org = $this->request->query('id_org'); // получаю id_org, куда надо записать гостя. наличие этого параметра означает, что надо выбрать именно указанную организацию
-    
-    //echo Debug::vars($guest);exit;
-    $org_tree = Model::Factory('Company')->getOrgList(); // получить список организаций.
+            foreach ($user_buros as $buro_data) {
+                $id_buro = $buro_data['id_buro'];
+                $access_ids = Arr::pluck($buro->getBuroAccesses($id_buro), 'id_accessname');
+                //echo Debug::vars('731', $access_ids);exit;
+                foreach ($access_ids as $access_id) {
+                    if (!isset($unique_accesses[$access_id])) {
+                        $access_data = $buro->getAccessById($access_id);
+                        //echo Debug::vars('735', $access_data);exit;
+                        if (!empty($access_data)) {
+                            $unique_accesses[$access_id] = $access_data;
+                        }
+                    }
+                }
+            }
 
-    $fl = $this->session->get('alert');
-    $arrAlert = $this->session->get('arrAlert');
-    
-    $this->session->delete('alert');
-    $this->session->delete('arrAlert');
-    $topbuttonbar = View::factory('order/topbuttonbar', array(
-        'id_pep' => $id_pep,
-        '_is_active' => 'edit',
-    ));
+            $buro_accesses = array_values($unique_accesses); // Преобразуем в массив без ключей
+            $selected_access = $buro->getAccessUserByIdPep($id_pep); // Теперь массив ID
+        }
+            $user = new User();
+            $id_pepp = $user->id_pep;
+            $buro_list = $buro->getIdBuroForUser($id_pepp);
+            //echo Debug::vars('876', $id_pep);exit;
+            $access = $guest->getAccessUser($id_pep);
+            
+            //echo Debug::vars('1227', $current_org_id);exit;
+            //echo Debug::vars('877', $access);//exit;
+            //echo Debug::vars('893', $mode);exit;
+            $this->template->content = View::factory('order/edit')
+                ->bind('id_pep', $id_pep)
+                ->bind('contact', $contact)
+                ->bind('alert', $fl)
+                ->bind('signature_url', $signature_url)
+                ->bind('signature_path', $signature_path)
+                ->bind('arrAlert', $arrAlert)
+                ->bind('contact_acl', $contact_acl)
+                ->bind('org_tree', $org_tree)
+                ->bind('full_name', $full_name)
+                ->bind('force_org', $force_org)
+                ->bind('check_acl', $check_acl)
+                ->bind('companies', $companies)
+                ->bind('cardlist', $cardlist)
+                ->bind('mode', $mode)
+                ->bind('topbuttonbar', $topbuttonbar)
+                ->bind('surname', $surname)
+                ->bind('timeend', $timeend)
+                ->bind('timestart', $timestart)
+                ->bind('guest', $guest)
+                ->bind('buro_accesses', $buro_accesses)
+                ->bind('selected_access', $selected_access)
+                ->bind('buro_list', $buro_list)
+                ->bind('org', $org)
+                ->bind('user', $user)
+                ->bind('app_settings', $app_settings)
+                ->bind('access', $access)
+                ->bind('current_org_id', $current_org_id);
+        }
 
-   
-    
-    // Получаем список карт из таблицы CARD (для существующей логики в edit.php)
-    $key = new Keyk();
-    $cardlist = $key->getListByPeople($id_pep, 1);
-    
-    $this->template->content = View::factory('order/edit')
-        ->bind('id_pep', $id_pep)
-        ->bind('contact', $contact)
-        ->bind('alert', $fl)
-        ->bind('arrAlert', $arrAlert)
-        ->bind('contact_acl', $contact_acl)
-        ->bind('org_tree', $org_tree)
-        ->bind('force_org', $force_org)
-        ->bind('check_acl', $check_acl)
-        ->bind('companies', $companies)
-        ->bind('cardlist', $cardlist)
-        ->bind('card', $card) // Передаем данные из GUESTORDER как $card
-        ->bind('mode', $mode)
-        ->bind('topbuttonbar', $topbuttonbar)
-        ->bind('surname', $surname)
-        ->bind('', $timeend)
-        ->bind('', $timestart);
-}
 
+        
 	public function _action__view()
 	{
 		$id=$this->request->param('id');
@@ -503,6 +1380,97 @@ class Controller_Order extends Controller_Template
 			->bind('contact', $contact)
 			->bind('companies', $companies);
 	}
+
+public function action_get_person_by_document() {
+    // Отключаем автоматический рендеринг шаблона
+    $this->auto_render = FALSE;
+    
+    // Устанавливаем заголовок для JSON ответа
+    header('Content-Type: application/json; charset=utf-8');
+    
+    try {
+        // Получаем данные из POST запроса
+        $docnum1 = isset($_POST['docnum1']) ? trim($_POST['docnum1']) : '';
+        $docnum2 = isset($_POST['docnum2']) ? trim($_POST['docnum2']) : '';
+        $doc_type = isset($_POST['doc_type']) ? trim($_POST['doc_type']) : '';
+        
+        // Логируем полученные данные для отладки
+        Log::instance()->add(Log::DEBUG, 'Received data: docnum1=' . $docnum1 . ', docnum2=' . $docnum2 . ', doc_type=' . $doc_type);
+        
+        // Проверяем наличие обязательных параметров
+        if (empty($docnum1) || empty($docnum2) || empty($doc_type)) {
+            echo json_encode(array(
+                'success' => false,
+                'message' => 'Не заполнены обязательные поля'
+            ));
+            exit;
+        }
+        
+        // Формируем строку документа в том же формате, что хранится в БД
+        // Формат: серия#номер@тип_документа
+        $numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
+        
+        // Логируем сформированный номер документа
+        Log::instance()->add(Log::DEBUG, 'Searching for document: ' . $numdoc);
+        
+        // Инициализируем модель Guest2
+        $guest = new Guest2();
+        
+        // Ищем человека по номеру документа
+        $person = $guest->getPersonByDocument($numdoc);
+        
+        // Логируем результат поиска
+        Log::instance()->add(Log::DEBUG, 'Search result: ' . print_r($person, true));
+        
+        if (!empty($person)) {
+            // Данные найдены
+            $response = array(
+                'success' => true,
+                'data' => array(
+                    'id_pep' => isset($person['ID_PEP']) ? $person['ID_PEP'] : 0,
+                    'surname' => isset($person['SURNAME']) ? trim($person['SURNAME']) : '',
+                    'name' => isset($person['NAME']) ? trim($person['NAME']) : '',
+                    'patronymic' => isset($person['PATRONYMIC']) ? trim($person['PATRONYMIC']) : '',
+                    'docdate' => ''
+                )
+            );
+            
+            // Форматируем дату документа, если она есть
+            if (isset($person['DOCDATE']) && !empty($person['DOCDATE'])) {
+                try {
+                    // Если дата уже в формате d.m.Y, используем её как есть
+                    if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $person['DOCDATE'])) {
+                        $response['data']['docdate'] = $person['DOCDATE'];
+                    } else {
+                        $date = new DateTime($person['DOCDATE']);
+                        $response['data']['docdate'] = $date->format('d.m.Y');
+                    }
+                } catch (Exception $e) {
+                    // Игнорируем ошибки форматирования даты
+                    Log::instance()->add(Log::DEBUG, 'Date formatting error: ' . $e->getMessage());
+                }
+            }
+            
+            echo json_encode($response);
+        } else {
+            // Данные не найдены
+            echo json_encode(array(
+                'success' => false,
+                'message' => 'Гость с таким документом не найден'
+            ));
+        }
+        
+    } catch (Exception $e) {
+        // Обработка ошибок
+        Log::instance()->add(Log::ERROR, 'Error in get_person_by_document: ' . $e->getMessage());
+        echo json_encode(array(
+            'success' => false,
+            'message' => 'Ошибка сервера: ' . $e->getMessage()
+        ));
+    }
+    
+    exit; // Важно: останавливаем выполнение после вывода JSON
+}
 	
 	
 	
@@ -540,7 +1508,9 @@ class Controller_Order extends Controller_Template
 	{
 		//echo Debug::vars('372', $_GET, $_POST, $this->request->param('id')); exit;
 		$id=$this->request->param('id');
+		//echo Debug::vars('786', $id);exit;
 		$guest=new Order($id);
+		//echo Debug::vars('788', $guest);exit;
 	
 	
 		$guest->idOrgGuest = $this->idOrgGuest;// указал организацию гостя
@@ -1052,6 +2022,1509 @@ class Controller_Order extends Controller_Template
 		
 		
 		}
+
+public function action_settings() {
+    $buro = new Buro();
+    $buros = $buro->getBuro();
+    
+    $guest = new Guest2();
+    
+    $uniqueIdPep = $buro->getUniqueIdPepFromBuConf();
+    
+    $peopleWithBuro = array();
+    foreach ($uniqueIdPep as $id_pep) {
+        $person = $guest->getPersonById($id_pep);
+        
+        if ($person) {
+            $userBuros = $buro->getIdBuroForUser($person['ID_PEP']);
+            $buroRoles = array();
+            
+            foreach ($userBuros as $userBuro) {
+                $role = $buro->getRoleById($userBuro['id_role']);
+                $buroRoles[$userBuro['id_buro']] = array(
+                    'role_name' => isset($role[0]['name']) ? $role[0]['name'] : '-',
+                    'role_id' => $userBuro['id_role']
+                );
+            }
+            
+            $person['buros'] = $buroRoles;
+            $peopleWithBuro[] = $person;
+        }
+    }
+
+    // Загрузка настроек (путь, текст согласия и настройка согласия)
+    $settings = $this->getSettings();
+
+    $this->template->content = View::factory('order/settings')
+        ->set('buros', $buros)
+        ->set('people', $peopleWithBuro)
+        ->set('upload_dir', $settings['upload_dir'])
+        ->set('consent_text', $settings['consent_text'])
+        ->set('require_consent_for_card', $settings['require_consent_for_card'])
+        ->set('archive_visibility', isset($settings['archive_visibility']) ? $settings['archive_visibility'] : 'all');  // Новая настройка, дефолт 'all'
+}
+
+public function action_buro_details()
+{
+    $id_buro = $this->request->param('id');
+    
+    $buro = new Buro();
+    $users = $buro->getUsersByIdBuro($id_buro);  
+    $buroInfo = $buro->getBuroById($id_buro); 
+    $peoplee = new Guest2();  
+
+    $people = [];
+    $roles = [];
+    
+    foreach ($users as $user) {
+        $people1 = $peoplee->getUserById($user['id_pep']);
+        if ($people1) {
+            $people[$user['id_pep']] = $people1;
+        }
+        
+        $role = $buro->getRoleById($user['id_role']);
+        if ($role) {
+            $roles[$user['id_role']] = $role;
+        }
+    }
+    
+    $access_names = $buro->getAccessName();
+    $current_accesses = Arr::pluck($buro->getBuroAccesses($id_buro), 'id_accessname');
+    
+    $data = [
+        'buro' => isset($buroInfo[0]) ? $buroInfo[0] : null,
+        'users' => $users,
+        'people' => $people,
+        'roles' => $roles,
+        'access_names' => $access_names,
+        'current_accesses' => $current_accesses 
+    ];
+
+    $this->template->content = View::factory('order/buro_details', $data);
+}
+
+public function action_delete_buro()
+{
+    $id_buro = $this->request->param('id');
+    
+    if (!$id_buro) {
+        Session::instance()->set('message', 'Не указан ID бюро для удаления');
+        Session::instance()->set('message_type', 'error');
+        $this->redirect('order/settings');
+    }
+    
+    $buro = new Buro();
+    $result = $buro->deleteBuro($id_buro);
+    
+    if ($result) {
+        Session::instance()->set('message', 'Бюро успешно удалено');
+        Session::instance()->set('message_type', 'success');
+    } else {
+        Session::instance()->set('message', 'Ошибка при удалении бюро');
+        Session::instance()->set('message_type', 'error');
+    }
+    
+    $this->redirect('order/settings');
+}
+
+   
+public function action_UpdateBuro() {
+        $id_buro = $this->request->param('id');
+        $id_pep = $this->request->query('user_id');
+        
+        $from_table = !empty($id_pep); 
+        $current_role_id = $this->request->query('role_id');
+        
+        $user = new Guest2();
+        $current_user = array();
+        if ($from_table) {
+            $current_user = $user->getPersonDetails($id_pep);
+            // Получаем role_id из базы, если не передан через GET
+            if (empty($current_role_id)) {
+                $buro = new Buro();
+                $records = $buro->getUsersByIdBuro($id_buro);
+                foreach ($records as $record) {
+                    if ($record['id_pep'] == $id_pep) {
+                        $current_role_id = $record['id_role'];
+                        break;
+                    }
+                }
+            }
+        }
+        
+        $data = new Buro();
+        $roles = $data->getRoles();
+        $users = $user->getPeopleWithLogin();
+        
+        $error = null;
+        if ($this->request->method() === 'POST') {
+            $post = $this->request->post();
+            
+            // Проверяем наличие user_id и role_id в POST
+            if (isset($post['user_id']) && isset($post['role_id'])) {
+                $user_id = $post['user_id'];
+                $role_id = $post['role_id'];
+                $buro_id = $id_buro;
+                
+                $data->id_pep = $user_id;
+                $data->id_role = $role_id;
+                $data->id_buro = $buro_id;
+                
+                if ($from_table) {
+                    $existing_records = $data->getUsersByIdBuro($buro_id);
+                    foreach ($existing_records as $record) {
+                        if ($record['id_pep'] == $user_id) {
+                            $data->id = $record['id'];
+                            break;
+                        }
+                    }
+                    $result = $data->update($buro_id);
+                } else {
+                    $result = $data->add();
+                }
+                
+                if ($result) {
+                    $this->redirect('order/buro_details/' . $buro_id);
+                } else {
+                    $error = $from_table ? 'Не удалось обновить данные' : 'Не удалось добавить данные';
+                }
+            } else {
+                $error = 'Не выбраны сотрудник или роль';
+            }
+        }
+
+        $this->template->content = View::factory('order/UpdateBuro')
+            ->set('roles', $roles)
+            ->set('current_user', $current_user)
+            ->set('id_buro', $id_buro)
+            ->set('id_pep', $id_pep)
+            ->set('users', $users)
+            ->set('current_role_id', $current_role_id)
+            ->set('from_table', $from_table)
+            ->set('error', $error);
+    }
+	public function action_addBuro()
+{
+    $this->template->title = 'Добавление нового бюро';
+    $this->template->content = View::factory('order/addBuro');
+    
+    if ($this->request->method() === Request::POST) {
+        try {
+            $post = $this->request->post();
+            
+            if (empty($post['name'])) {
+                throw new Exception('Необходимо указать название бюро');
+            }
+        
+            $buro = new Buro();
+            
+            $result = $buro->addBuro($post['name'], $post['information']);
+            
+            if ($result) {
+                Session::instance()->set('message', 'Бюро успешно добавлено');
+                Session::instance()->set('message_type', 'success');
+                $this->redirect('order/UpdateBuro');
+            }
+        } catch (Exception $e) {
+            Session::instance()->set('message', $e->getMessage());
+            Session::instance()->set('message_type', 'error');
+            $this->redirect('order/addBuro');
+        }
+    }
+}
+
+public function action_update_buro()
+{
+    $id_buro = $this->request->param('id');
+    $post = $this->request->post();
+    
+    if (!$id_buro || empty($post)) {
+        Session::instance()->set('message', 'Не указаны данные для обновления');
+        Session::instance()->set('message_type', 'error');
+        $this->redirect('order/UpdateBuro');
+    }
+    
+    $buro = new Buro();
+    $result = $buro->updateBuro($id_buro, $post['name'], $post['information']);
+    
+    if ($result) {
+        Session::instance()->set('message', 'Информация о бюро успешно обновлена');
+        Session::instance()->set('message_type', 'success');
+    } else {
+        Session::instance()->set('message', 'Ошибка при обновлении бюро');
+        Session::instance()->set('message_type', 'error');
+    }
+    
+    $this->redirect('order/buro_details/'.$id_buro);
+}
+
+private function normalizePathImproved($path) {
+    if (DIRECTORY_SEPARATOR === '\\') {
+        // Windows
+        $path = str_replace('/', '\\', $path);
+        // Не удаляем завершающий слэш для корня диска
+        if (preg_match('/^[A-Za-z]:\\\\?$/', $path)) {
+            if (!preg_match('/^[A-Za-z]:\\\\$/', $path)) {
+                $path .= '\\';
+            }
+        } else {
+            $path = rtrim($path, '\\');
+        }
+    } else {
+        // Unix/Linux
+        $path = str_replace('\\', '/', $path);
+        $path = rtrim($path, '/');
+        if (empty($path)) {
+            $path = '/';
+        }
+    }
+    return $path;
+}
+
+/**
+ * Улучшенное получение реального пути с поддержкой всех дисков
+ */
+private function getRealPathImproved($path) {
+    // Для Windows проверяем доступность диска перед realpath
+    if (DIRECTORY_SEPARATOR === '\\') {
+        if (preg_match('/^[A-Za-z]:\\\\/', $path)) {
+            $drive = substr($path, 0, 3); // C:\
+            if (!$this->isDriveAccessible($drive)) {
+                return false;
+            }
+        }
+    }
+    
+    $realPath = realpath($path);
+    
+    if ($realPath === false) {
+        if (is_dir($path)) {
+            $realPath = $path;
+        } else {
+            return false;
+        }
+    }
+    
+    return $realPath;
+}
+
+/**
+ * Проверяет доступность диска в Windows
+ */
+private function isDriveAccessible($drivePath) {
+    if (DIRECTORY_SEPARATOR !== '\\') {
+        return true; // Для Unix/Linux всегда возвращаем true
+    }
+    
+    // Проверяем существование диска
+    if (!is_dir($drivePath)) {
+        return false;
+    }
+    
+    // Проверяем доступность для чтения
+    if (!is_readable($drivePath)) {
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Улучшенное сканирование директории с обработкой кодировок
+ */
+private function scanDirectoryImproved($directory) {
+    $items = @scandir($directory);
+    if ($items === false) {
+        return false;
+    }
+
+    // Для Windows конвертируем имена файлов в UTF-8
+    if (DIRECTORY_SEPARATOR === '\\') {
+        $converted_items = array();
+        foreach ($items as $item) {
+            $converted_items[] = $this->convertFromSystemEncoding($item);
+        }
+        return $converted_items;
+    }
+
+    return $items;
+}
+
+/**
+ * Улучшенное получение родительской директории
+ */
+private function getParentDirectoryImproved($path) {
+    $parentDir = dirname($path);
+    
+    // Для Windows проверяем, не является ли это корнем диска
+    if (DIRECTORY_SEPARATOR === '\\') {
+        if (preg_match('/^[A-Za-z]:\\\\?$/', $path)) {
+            return $path; // Уже корень диска
+        }
+        if (preg_match('/^[A-Za-z]:\\\\?$/', $parentDir)) {
+            $parentDir = rtrim($parentDir, '\\') . '\\'; // Добавляем слэш к корню диска
+        }
+    } elseif (DIRECTORY_SEPARATOR === '/' && $path === '/') {
+        return '/'; // Корень Unix/Linux
+    }
+    
+    return $parentDir;
+}
+
+/**
+ * Конвертирует строку в кодировку файловой системы
+ */
+private function convertToSystemEncoding($string) {
+    if (DIRECTORY_SEPARATOR === '\\') {
+        // Windows использует CP1251 для кириллицы в файловой системе
+        if (function_exists('iconv')) {
+            return iconv('UTF-8', 'CP1251//IGNORE', $string);
+        } elseif (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($string, 'CP1251', 'UTF-8');
+        }
+    }
+    // Unix/Linux обычно использует UTF-8
+    return $string;
+}
+
+/**
+ * Конвертирует строку из кодировки файловой системы в UTF-8
+ */
+private function convertFromSystemEncoding($string) {
+    if (DIRECTORY_SEPARATOR === '\\') {
+        // Windows использует CP1251 для кириллицы в файловой системе
+        if (!mb_check_encoding($string, 'UTF-8')) {
+            if (function_exists('iconv')) {
+                return iconv('CP1251', 'UTF-8//IGNORE', $string);
+            } elseif (function_exists('mb_convert_encoding')) {
+                return mb_convert_encoding($string, 'UTF-8', 'CP1251');
+            }
+        }
+    }
+    return $string;
+}
+
+public function action_browse_folders() {
+    $this->auto_render = false;
+    $this->response->headers('Content-Type', 'application/json; charset=utf-8');
+    
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    
+    try {
+        if ($this->request->method() !== Request::POST) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Недопустимый метод запроса'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        
+        $path = $this->request->post('path');
+        $showDrives = $this->request->post('show_drives');
+        
+        // Если запрашиваем список дисков
+        if ($showDrives === 'true') {
+            $drives = $this->getDrivesList();
+            $this->response->body(json_encode(array(
+                'status' => 'success',
+                'folders' => $drives,
+                'current_path' => 'Диски',
+                'is_drives_list' => true
+            ), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        
+        if (empty($path)) {
+            $path = dirname($_SERVER['SCRIPT_FILENAME']);
+        }
+        
+        error_log("Обработка пути: " . $path);
+        
+        // Нормализация пути с улучшенной обработкой дисков
+        $normalizedPath = $this->normalizePathImproved($path);
+        
+        error_log("Нормализованный путь: " . $normalizedPath);
+        
+        // Получаем реальный путь с улучшенной обработкой
+        $realPath = $this->getRealPathImproved($normalizedPath);
+        
+        if ($realPath === false) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Путь не найден: ' . $path), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        
+        error_log("Реальный путь: " . $realPath);
+        
+        // Проверяем, что путь не содержит опасных последовательностей
+        if (strpos($path, '..') !== false && preg_match('/\.\.[\\/\\\\]/', $path)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Недопустимые символы в пути'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        
+        // Проверяем существование папки
+        if (!is_dir($realPath)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Папка не найдена: ' . $realPath), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        
+        $folders = array();
+        $items = array();
+        
+        // Проверяем доступность для чтения
+        if (is_readable($realPath)) {
+            $items = $this->scanDirectoryImproved($realPath);
+            if ($items === false) {
+                error_log("Ошибка scandir для пути: " . $realPath);
+                $items = array();
+            }
+        } else {
+            error_log("Папка недоступна для чтения: " . $realPath);
+        }
+        
+        // Добавляем кнопку перехода к дискам (только для Windows)
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $folders[] = array(
+                'name' => 'Диски',
+                'path' => 'drives',
+                'type' => 'drives'
+            );
+        }
+        
+        // Добавляем возможность перехода в родительскую папку
+        $parentDir = $this->getParentDirectoryImproved($realPath);
+        if ($parentDir !== $realPath) {
+            $folders[] = array(
+                'name' => '..',
+                'path' => $parentDir,
+                'type' => 'parent'
+            );
+        }
+        
+        foreach ($items as $item) {
+            if ($item !== '.' && $item !== '..') {
+                $itemFullPath = $realPath . DIRECTORY_SEPARATOR . $item;
+                if (@is_dir($itemFullPath)) {
+                    $folders[] = array(
+                        'name' => $item,
+                        'path' => $itemFullPath,
+                        'type' => 'folder'
+                    );
+                }
+            }
+        }
+        
+        // Сортируем папки
+        usort($folders, function($a, $b) {
+            if ($a['type'] === 'drives') return -1;
+            if ($b['type'] === 'drives') return 1;
+            if ($a['type'] === 'parent') return -1;
+            if ($b['type'] === 'parent') return 1;
+            return strcasecmp($a['name'], $b['name']);
+        });
+        
+        error_log("Обработано папок: " . count($folders));
+        
+        $response = array(
+            'status' => 'success',
+            'folders' => $folders,
+            'current_path' => $realPath
+        );
+        
+        $jsonResponse = json_encode($response, JSON_UNESCAPED_UNICODE);
+        if ($jsonResponse === false) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Ошибка кодирования JSON: ' . json_last_error_msg()), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        
+        $this->response->body($jsonResponse);
+        
+    } catch (Exception $e) {
+        error_log("Исключение в browse_folders: " . $e->getMessage());
+        $this->response->body(json_encode(array('status' => 'error', 'message' => 'Внутренняя ошибка: ' . $e->getMessage()), JSON_UNESCAPED_UNICODE));
+    }
+}
+
+// Исправленная функция getDrivesList
+private function getDrivesList() {
+    $drives = array();
+    
+    if (DIRECTORY_SEPARATOR === '\\') {
+        // Windows - получаем список дисков с улучшенной проверкой
+        for ($drive = 'A'; $drive <= 'Z'; $drive++) {
+            $drivePath = $drive . ':\\';
+            // Используем более надежную проверку доступности диска
+            if ($this->isDriveAccessible($drivePath)) {
+                $driveInfo = $this->getDriveInfo($drivePath);
+                $drives[] = array(
+                    'name' => $drive . ': ' . $driveInfo,
+                    'path' => $drivePath,
+                    'type' => 'drive'
+                );
+            }
+        }
+    } else {
+        // Linux/Unix - показываем основные точки монтирования
+        $mountPoints = array(
+            '/' => 'Корневая папка',
+            '/home' => 'Домашние папки',
+            '/var' => 'Системные файлы',
+            '/usr' => 'Программы',
+            '/opt' => 'Дополнительные программы',
+            '/media' => 'Съемные носители',
+            '/mnt' => 'Точки монтирования'
+        );
+        
+        foreach ($mountPoints as $path => $description) {
+            if (is_dir($path) && is_readable($path)) {
+                $drives[] = array(
+                    'name' => $description . ' (' . $path . ')',
+                    'path' => $path,
+                    'type' => 'drive'
+                );
+            }
+        }
+    }
+    
+    return $drives;
+}
+
+// Исправленная функция getDriveInfo
+private function getDriveInfo($drivePath) {
+    $info = '';
+    if (function_exists('disk_total_space') && function_exists('disk_free_space')) {
+        $total = @disk_total_space($drivePath);
+        $free = @disk_free_space($drivePath);
+        
+        if ($total !== false && $free !== false) {
+            $totalGB = round($total / (1024 * 1024 * 1024), 1);
+            $freeGB = round($free / (1024 * 1024 * 1024), 1);
+            $info = "({$freeGB} ГБ свободно из {$totalGB} ГБ)";
+        }
+    }
+    
+    // Получаем метку диска для Windows с улучшенной обработкой
+    if (DIRECTORY_SEPARATOR === '\\' && function_exists('exec')) {
+        $output = array();
+        $drive = substr($drivePath, 0, 2);
+        @exec("vol {$drive} 2>nul", $output);
+        if (!empty($output[0]) && strpos($output[0], 'has no label') === false) {
+            $parts = explode(' is ', $output[0]);
+            if (count($parts) > 1) {
+                $label = trim($parts[1]);
+                $label = $this->convertFromSystemEncoding($label);
+                $info = $label . ' ' . $info;
+            }
+        }
+    }
+    
+    return $info;
+}
+
+   public function action_save_settings() {
+    if ($this->request->method() === HTTP_Request::POST) {
+        $upload_dir = trim($this->request->post('upload_dir'));
+        $consent_text = trim($this->request->post('consent_text'));
+        $require_consent_for_card = (bool) $this->request->post('require_consent_for_card');
+        $archive_visibility = $this->request->post('archive_visibility');  // Новая настройка
+        
+        // Проверяем значение archive_visibility
+        if (!in_array($archive_visibility, array('all', 'own_buro'))) {
+            $archive_visibility = 'all';  // Дефолт, если неверное значение
+        }
+        
+        $settings = array(
+            'upload_dir' => $upload_dir,
+            'consent_text' => $consent_text,
+            'require_consent_for_card' => $require_consent_for_card,
+            'archive_visibility' => $archive_visibility  // Сохраняем новую настройку
+        );
+        
+        if ($this->saveSettings($settings)) {
+            $this->redirect('order/settings?settings_saved=1');
+        } else {
+            $this->redirect('order/settings?settings_error=' . urlencode('Не удалось сохранить настройки'));
+        }
+    } else {
+        $this->redirect('order/settings');
+    }
+}
+
+private function saveSettings($settings) {
+    $settings_file = APPPATH . 'config' . DIRECTORY_SEPARATOR . 'app_settings.php';
+    $settings_dir = dirname($settings_file);
+    
+    if (!is_dir($settings_dir)) {
+        if (!mkdir($settings_dir, 0755, true)) {
+            return false;
+        }
+    }
+    
+    $content = "<?php defined('SYSPATH') OR die('No direct access allowed.');\n\n";
+    $content .= "return " . var_export($settings, true) . ";\n";
+    
+    return file_put_contents($settings_file, $content) !== false;
+}
+
+    public function action_create_folder() {
+        $this->auto_render = false;
+        $this->response->headers('Content-Type', 'application/json; charset=utf-8');
+
+        if ($this->request->method() !== Request::POST) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Недопустимый метод запроса'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        $parentPath = $this->request->post('parent_path');
+        $folderName = $this->request->post('folder_name');
+
+        if (empty($parentPath) || empty($folderName)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Не указан путь или имя папки'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        // Нормализация пути
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $parentPath = str_replace('/', '\\', $parentPath);
+        } else {
+            $parentPath = str_replace('\\', '/', $parentPath);
+        }
+
+        $realParentPath = realpath($parentPath);
+        $serverRoot = realpath($_SERVER['DOCUMENT_ROOT']);
+        
+        // Проверяем, что путь существует
+        if ($realParentPath === false || !is_dir($realParentPath)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Родительский путь не существует: ' . $parentPath), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        // Проверка безопасности: разрешаем только в пределах DOCUMENT_ROOT или определённых дисков
+        $allowedDrives = array('C:', 'D:'); // Настройте список допустимых дисков
+        $isAllowedDrive = false;
+        foreach ($allowedDrives as $drive) {
+            if (stripos($realParentPath, $drive) === 0) {
+                $isAllowedDrive = true;
+                break;
+            }
+        }
+
+        if (strpos($realParentPath, $serverRoot) !== 0 && !$isAllowedDrive) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Создание папки разрешено только в пределах корня сайта или на разрешённых дисках'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        // Запрещаем создание папки в корне диска
+        if (preg_match('/^[A-Za-z]:\\\\?$/', $realParentPath)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Создание папки в корне диска запрещено'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        // Очистка имени папки от опасных символов
+        $folderName = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $folderName);
+        
+        if (empty($folderName)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Недопустимое имя папки'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        $newFolderPath = $realParentPath . DIRECTORY_SEPARATOR . $folderName;
+
+        if (file_exists($newFolderPath)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Папка уже существует'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        if (mkdir($newFolderPath, 0777)) {
+            error_log("Папка создана: " . $newFolderPath);
+            $this->response->body(json_encode(array('status' => 'success', 'message' => 'Папка создана', 'path' => $newFolderPath), JSON_UNESCAPED_UNICODE));
+        } else {
+            error_log("Ошибка создания папки: " . $newFolderPath);
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Ошибка создания папки: ' . error_get_last()['message']), JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    public function action_PersonalData() {
+        $id_pep = $this->request->param('id');
+        
+        $guest = new Guest2();
+        
+        $person = $guest->getPersonDetails($id_pep);
+        
+        if (empty($person)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Пользователь не найден'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        $surname = !empty($person['SURNAME']) ? trim($person['SURNAME']) : 'Unknown';
+        $name = !empty($person['NAME']) ? trim($person['NAME']) : 'Unknown';
+        $patronymic = !empty($person['PATRONYMIC']) ? trim($person['PATRONYMIC']) : 'Unknown';
+
+        if (!mb_check_encoding($surname, 'UTF-8')) {
+            $surname = iconv('CP1251', 'UTF-8//IGNORE', $surname);
+        }
+        if (!mb_check_encoding($name, 'UTF-8')) {
+            $name = iconv('CP1251', 'UTF-8//IGNORE', $name);
+        }
+        if (!mb_check_encoding($patronymic, 'UTF-8')) {
+            $patronymic = iconv('CP1251', 'UTF-8//IGNORE', $patronymic);
+        }
+
+        $full_name = trim("$surname $name $patronymic");
+        $full_name = preg_replace('/\s+/', ' ', $full_name);
+
+
+        $settings = $this->getSettings();
+
+        $view = View::factory('order/PersonalData')
+            ->set('id_pep', $id_pep)
+            ->set('surname', $surname)
+            ->set('name', $name)
+            ->set('patronymic', $patronymic)
+            ->set('full_name', $full_name)
+            ->set('consent_text', $settings['consent_text']);
+
+        $this->template->content = $view;
+    }
+
+    public function action_save_signature() {
+        $this->auto_render = false;
+        $this->response->headers('Content-Type', 'application/json; charset=utf-8');
+        $id_pep = $this->request->param('id');
+        if ($this->request->method() !== Request::POST) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Недопустимый метод запроса'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        $signature_data = $this->request->post('signature_data');
+        if (empty($signature_data)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Подпись не предоставлена'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        $signature_data = str_replace('data:image/jpeg;base64,', '', $signature_data);
+        $signature_data = str_replace(' ', '+', $signature_data);
+        $image = base64_decode($signature_data);
+        $settings = $this->getSettings();
+        $upload_dir = $settings['upload_dir'];
+        if (!is_dir($upload_dir)) {
+            if (!mkdir($upload_dir, 0777, true)) {
+                $this->response->body(json_encode(array('status' => 'error', 'message' => 'Не удалось создать папку для сохранения'), JSON_UNESCAPED_UNICODE));
+                return;
+            }
+        }
+        if (!is_writable($upload_dir)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Папка недоступна для записи'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        $guest = new Guest2();
+        $person = $guest->getPersonDetails($id_pep);
+        if (empty($person)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Пользователь не найден'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        $pd = new PD($id_pep);
+        $filename_utf8 = $pd->generateFileName($id_pep, $person);
+        $filename_cp1251 = iconv('UTF-8', 'CP1251//IGNORE', $filename_utf8);
+        $filepath_cp1251 = $upload_dir . DIRECTORY_SEPARATOR . $filename_cp1251;
+        $counter = 1;
+        $base_filename_utf8 = pathinfo($filename_utf8, PATHINFO_FILENAME);
+        $extension = pathinfo($filename_utf8, PATHINFO_EXTENSION);
+        while (file_exists($filepath_cp1251)) {
+            $filename_utf8 = $base_filename_utf8 . '_' . $counter . '.' . $extension;
+            $filename_cp1251 = iconv('UTF-8', 'CP1251//IGNORE', $filename_utf8);
+            $filepath_cp1251 = $upload_dir . DIRECTORY_SEPARATOR . $filename_cp1251;
+            $counter++;
+        }
+        if (!is_writable($upload_dir)) {
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Директория недоступна для записи'), JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        $bytes_written = file_put_contents($filepath_cp1251, $image);
+        if ($bytes_written !== false && $bytes_written > 0) {
+            if (file_exists($filepath_cp1251) && filesize($filepath_cp1251) > 0) {
+                $filepath_utf8 = iconv('CP1251', 'UTF-8//IGNORE', $filepath_cp1251);
+                $filename_utf8 = iconv('CP1251', 'UTF-8//IGNORE', $filename_cp1251);
+                $this->response->body(json_encode(array(
+                    'status' => 'success',
+                    'message' => 'Подпись сохранена',
+                    'file' => $filename_utf8,
+                    'path' => $filepath_utf8,
+                    'size' => filesize($filepath_cp1251)
+                ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            } else {
+                $this->response->body(json_encode(array('status' => 'error', 'message' => 'Файл был записан, но не найден'), JSON_UNESCAPED_UNICODE));
+            }
+        } else {
+            $last_error = error_get_last();
+            $error_message = $last_error ? $last_error['message'] : 'Неизвестная ошибка';
+            $this->response->body(json_encode(array('status' => 'error', 'message' => 'Ошибка записи файла: ' . $error_message), JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    public function action_get_consent_form() {
+        $this->auto_render = FALSE;
+        $id_pep = $this->request->param('id');
+        
+        if (empty($id_pep)) {
+            echo '<p style="color: red;">ID пользователя не указан</p>';
+            return;
+        }
+        
+        $pd = new PD($id_pep);
+        $signature_url = $pd->getSignatureUrl($id_pep);
+        $signature_path = $pd->checkSignatureSingle($id_pep);
+        
+        $view = View::factory('order/block/forPD')
+            ->set('signature_url', $signature_url)
+            ->set('signature_path', $signature_path)
+            ->set('id_pep', $id_pep);
+        
+        echo $view->render();
+    }
+
+    public function action_view_signature() {
+        $id_pep = $this->request->param('id');
+        
+        if (empty($id_pep)) {
+            $this->response->body('ID пользователя не указан');
+            return;
+        }
+        
+        $pd = new PD($id_pep);
+        $signature_path = $pd->checkSignature($id_pep);
+        
+        if ($signature_path === false || !file_exists($signature_path)) {
+            $this->response->body('Подпись не найдена');
+            return;
+        }
+        
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $signature_path);
+        finfo_close($finfo);
+        
+        if ($mime_type === false) {
+            $mime_type = 'image/jpeg';
+        }
+        
+        $this->auto_render = false;
+        
+        $this->response->headers('Content-Type', $mime_type);
+        $this->response->headers('Content-Length', filesize($signature_path));
+        $this->response->headers('Cache-Control', 'no-cache, must-revalidate');
+        
+        $this->response->body(file_get_contents($signature_path));
+    }
+
+    public function action_view_signature_page() {
+    $id_pep = $this->request->param('id');
+    
+    if (empty($id_pep)) {
+        Session::instance()->set('flash_error', 'ID пользователя не указан');
+        $this->redirect('dashboard');
+        return;
+    }
+    
+    $pd = new PD($id_pep);
+    
+    // Используем checkSignatureSingle для получения пути к конкретному файлу
+    $signature_path = $pd->checkSignatureSingle($id_pep);
+    
+    if ($signature_path === false || !file_exists($signature_path)) {
+        Session::instance()->set('flash_error', 'Подпись не найдена');
+        $this->redirect('dashboard');
+        return;
+    }
+    
+    $signature_url = $pd->getSignatureUrl($id_pep);
+    
+    $guest = new Guest2();
+    $person = $guest->getPersonDetails($id_pep);
+    
+    if (empty($person)) {
+        Session::instance()->set('flash_error', 'Данные пользователя не найдены');
+        $this->redirect('dashboard');
+        return;
+    }
+    
+    $surname = !empty($person['SURNAME']) ? trim($person['SURNAME']) : 'Unknown';
+    $name = !empty($person['NAME']) ? trim($person['NAME']) : 'Unknown';
+    $patronymic = !empty($person['PATRONYMIC']) ? trim($person['PATRONYMIC']) : 'Unknown';
+    
+    if (!mb_check_encoding($surname, 'UTF-8') || !mb_check_encoding($name, 'UTF-8') || !mb_check_encoding($patronymic, 'UTF-8')) {
+        $surname = iconv('CP1251', 'UTF-8//IGNORE', $surname);
+        $name = iconv('CP1251', 'UTF-8//IGNORE', $name);
+        $patronymic = iconv('CP1251', 'UTF-8//IGNORE', $patronymic);
+    }
+    
+    $full_name = trim("$surname $name $patronymic");
+    $full_name = preg_replace('/\s+/', ' ', $full_name);
+    
+    $view = View::factory('order/view_signature')
+        ->set('id_pep', $id_pep)
+        ->set('full_name', $full_name)
+        ->set('signature_url', $signature_url)
+        ->set('signature_path', $signature_path);
+    
+    $this->template->content = $view;
+}
+
+    private function getSettings() {
+    $settings_file = APPPATH . 'config' . DIRECTORY_SEPARATOR . 'app_settings.php';
+    $default_settings = array(
+        'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . 'signatures',
+        'consent_text' => 'Я даю согласие на обработку персональных данных...',
+        'require_consent_for_card' => false,
+        'archive_visibility' => 'all'  // Дефолт для новой настройки
+    );
+    
+    if (file_exists($settings_file)) {
+        $saved_settings = include $settings_file;
+        return array_merge($default_settings, $saved_settings);
+    }
+    
+    return $default_settings;
+}
+
+	public function action_addAccessBuro()
+{
+    $id_buro = $this->request->param('id');
+    $post = $this->request->post();
+    
+    if (!isset($post['access_names']) || empty($post['access_names'])) {
+        Session::instance()->set('flash_error', 'Пожалуйста, выберите хотя бы одну зону доступа');
+        HTTP::redirect('order/buro_details/' . $id_buro);
+    }
+    
+    $buro = new Buro();
+    $access_ids = $post['access_names'];
+    
+    $buro->addAccessBuro($id_buro, $access_ids);
+    
+    Session::instance()->set('flash_success', 'Зоны доступа успешно обновлены');
+    HTTP::redirect('order/buro_details/' . $id_buro);
+}
+
+/**
+ * API эндпоинт для поиска гостя по номеру документа
+ * Возвращает JSON с данными гостя
+ */
+public function action_searchByDocument()
+{
+    // Устанавливаем заголовок для JSON ответа
+    $this->response->headers('Content-Type', 'application/json');
+    
+    $docnum1 = Arr::get($_POST, 'docnum1', '');
+    $docnum2 = Arr::get($_POST, 'docnum2', '');
+    
+    $result = array(
+        'success' => false,
+        'data' => null,
+        'message' => ''
+    );
+    
+    try {
+        // Поиск гостя по серии и номеру документа (без учета типа документа)
+        // Ищем документы, которые содержат серию#номер в любом формате
+        $sql = "SELECT id_pep, surname, name, patronymic, numdoc 
+                FROM people 
+                WHERE numdoc LIKE :search_pattern 
+                AND \"ACTIVE\" = 1";
+        
+        // Формируем паттерн поиска: серия#номер@
+        $searchPattern = $docnum1 . '#' . $docnum2 . '@%';
+        
+        $query = DB::query(Database::SELECT, $sql)
+            ->param(':search_pattern', $searchPattern)
+            ->execute(Database::instance('fb'))
+            ->as_array();
+        
+        if (!empty($query)) {
+            $guest_data = $query[0];
+            $result['success'] = true;
+            $result['data'] = array(
+                'id_pep' => $guest_data['id_pep'],
+                'surname' => iconv('CP1251', 'UTF-8', $guest_data['surname']),
+                'name' => iconv('CP1251', 'UTF-8', $guest_data['name']),
+                'patronymic' => iconv('CP1251', 'UTF-8', $guest_data['patronymic'])
+            );
+            $result['message'] = 'Гость найден';
+        } else {
+            // Попробуем найти без фильтра по ACTIVE
+            $sql2 = "SELECT id_pep, surname, name, patronymic, numdoc 
+                    FROM people 
+                    WHERE numdoc LIKE :search_pattern";
+            
+            $query2 = DB::query(Database::SELECT, $sql2)
+                ->param(':search_pattern', $searchPattern)
+                ->execute(Database::instance('fb'))
+                ->as_array();
+                
+            if (!empty($query2)) {
+                $result['message'] = 'Гость найден, но неактивен';
+            } else {
+                $result['message'] = 'Гость с таким номером документа не найден';
+            }
+        }
+        
+    } catch (Exception $e) {
+        Log::instance()->add(Log::DEBUG, 'Search by document error: ' . $e->getMessage());
+        $result['message'] = 'Ошибка поиска: ' . $e->getMessage();
+    }
+    
+    $this->response->body(json_encode($result));
+}
+
+
+public function action_deleteFromBuro() {
+    if ($this->request->method() === 'POST') {
+        $post = $this->request->post();
+        
+        $buro_id = Arr::get($post, 'buro_id');
+        $user_id = Arr::get($post, 'user_id');
+        
+        if ($buro_id && $user_id) {
+            $buro = new Buro();
+            $result = $buro->deleteUserFromBuro($buro_id, $user_id);
+            
+            $this->redirect('order/buro_details/' . $buro_id);
+        }
+    }
+    
+    // Если не POST, возможно, редирект или ошибка, но по умолчанию редирект на главную или детали
+    $this->redirect('order/buro_details');
+}
+
+public function action_historyGuest()
+    {
+		$id_pep = $this->request->param('id');
+        $guest = new Guest2($id_pep);
+        //echo Debug::vars('2108', $guest);exit;
+        $events = $guest->getEvents($id_pep);
+		//echo Debug::vars('1700', $events);
+
+        $this->template->content = View::factory('order/historyGuest')
+            ->bind('id_pep', $id_pep)
+            ->bind('events', $events)
+            ->bind('guest', $guest)
+			->bind('pagination', $pagination);
+    }
+
+	public function action_export($mode = null)
+    {
+        $user = new User();
+        $id_pep = $user->id_pep;
+        $user_role = $user->id_role;
+        
+        // Получаем режим из сессии, если не передан в параметрах
+        $mode = $this->request->param('mode');
+        
+        $po = Model::factory('Order');
+        $list = $po->getListNowOrder($id_pep, $mode, $user_role);
+        
+        // Устанавливаем заголовки для скачивания CSV файла
+        header('Content-Type: text/csv; charset=windows-1251');
+        header('Content-Disposition: attachment; filename="export_' . $mode . '_' . date('Y-m-d_H-i-s') . '.csv"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        
+        // Открываем поток вывода
+        $output = fopen('php://output', 'w');
+        
+        if ($mode === 'archive_mode') {
+            // Заголовки для архивного режима (только ФИО и Номер документа)
+            $headers = array(
+                iconv('UTF-8', 'Windows-1251', 'ФИО гостя'),
+                iconv('UTF-8', 'Windows-1251', 'Номер документа')
+            );
+            fputcsv($output, $headers, ';');
+            
+            $pd = new PD(0);
+            foreach ($list as $pep) {
+                $surname = isset($pep['GUEST_SURNAME']) ? $pep['GUEST_SURNAME'] : '';
+                $name = isset($pep['GUEST_NAME']) ? $pep['GUEST_NAME'] : '';
+                $patronymic = isset($pep['GUEST_PATRONYMIC']) ? $pep['GUEST_PATRONYMIC'] : '';
+                $fio = trim("$surname $name $patronymic");
+                $id_guest = isset($pep['ID_GUEST']) ? $pep['ID_GUEST'] : 0;
+                
+                // Обработка номера документа (аналогично List.php)
+                $numdoc = isset($pep['NUMDOC']) ? $pep['NUMDOC'] : '';
+                $doc_display = '-';
+                if ($numdoc && $numdoc !== '#@') {
+                    $parts = explode('#', $numdoc);
+                    $series = !empty($parts[0]) ? $parts[0] : '-';
+                    $number = '-';
+                    $id_doc = 0;
+                    $doc_type = 'Неизвестный тип';
+
+                    if (isset($parts[1])) {
+                        $number_parts = explode('@', $parts[1]);
+                        $number = !empty($number_parts[0]) ? $number_parts[0] : '-';
+                        $id_doc = isset($number_parts[1]) ? (int)$number_parts[1] : 0;
+                        $docs = Documents::getDoc();
+                        $doc_type = ($id_doc && isset($docs[$id_doc])) 
+                            ? $docs[$id_doc]['docname'] 
+                            : 'Неизвестный тип';
+                    }
+
+                    if ($series !== '-' || $number !== '-' || $doc_type !== 'Неизвестный тип') {
+                        $doc_display = 'Серия: ' . $series . 
+                                       ' Номер: ' . $number . 
+                                       ' Тип: ' . iconv('UTF-8', 'Windows-1251', $doc_type);
+                    } else {
+                        $doc_display = '-';
+                    }
+                } else {
+                    $doc_display = '-';
+                }
+                
+                $row = array(
+                    $fio, // уже в CP1251
+                    iconv('UTF-8', 'Windows-1251', $doc_display)
+                );
+                
+                fputcsv($output, $row, ';');
+            }
+            
+        } else {
+            // Заголовки для гостевого режима (полная таблица)
+            $headers = array(
+                'ID',
+                iconv('UTF-8', 'Windows-1251', 'ФИО гостя'),
+                iconv('UTF-8', 'Windows-1251', 'Номер карты'),
+                iconv('UTF-8', 'Windows-1251', 'Фамилия заказчика'),
+                iconv('UTF-8', 'Windows-1251', 'Компания'),
+                iconv('UTF-8', 'Windows-1251', 'Бюро пропусков'),
+                iconv('UTF-8', 'Windows-1251', 'Время заказа'),
+                iconv('UTF-8', 'Windows-1251', 'Запланированное время визита')
+            );
+            fputcsv($output, $headers, ';');
+            
+            foreach ($list as $pep) {
+                $surname = isset($pep['GUEST_SURNAME']) ? $pep['GUEST_SURNAME'] : '';
+                $name = isset($pep['GUEST_NAME']) ? $pep['GUEST_NAME'] : '';
+                $patronymic = isset($pep['GUEST_PATRONYMIC']) ? $pep['GUEST_PATRONYMIC'] : '';
+                $fio = trim("$surname $name $patronymic");
+                
+                $card_number = isset($pep['GUEST_CARD_NUMBER']) ? $pep['GUEST_CARD_NUMBER'] : '';
+                $timestart = isset($pep['CREATEDAT']) ? date('d.m.Y H:i', strtotime($pep['CREATEDAT'])) : '';
+                $card_output = '';
+                if ($card_number) $card_output .= $card_number;
+                if ($timestart) $card_output .= ($card_output ? ' ' : '') . $timestart;
+                
+                // Получаем название организации
+                $org = new Company($pep['ID_ORG']);
+                $org_name = $org->name ? $org->name : iconv('UTF-8', 'Windows-1251', 'Не указано');
+                
+                // Получаем бюро пропусков
+                $buro = new Buro();
+                $guestBuro = $buro->getGuestBuro($pep['ID_GUEST']); 
+                $buro_name = !empty($guestBuro) ? iconv('UTF-8', 'Windows-1251', $guestBuro[0]['buro_name']) : iconv('UTF-8', 'Windows-1251', 'Не указано');
+                
+                // Форматируем даты как текст, чтобы избежать проблем с отображением
+                $timeorder = isset($pep['TIMEORDER']) ? ("'" . date('d.m.Y H:i', strtotime($pep['TIMEORDER']))) : iconv('UTF-8', 'Windows-1251', 'Не указано');
+                $timeplan = isset($pep['TIMEPLAN']) ? ("'" . date('d.m.Y', strtotime($pep['TIMEPLAN']))) : iconv('UTF-8', 'Windows-1251', 'Не указано');
+                
+                $row = array(
+                    $pep['ID_GUESTORDER'],
+                    $fio, // уже в CP1251
+                    $card_output,
+                    isset($pep['P_SURNAME']) ? $pep['P_SURNAME'] : '',
+                    $org_name,
+                    $buro_name,
+                    $timeorder,
+                    $timeplan
+                );
+                
+                fputcsv($output, $row, ';');
+            }
+        }
+        
+        fclose($output);
+        exit();
+    }
 	
+	 public function action_export_events()
+{
+    $user = new User();
+    $id_pep = $user->id_pep;
+    $user_role = $user->id_role;
+    
+    // Получаем параметры из POST
+    $date_from = isset($_POST['date_from']) ? $_POST['date_from'] : null;
+    $date_to = isset($_POST['date_to']) ? $_POST['date_to'] : null;
+    $delete_data = isset($_POST['delete_data']) && $_POST['delete_data'] == '1';
+    
+    // Если параметры не переданы, используем значения по умолчанию (3 месяца назад)
+    if (!$date_from || !$date_to) {
+        $date_from = date('Y-m-d', strtotime('-3 months'));
+        $date_to = date('Y-m-d');
+    }
+    
+    // Устанавливаем заголовки для скачивания CSV файла
+    header('Content-Type: text/csv; charset=windows-1251');
+    header('Content-Disposition: attachment; filename="export_events_' . date('Y-m-d_H-i-s') . '.csv"');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    
+    // Открываем поток вывода
+    $output = fopen('php://output', 'w');
+    
+    // Заголовки CSV - ФИО разделено на отдельные колонки, добавлены данные о логине оператора и бюро
+    $headers = array(
+        iconv('UTF-8', 'Windows-1251', 'Фамилия'),
+        iconv('UTF-8', 'Windows-1251', 'Имя'),
+        iconv('UTF-8', 'Windows-1251', 'Отчество'),
+        iconv('UTF-8', 'Windows-1251', 'ID_EVENTTYPE'),
+        iconv('UTF-8', 'Windows-1251', 'Время события'),
+        iconv('UTF-8', 'Windows-1251', 'Заметки'),
+        iconv('UTF-8', 'Windows-1251', 'Событие'),
+        iconv('UTF-8', 'Windows-1251', 'Логин оператора'),
+        iconv('UTF-8', 'Windows-1251', 'Бюро'),
+        iconv('UTF-8', 'Windows-1251', 'Организация')
+    );
+    fputcsv($output, $headers, ';');
+    
+    // Преобразуем даты в формат для SQL
+    $date_from_sql = $date_from . ' 00:00:00';
+    $date_to_sql = $date_to . ' 23:59:59';
+    
+    // Массивы для хранения ID для удаления
+    $guests_to_delete = array();
+    $event_ids = array();
+    
+    try {
+        // SQL запрос для получения гостей с MAX(TIMEORDER) в выбранном периоде
+        // и их событий из таблицы EVENTS с JOIN к DEVICE для получения точки прохода
+        // Добавлен JOIN с guestorder для получения id_pep (кто добавил) и id_buro
+        // Добавлен JOIN с people для получения логина оператора
+        $sql = 'SELECT 
+            p."SURNAME",
+            p."NAME",
+            p."PATRONYMIC",
+            e.ID_EVENT,
+            e.ID_EVENTTYPE,
+            e.DATETIME,
+            e.NOTE,
+            e.ID_CARD,
+            d.NAME AS DEVICE_NAME,
+            et.NAME AS eventtype_name,
+            p."ID_PEP",
+            gu.id_pep AS added_by_id_pep,
+            gu.id_buro,
+            gu.id_org,
+            p_added."LOGIN" AS ADDED_LOGIN,
+            o."NAME" AS ORG_NAME
+        FROM people p
+        JOIN EVENTS e ON (e.ID_PEP = p."ID_PEP" OR e.ESS1 = p."ID_PEP")
+        LEFT JOIN EVENTTYPE et ON e.ID_EVENTTYPE = et.ID_EVENTTYPE
+        LEFT JOIN DEVICE d ON e.ID_DEV = d.ID_DEV
+        LEFT JOIN guestorder gu ON gu.id_guest = p."ID_PEP" 
+            AND gu.id_guestorder = (
+                SELECT MAX(gu2.id_guestorder)
+                FROM guestorder gu2
+                WHERE gu2.id_guest = p."ID_PEP"
+            )
+        LEFT JOIN people p_added ON p_added."ID_PEP" = gu.id_pep
+        LEFT JOIN organization o ON o.id_org = gu.id_org
+        WHERE p."ID_PEP" IN (
+            SELECT gu3.id_guest
+            FROM guestorder gu3
+            GROUP BY gu3.id_guest
+            HAVING MAX(gu3.timeorder) >= :date_from AND MAX(gu3.timeorder) <= :date_to
+        )
+        ORDER BY p."SURNAME", e.DATETIME';
+        
+        $query = DB::query(Database::SELECT, $sql)
+            ->param(':date_from', $date_from_sql)
+            ->param(':date_to', $date_to_sql);
+        
+        $rows = $query->execute(Database::instance('fb'))->as_array();
+        
+        // Отдельный запрос для получения ID гостей для удаления (только если включено удаление)
+        if ($delete_data) {
+            $guest_sql = 'SELECT gu.id_guest
+                         FROM guestorder gu
+                         GROUP BY gu.id_guest
+                         HAVING MAX(gu.timeorder) >= :date_from AND MAX(gu.timeorder) <= :date_to';
+            
+            $guest_query = DB::query(Database::SELECT, $guest_sql)
+                ->param(':date_from', $date_from_sql)
+                ->param(':date_to', $date_to_sql);
+        
+            $guest_rows = $guest_query->execute(Database::instance('fb'))->as_array();
+            
+            // Сохраняем все ID гостей для удаления
+            foreach ($guest_rows as $guest_row) {
+                if (isset($guest_row['ID_GUEST']) && !empty($guest_row['ID_GUEST'])) {
+                    $guests_to_delete[] = $guest_row['ID_GUEST'];
+                }
+            }
+        }
+        
+        // Собираем уникальные id_buro из результатов для получения названий бюро
+        $buro_ids = array();
+        foreach ($rows as $row) {
+            if (isset($row['ID_BURO']) && !empty($row['ID_BURO'])) {
+                $buro_ids[] = (int)$row['ID_BURO'];
+            }
+        }
+        $buro_ids = array_unique($buro_ids);
+        
+        // Получаем названия бюро из bu_buro (sqlite база bucfg)
+        $buro_map = array();
+        if (!empty($buro_ids)) {
+            $buro_sql = 'SELECT id, name FROM bu_buro WHERE id IN (' . implode(',', $buro_ids) . ')';
+            try {
+                $buro_rows = DB::query(Database::SELECT, $buro_sql)
+                    ->execute(Database::instance('bucfg'))
+                    ->as_array();
+                
+                foreach ($buro_rows as $buro_row) {
+                    $buro_id = isset($buro_row['id']) ? $buro_row['id'] : (isset($buro_row['ID']) ? $buro_row['ID'] : null);
+                    $buro_name = isset($buro_row['name']) ? $buro_row['name'] : (isset($buro_row['NAME']) ? $buro_row['NAME'] : '');
+                    if ($buro_id !== null) {
+                        $buro_map[$buro_id] = $buro_name;
+                    }
+                }
+            } catch (Exception $buro_e) {
+                Log::instance()->add(Log::ERROR, 'Ошибка при получении названий бюро: ' . $buro_e->getMessage());
+            }
+        }
+        
+        foreach ($rows as $row) {
+            // Сохраняем ID события для удаления
+            if (isset($row['ID_EVENT'])) {
+                $event_ids[] = $row['ID_EVENT'];
+            }
+            
+            // Получаем ФИО гостя отдельно
+            $surname = isset($row['SURNAME']) ? iconv('CP1251', 'UTF-8', $row['SURNAME']) : '';
+            $name = isset($row['NAME']) ? iconv('CP1251', 'UTF-8', $row['NAME']) : '';
+            $patronymic = isset($row['PATRONYMIC']) ? iconv('CP1251', 'UTF-8', $row['PATRONYMIC']) : '';
+            
+            // Получаем логин оператора
+            $added_login = isset($row['ADDED_LOGIN']) ? iconv('CP1251', 'UTF-8', $row['ADDED_LOGIN']) : '';
+            
+            // Получаем название бюро
+            $buro_id = isset($row['ID_BURO']) ? (int)$row['ID_BURO'] : null;
+            $buro_name = ($buro_id !== null && isset($buro_map[$buro_id])) ? $buro_map[$buro_id] : '';
+            
+            // Получаем название организации
+            $org_name = isset($row['ORG_NAME']) ? iconv('CP1251', 'UTF-8', $row['ORG_NAME']) : '';
+            
+            $id_eventtype = isset($row['ID_EVENTTYPE']) ? $row['ID_EVENTTYPE'] : '';
+            $datetime = isset($row['DATETIME']) ? date('d.m.Y H:i:s', strtotime($row['DATETIME'])) : '';
+            
+            // Формируем NOTE с добавлением точки прохода (как в historyGuest)
+            $note = '';
+            if (!empty($row['ID_CARD'])) {
+                $note .= iconv('CP1251', 'UTF-8', $row['ID_CARD']);
+            }
+            if (!empty($row['DEVICE_NAME'])) {
+                $note .= ($note ? '; ' : '') . iconv('CP1251', 'UTF-8', $row['DEVICE_NAME']);
+            }
+            if (empty($note) && !empty($row['NOTE'])) {
+                $note = iconv('CP1251', 'UTF-8', $row['NOTE']);
+            }
+            
+            // Конвертируем eventtype_name из CP1251 в UTF-8
+            $eventtype_name = isset($row['EVENTTYPE_NAME']) ? iconv('CP1251', 'UTF-8', $row['EVENTTYPE_NAME']) : '';
+            
+            $csv_row = array(
+                iconv('UTF-8', 'Windows-1251', $surname),
+                iconv('UTF-8', 'Windows-1251', $name),
+                iconv('UTF-8', 'Windows-1251', $patronymic),
+                $id_eventtype,
+                $datetime,
+                iconv('UTF-8', 'Windows-1251', $note),
+                iconv('UTF-8', 'Windows-1251', $eventtype_name),
+                iconv('UTF-8', 'Windows-1251', $added_login),
+                iconv('UTF-8', 'Windows-1251', $buro_name),
+                iconv('UTF-8', 'Windows-1251', $org_name)
+            );
+            
+            fputcsv($output, $csv_row, ';');
+        }
+        
+        // Закрываем вывод перед удалением данных
+        fclose($output);
+        
+        // Удаляем данные только если включена галочка удаления
+        if ($delete_data) {
+            // Удаляем события из EVENTS после успешного экспорта
+            if (!empty($event_ids)) {
+                $event_ids = array_unique($event_ids);
+                $event_ids_list = implode(',', array_map('intval', $event_ids));
+                
+                $delete_events_sql = 'DELETE FROM EVENTS WHERE ID_EVENT IN (' . $event_ids_list . ')';
+                
+                try {
+                    DB::query(Database::DELETE, $delete_events_sql)
+                        ->execute(Database::instance('fb'));
+                } catch (Exception $delete_e) {
+                    Log::instance()->add(Log::ERROR, 'Ошибка при удалении событий после экспорта: ' . $delete_e->getMessage());
+                }
+            }
+            
+            // Удаляем записи из guestorder после успешного экспорта
+            if (!empty($guests_to_delete)) {
+                $this->delete_guestorder_records($guests_to_delete);
+            }
+        }
+        
+        exit();
+        
+    } catch (Exception $e) {
+        // В случае ошибки выводим сообщение
+        $error_row = array(
+            iconv('UTF-8', 'Windows-1251', 'Ошибка: ' . $e->getMessage())
+        );
+        fputcsv($output, $error_row, ';');
+        fclose($output);
+        exit();
+    }
+}
+
+/**
+ * Удаление ВСЕХ записей из guestorder для указанных гостей
+ */
+private function delete_guestorder_records($guest_ids)
+{
+    if (empty($guest_ids)) {
+        return 0;
+    }
+    
+    try {
+        // Разбиваем массив ID на части для больших объемов данных
+        $chunks = array_chunk($guest_ids, 500); // 500 ID за раз
+        $total_deleted = 0;
+        
+        foreach ($chunks as $chunk) {
+            // Удаляем ВСЕ записи для этих гостей
+            $delete_sql = 'DELETE FROM guestorder WHERE id_guest IN (' . implode(',', $chunk) . ')';
+              
+            // Выполняем удаление
+            $result = DB::query(Database::DELETE, $delete_sql)
+                ->execute(Database::instance('fb'));
+              
+            // Приблизительный подсчет удаленных записей
+            $total_deleted += count($chunk);
+              
+            // Пауза между запросами
+            usleep(50000); // 0.05 секунды
+        }
+        
+        // Логируем удаление
+        Log::instance()->add(Log::NOTICE, 'Удалены все записи из guestorder для ' . count($guest_ids) . ' гостей');
+        
+        return $total_deleted;
+        
+    } catch (Exception $e) {
+        // Логируем ошибку удаления
+        Log::instance()->add(Log::ERROR, 'Ошибка при удалении записей из guestorder: ' . $e->getMessage());
+        return 0;
+    }
+}
+
+
+
+
 
 }
+	

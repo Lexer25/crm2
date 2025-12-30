@@ -1,0 +1,1 @@
+C:\xampp\php\php.exe c:\xampp\htdocs\crm2\modules\minion\minion --task=checkGuestNoExit

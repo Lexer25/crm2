@@ -5,7 +5,7 @@
  * если 'visible' => false, то пункт меню не будет показан
  * если 'visible' => true или отсутсвует, то пункт меню будет показан
  * */
- 
+ $user = new User();
 return [
 	'view' => 'templates/menu/bootstrap/navbar',
 	'items' => [
@@ -139,7 +139,7 @@ return [
 					'icon'    => 'icon_guest.png',
 					'title'   => 'passoffice.passoffice',
 					'tooltip' => 'passoffice.passoffice',
-					'visible' => true, // можно запретить показ, если false
+					'visible' => false, // можно запретить показ, если false
 					'items'   => [
 						'guestslist'=>[
 									'url'     => 'passoffices/guest',
@@ -180,14 +180,14 @@ return [
 			'order'=>[	//заказ пропусков
 					'url'     => 'order.order',
 					'icon'    => 'icon_guest.png',
-					'title'   => 'order.order',
+					'title'   => 'Заказ пропусков',
 					'tooltip' => 'order.order',
 					'visible' => true, // можно запретить показ, если false
 					'items'   => [
 						'guestslist'=>[
 									'url'     => 'order/guest',
 									'icon'    => '',
-									'title'   => 'order.orderlist',
+									'title'   => 'Список заявок',
 									'tooltip' => 'order.orderlist',
 								],
 						'addorder'=>[
@@ -207,9 +207,16 @@ return [
 						'addguest2'=>[
 									'url'     => 'order/edit/0/newguest',
 									'icon'    => '',
-									'title'   => 'sidebar.addguest2',
+									'title'   => 'Регистрация гостя',
 									'tooltip' => 'sidebar.addguest2',
 								],
+						'settings'=>[
+									'url' => 'order/settings',
+									'icon'=>'',
+									'tittle'=>'Настройки',
+									'tooltip'=>'Настройки',
+									'visible'=> ($user->id_role === 1)
+						]
 						
 							
 					]
@@ -252,20 +259,7 @@ return [
 					'tooltip' => 'report.reports',
 					'visible' => true, // можно запретить показ, если false
 					'items'   => [
-						'history'=>[
-									'url'     => 'reports/events',
-									'icon'    => '',
-									'title'   => 'report.history',
-									'tooltip' => 'report.history',
-									'visible' => false,
-								],
-						'stat'=>[
-									'url'     => 'reports/example',
-									'icon'    => '',
-									'title'   => 'mreport.stat',
-									'tooltip' => 'mreport.stat',
-									'visible' => false,
-								],
+						
 						'report1'=>[
 									//'url'     => 'mreports/reportSelect/234',
 									'url'     => 'reports/regRegestry',//реестр выданных пропусков
@@ -292,21 +286,7 @@ return [
 									'visible' => true,
 								],
 						
-						'peopleRegStat'=>[
-									'url'     => 'reports/peopleRegStat',
-									'icon'    => '',
-									'title'   => 'report.peopleRegStat',
-									'tooltip' => 'report.peopleRegStat',
-									'visible' => false,
-								],
 						
-						'identityRegStat'=>[
-									'url'     => 'reports/identityRegStat',
-									'icon'    => '',
-									'title'   => 'report.identityRegStat',
-									'tooltip' => 'report.identityRegStat',
-									'visible' => false,
-								],
 						
 						
 						

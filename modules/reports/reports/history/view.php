@@ -23,7 +23,7 @@ $ruid='history2';//
 		$t1=microtime(true);
 		if ($data->totalCountRow>1) { 
 		
-			echo __('<p>Отчет содержит :count событий.</p>', array(':count'=>$data->totalCountRow));
+			echo __('<p>Отчет содержит :count записей.</p>', array(':count'=>$data->totalCountRow));
 			echo __('<p>Отчет подготовлен за :count секунд.</p>', array(':count'=>$data->timeExecute));
 			echo __('<p>Будут показаны первые 100 событий. Для получения полного отчета нажмите "Сохранить результат".</p>');
 			

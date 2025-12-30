@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
 return array(
-
+	'type' => 'cookie', // Здесь указывается драйвер сессии
    'cookie' => array(
         'name' => 'cookie_name_crm2',
         'encrypted' => false,

@@ -28,63 +28,441 @@ class Model_Order extends Model
 	*27.06.2024 Модель Бюро пропусков пытаюсь сделать как модель Kohana
 	*если для указанного $id_pep нет записей, то результатом будет null
 	*/
+public function checkSignature($id_pep = null)
+{
+    $pd = new PD(0);
+    return $pd->checkSignature($id_pep);
+}
+public function getListNowOrder($id_pep, $mode = null, $user_role = null, $buro_filter = '', $show_all = false)
+{
+    $start = microtime(true);
+
+    $baseWhere = '';
+    $user_buro_ids = array();
+
+    // Загружаем настройки (используем ваш метод getSettings, но адаптированный для модели)
+    $settings = $this->getSettings();
+
+    if ($user_role == 1) {
+        // админ — все записи
+        $baseWhere = '1=1';
+    } elseif ($user_role == 2) {
+        $buro = new Buro();
+        $user_buros = $buro->getIdBuroForUser($id_pep);
+        $user_buro_ids = array_map('intval', Arr::pluck($user_buros, 'id_buro'));
+
+        if (empty($user_buro_ids)) {
+            //Log::instance()->add(Log::DEBUG, 'No buros for user ' . $id_pep);
+            return array();
+        }
+
+        // Для user_role == 2 проверяем режим и настройку archive_visibility
+        if ($mode === 'archive_mode') {
+            if ($settings['archive_visibility'] === 'all') {
+                $baseWhere = '1=1';  // Видят весь архив
+            } else {
+                $baseWhere = 'gu.id_buro IN (' . implode(',', $user_buro_ids) . ')';  // Видят только по своему бюро
+            }
+        } else {
+            // Для guest_mode всегда фильтрация по бюро
+            $baseWhere = 'gu.id_buro IN (' . implode(',', $user_buro_ids) . ')';
+        }
+    } else {
+        $baseWhere = 'gu.id_org = :id_org';
+    }
+
+    $sql = 'SELECT 
+        gu.id_guestorder, 
+        g."ID_PEP" AS id_guest, 
+        g."SURNAME" AS guest_surname, 
+        g."NAME" AS guest_name, 
+        g."PATRONYMIC" AS guest_patronymic, 
+        o.id_org, 
+        o."NAME" AS org_name, 
+        p."SURNAME" AS p_surname,
+        g."NUMDOC" AS numdoc, 
+        g.time_stamp,
+        gu.timeplan,
+        gu.timeorder,
+        gu.is_active,
+        gu.id_buro,
+        gu.id_pep AS id_pep,
+        c_g.id_card AS guest_card_number,
+        c_g."CREATEDAT" AS createdat
+    FROM guestorder gu
+    JOIN people g ON gu.id_guest = g.id_pep
+    JOIN organization o ON gu.id_org = o.id_org
+    JOIN people p ON gu.id_pep = p.id_pep
+    LEFT JOIN card c_g ON g.id_pep = c_g.id_pep
+    WHERE :baseWhere
+    AND gu.id_guestorder = (
+        SELECT MAX(g2.id_guestorder)
+        FROM guestorder g2
+        JOIN people p2 ON g2.id_guest = p2.id_pep
+        WHERE g2.id_guest = gu.id_guest';
+
+    if ($mode === 'guest_mode') {
+        if ($show_all) {
+            $sql .= ' AND g2.timeplan < CURRENT_DATE + 1';
+        } else {
+            $sql .= ' AND ((g2.timeplan >= CURRENT_DATE AND g2.timeplan < CURRENT_DATE + 1)
+                OR (g2.timeplan < CURRENT_DATE 
+                    AND EXISTS (SELECT 1 FROM card c WHERE c.id_pep = g2.id_guest)))';
+        }
+        $sql .= ' AND p2.id_org = 2';
+        $sql .= ' AND g2.is_active = 1';
+    } elseif ($mode === 'archive_mode') {
+        $sql .= ' AND g2.timeplan < CURRENT_DATE + 1';
+        $sql .= ' AND p2.id_org = 3';
+        $sql .= ' AND (g2.is_active IS NULL OR g2.is_active <> 1)';
+    }
+
+    $sql .= ')';
+
+    if ($mode === 'guest_mode') {
+        $sql .= ' ORDER BY gu.timeorder DESC';
+    } elseif ($mode === 'archive_mode') {
+        $sql .= ' ORDER BY gu.timeorder DESC';
+    }
+
+    // Выполняем основной запрос (на fb)
+    $sql_for_exec = str_replace(':baseWhere', $baseWhere, $sql);
+    Log::instance()->add(Log::DEBUG, 'SQL Query: ' . $sql_for_exec);
+
+    $query = DB::query(Database::SELECT, $sql_for_exec);
+
+    if ($user_role == 3) {
+        $user = new User();
+        $query->param(':id_org', $user->id_org);
+    }
+
+    $rows = $query->execute(Database::instance('fb'))->as_array();
+
+    $result = array();
+
+    if (empty($rows)) {
+        Log::instance()->add(Log::DEBUG, 'Execution Time: ' . (microtime(true) - $start));
+        return $result;
+    }
+
+    // Собираем уникальные id_buro из результатов
+    $buro_ids = array_filter(array_unique(array_map(function($row) {
+        return isset($row['ID_BURO']) ? $row['ID_BURO'] : null;
+    }, $rows)));
+
+    // Запрашиваем названия бюро из bu_buro
+    $buro_map = array();
+    if (!empty($buro_ids)) {
+        $buro_sql = 'SELECT id, name FROM bu_buro WHERE id IN (' . implode(',', array_map(function($id) {
+            return is_numeric($id) ? (int)$id : "'".addslashes($id)."'";
+        }, $buro_ids)) . ')';
+        //Log::instance()->add(Log::DEBUG, 'Buro SQL Query: ' . $buro_sql);
+
+        $buro_rows = DB::query(Database::SELECT, $buro_sql)
+            ->execute(Database::instance('bucfg'))
+            ->as_array();
+
+        //Log::instance()->add(Log::DEBUG, 'Buro Rows: ' . print_r($buro_rows, true));
+
+        foreach ($buro_rows as $buro_row) {
+            $buro_id = isset($buro_row['id']) ? $buro_row['id'] : (isset($buro_row['ID']) ? $buro_row['ID'] : null);
+            $buro_name = isset($buro_row['name']) ? $buro_row['name'] : (isset($buro_row['NAME']) ? $buro_row['NAME'] : '');
+            if ($buro_id !== null && $buro_name !== '') {
+                $buro_map[$buro_id] = $buro_name;
+            }
+        }
+    }
+
+    foreach ($rows as $row) {
+        $row_buro_id = isset($row['ID_BURO']) ? $row['ID_BURO'] : null;
+        $row['buro_name'] = ($row_buro_id !== null && isset($buro_map[$row_buro_id])) 
+            ? $buro_map[$row_buro_id] 
+            : 'Не указано';
+
+        //Log::instance()->add(Log::DEBUG, 'Row ID_BURO: ' . $row_buro_id . ', Buro Name: ' . $row['buro_name']);
+
+        $result[] = $row;
+    }
+
+    // archive_mode: проверяем подпись
+    if ($mode === 'archive_mode' && !empty($result)) {
+        $pd = new PD(0);
+        
+        // Получаем все ID и имена файлов, имеющих подписи
+        $settings = $this->getSettings();
+        $upload_dir = $pd->normalizePath($settings['upload_dir']);
+        
+        $filelist = array(); // массив id => filename
+        if (is_dir($upload_dir) && is_readable($upload_dir)) {
+            try {
+                $iterator = new DirectoryIterator($upload_dir);
+                foreach ($iterator as $fileInfo) {
+                    if ($fileInfo->isFile()) {
+                        $filename = $fileInfo->getFilename();
+                        // Проверяем что это jpg файл и извлекаем ID
+                        if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) === 'jpg') {
+                            $id_part = explode("_", $filename)[0];
+                            if (is_numeric($id_part)) {
+                                $filelist[(int)$id_part] = $filename; // id => filename
+                            }
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                Log::instance()->add(Log::DEBUG, 'Error scanning directory for signatures: ' . $e->getMessage());
+            }
+        }
+        
+        // Быстрая проверка наличия подписи через array_key_exists и добавление filename
+        foreach ($result as &$r) {
+            $check_id = array_key_exists('id_guest', $r) ? $r['id_guest'] : 
+                       (array_key_exists('ID_GUEST', $r) ? $r['ID_GUEST'] : null);
+            
+            if ($check_id !== null && array_key_exists($check_id, $filelist)) {
+                $r['has_signature'] = true;
+                $r['signature_filename'] = $filelist[$check_id]; // добавляем название файла в результат
+            } else {
+                $r['has_signature'] = false;
+                $r['signature_filename'] = null;
+            }
+        }
+        unset($r);
+    }
+
+    Log::instance()->add(Log::DEBUG, 'Execution Time: ' . (microtime(true) - $start));
+    return $result;
+}
+
+public function getListNowOrder2($id_pep, $mode = null, $user_role = null, $buro_filter = '', $show_all = false)
+{
+    $start = microtime(true);
+
+    $baseWhere = '';
+    $user_buro_ids = array();
+
+    // Загружаем настройки (используем ваш метод getSettings, но адаптированный для модели)
+    $settings = $this->getSettings();
+
+    if ($user_role == 1) {
+        // админ — все записи
+        $baseWhere = '1=1';
+    } elseif ($user_role == 2) {
+        $buro = new Buro();
+        $user_buros = $buro->getIdBuroForUser($id_pep);
+        $user_buro_ids = array_map('intval', Arr::pluck($user_buros, 'id_buro'));
+
+        if (empty($user_buro_ids)) {
+            //Log::instance()->add(Log::DEBUG, 'No buros for user ' . $id_pep);
+            return array();
+        }
+
+        // Для user_role == 2 проверяем режим и настройку archive_visibility
+        if ($mode === 'archive_mode') {
+            if ($settings['archive_visibility'] === 'all') {
+                $baseWhere = '1=1';  // Видят весь архив
+            } else {
+                $baseWhere = 'gu.id_buro IN (' . implode(',', $user_buro_ids) . ')';  // Видят только по своему бюро
+            }
+        } else {
+            // Для guest_mode всегда фильтрация по бюро
+            $baseWhere = 'gu.id_buro IN (' . implode(',', $user_buro_ids) . ')';
+        }
+    } else {
+        $baseWhere = 'gu.id_org = :id_org';
+    }
+
+    $sql = 'SELECT 
+        gu.id_guestorder, 
+        g."ID_PEP" AS id_guest, 
+        g."SURNAME" AS guest_surname, 
+        g."NAME" AS guest_name, 
+        g."PATRONYMIC" AS guest_patronymic, 
+        o.id_org, 
+        o."NAME" AS org_name, 
+        p."SURNAME" AS p_surname,
+        g."NUMDOC" AS numdoc, 
+        g.time_stamp,
+        gu.timeplan,
+        gu.timeorder,
+        gu.is_active,
+        gu.id_buro,
+        gu.id_pep AS id_pep,
+        c_g.id_card AS guest_card_number,
+        c_g."CREATEDAT" AS createdat
+    FROM guestorder gu
+    JOIN people g ON gu.id_guest = g.id_pep
+    JOIN organization o ON gu.id_org = o.id_org
+    JOIN people p ON gu.id_pep = p.id_pep
+    LEFT JOIN card c_g ON g.id_pep = c_g.id_pep
+    WHERE :baseWhere
+    AND gu.id_guestorder = (
+        SELECT MAX(g2.id_guestorder)
+        FROM guestorder g2
+        JOIN people p2 ON g2.id_guest = p2.id_pep
+        WHERE g2.id_guest = gu.id_guest';
+
+    if ($mode === 'guest_mode') {
+        if ($show_all) {
+            $sql .= ' AND g2.timeplan < CURRENT_DATE + 1';
+        } else {
+            $sql .= ' AND ((g2.timeplan >= CURRENT_DATE AND g2.timeplan < CURRENT_DATE + 1)
+                OR (g2.timeplan < CURRENT_DATE 
+                    AND EXISTS (SELECT 1 FROM card c WHERE c.id_pep = g2.id_guest)))';
+        }
+        $sql .= ' AND p2.id_org = 2';
+        $sql .= ' AND g2.is_active = 1';
+    } elseif ($mode === 'archive_mode') {
+        $sql .= ' AND g2.timeplan < CURRENT_DATE + 1';
+        $sql .= ' AND p2.id_org = 3';
+        $sql .= ' AND (g2.is_active IS NULL OR g2.is_active <> 1)';
+    }
+
+    $sql .= ')';
+
+    if ($mode === 'guest_mode') {
+        $sql .= ' ORDER BY gu.timeplan ASC';
+    } elseif ($mode === 'archive_mode') {
+        $sql .= ' ORDER BY gu.timeorder DESC';
+    }
+
+    // Выполняем основной запрос (на fb)
+    $sql_for_exec = str_replace(':baseWhere', $baseWhere, $sql);
+    Log::instance()->add(Log::DEBUG, 'SQL Query: ' . $sql_for_exec);
+
+    $query = DB::query(Database::SELECT, $sql_for_exec);
+
+    if ($user_role == 3) {
+        $user = new User();
+        $query->param(':id_org', $user->id_org);
+    }
+
+    $rows = $query->execute(Database::instance('fb'))->as_array();
+
+    $result = array();
+
+    if (empty($rows)) {
+        Log::instance()->add(Log::DEBUG, 'Execution Time: ' . (microtime(true) - $start));
+        return $result;
+    }
+
+    // Собираем уникальные id_buro из результатов
+    $buro_ids = array_filter(array_unique(array_map(function($row) {
+        return isset($row['ID_BURO']) ? $row['ID_BURO'] : null;
+    }, $rows)));
+
+    // Запрашиваем названия бюро из bu_buro
+    $buro_map = array();
+    if (!empty($buro_ids)) {
+        $buro_sql = 'SELECT id, name FROM bu_buro WHERE id IN (' . implode(',', array_map(function($id) {
+            return is_numeric($id) ? (int)$id : "'".addslashes($id)."'";
+        }, $buro_ids)) . ')';
+        //Log::instance()->add(Log::DEBUG, 'Buro SQL Query: ' . $buro_sql);
+
+        $buro_rows = DB::query(Database::SELECT, $buro_sql)
+            ->execute(Database::instance('bucfg'))
+            ->as_array();
+
+        //Log::instance()->add(Log::DEBUG, 'Buro Rows: ' . print_r($buro_rows, true));
+
+        foreach ($buro_rows as $buro_row) {
+            $buro_id = isset($buro_row['id']) ? $buro_row['id'] : (isset($buro_row['ID']) ? $buro_row['ID'] : null);
+            $buro_name = isset($buro_row['name']) ? $buro_row['name'] : (isset($buro_row['NAME']) ? $buro_row['NAME'] : '');
+            if ($buro_id !== null && $buro_name !== '') {
+                $buro_map[$buro_id] = $buro_name;
+            }
+        }
+    }
+
+    foreach ($rows as $row) {
+        $row_buro_id = isset($row['ID_BURO']) ? $row['ID_BURO'] : null;
+        $row['buro_name'] = ($row_buro_id !== null && isset($buro_map[$row_buro_id])) 
+            ? $buro_map[$row_buro_id] 
+            : 'Не указано';
+
+        //Log::instance()->add(Log::DEBUG, 'Row ID_BURO: ' . $row_buro_id . ', Buro Name: ' . $row['buro_name']);
+
+        $result[] = $row;
+    }
+
+    // archive_mode: проверяем подпись
+	Log::instance()->add(Log::DEBUG, 'Execution Time 1: ' . (microtime(true) - $start));
 	
-	public function getListNowOrder($id_pep, $mode = null)
-	{
-		//$configcdf=Kohana::$config->load('guest');//загрузка данных из вспомогательной базы данных, хотя надо будет брать данные из настоящей БД СКУД
-		
-
-
-		// $sql = 'SELECT gu.id_guestorder, g.id_guest, o.id_org 
-        //     FROM guestorder gu 
-        //     JOIN guest g ON gu.id_guest = g.id_guest 
-        //     JOIN organization o ON gu.id_org = o.id_org 
-        //     WHERE g.id_guest IN (' . DB::expr($idGuest) . ') 
-        //     AND o.id_org IN (' . DB::expr($idOrgGuest) . ')';
-		
-		// $query = Arr::flatten(DB::query(Database::SELECT, $sql)
-		// ->execute(Database::instance('fb'))
-		//     ->as_array()
-		// );
-		// return $query;
-
-		 $sql = 'SELECT 
-            gu.id_guestorder, 
-            g."ID_PEP" AS id_guest, 
-            g."SURNAME" AS guest_surname, 
-            g."NAME" AS guest_name, 
-            g."PATRONYMIC" AS guest_patronymic, 
-            o.id_org, 
-            o."NAME" AS org_name, 
-            p."SURNAME" AS p_surname, 
-            gu.timeplan,
-			gu.timeorder,
-            c_g.id_card AS guest_card_number,
-            c_g."TIMESTART" as timestart
-        FROM guestorder gu 
-        JOIN people g ON gu.id_guest = g.id_pep 
-        JOIN organization o ON gu.id_org = o.id_org
-        JOIN people p ON gu.id_pep = p.id_pep  
-        LEFT JOIN card c_g ON g.id_pep = c_g.id_pep 
-        WHERE ' . ($id_pep == 1 ? '1=1' : 'gu.id_pep = ' . DB::expr($id_pep));
-
-	if ($mode === 'guest_mode') {
-		$sql .= ' AND CAST(gu.timeplan AS DATE) >= CURRENT_DATE';
-		$sql .= ' ORDER BY gu.timeplan ASC';
-	} elseif ($mode === 'archive_mode') {
-		$sql .= ' AND CAST(gu.timeplan AS DATE) < CURRENT_DATE';
-		$sql .= ' ORDER BY gu.timeplan DESC';
-	}
-
-	//echo Debug::vars('73', $sql);exit;
-	$query = DB::query(Database::SELECT, $sql)
-    ->execute(Database::instance('fb'))
-    ->as_array();
-	//echo Debug::vars('78', $query);exit;
-return $query;
-
+	//Тимофей! СДелай прямо тут чтение названия всех файлов директории, где согласия хранятся.
+	//не получится так просто сделать, упираемся в кодировки файлов, я изначально выводилл вообще только англ названия у себя
+	//момент! deepseek предлагает так:
 	
-	}
+	//$directory = 'C:\xampp\htdocs\crm2\PersonalData';
+
+//$iterator = new DirectoryIterator($directory);
+//foreach ($iterator as $fileInfo) {
+  //  if ($fileInfo->isFile()) {
+       
+    //    $filelist[explode("_", $fileInfo->getFilename())[0]] = $fileInfo->getFilename();//списко id, имеющих согласие
+    //}
+//}
+//echo Debug::vars('195',(microtime(true) - $start), $filelist);exit; 
+
+ //foreach ($result as &$r) {
+
+            //$check_id = array_key_exists('id_guest', $r) ? $r['id_guest'] : 
+              //         (array_key_exists('ID_GUEST', $r) ? $r['ID_GUEST'] : null);
+            
+            //$r['has_signature'] = ($check_id !== null && array_key_exists($check_id, $filelist)) ? true : false;
+        //}
+
+//echo Debug::vars('195', $r); //exit; извини... продолжай
+Log::instance()->add(Log::DEBUG, 'Execution Time 2: ' . (microtime(true) - $start)); exit;
+//давай посмотрим что получится. Отредактируй путь к директории
+    if ($mode === 'archive_mode' && !empty($result)) {
+        $pd = new PD(0);
+        
+        // Получаем все ID и имена файлов, имеющих подписи
+        $settings = $this->getSettings();
+        $upload_dir = $pd->normalizePath($settings['upload_dir']);
+        
+        $filelist = array(); // массив id => filename
+        if (is_dir($upload_dir) && is_readable($upload_dir)) {
+            try {
+                $iterator = new DirectoryIterator($upload_dir);
+                foreach ($iterator as $fileInfo) {
+                    if ($fileInfo->isFile()) {
+                        $filename = $fileInfo->getFilename();
+                        // Проверяем что это jpg файл и извлекаем ID
+                        if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) === 'jpg') {
+                            $id_part = explode("_", $filename)[0];
+                            if (is_numeric($id_part)) {
+                                $filelist[(int)$id_part] = $filename; // id => filename
+                            }
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+            }
+        }
+
+    Log::instance()->add(Log::DEBUG, 'Execution Time: ' . (microtime(true) - $start));
+	echo Debug::vars('246', $result);exit;
+    return $result;
+}
+}
+
+private function getSettings() {
+    $settings_file = APPPATH . 'config' . DIRECTORY_SEPARATOR . 'app_settings.php';
+    $default_settings = array(
+        'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . 'signatures',
+        'consent_text' => 'Я даю согласие на обработку персональных данных...',
+        'require_consent_for_card' => false,
+        'archive_visibility' => 'all'  // Дефолт для новой настройки
+    );
+    
+    if (file_exists($settings_file)) {
+        $saved_settings = include $settings_file;
+        return array_merge($default_settings, $saved_settings);
+    }
+    
+    return $default_settings;
+}
+
 	
 	
 	

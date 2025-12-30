@@ -31,6 +31,36 @@ $(document).ready(function () {
 //change selectboxes to selectize mode to be searchable
 $("select").find('option[value="1"]').attr('disabled','disabled').attr('value','');
 $("select").select2();
+
+// Добавляем переход по Enter между полями
+var fields = [
+    'surname',
+    'name', 
+    'patronymic',
+    'numdoc',
+    'datedoc',
+    'post',
+    'tabnum'
+];
+
+// Добавляем обработчик для каждого поля
+fields.forEach(function(fieldId, index) {
+    var field = document.getElementById(fieldId);
+    if (field) {
+        field.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                var nextIndex = index + 1;
+                if (nextIndex < fields.length) {
+                    var nextField = document.getElementById(fields[nextIndex]);
+                    if (nextField) {
+                        nextField.focus();
+                    }
+                }
+            }
+        });
+    }
+});
 });
 </script>
 
@@ -128,19 +158,6 @@ $tt=microtime(true);
 	</div>
 	<br class="clear" />
 	<div class="content">
-	<?php if($mode=='edit') {?>
-				<form action="<?php echo Route::url('default', array('controller' => 'contacts', 'action' => 'upload')) ?>" method="post" enctype="multipart/form-data">
-				<label for="image_control">Для загрузки изображения выберите файл и нажмите кнопку Загрузить</label>
-				<div class="row">
-					<input type="file"  <?php echo $dis1;?> name="image" id="image_control">
-					<input type="submit" <?php echo $dis1;?>  value="Загрузить">
-					<input type="hidden" name="id_pep" value="<?php echo $contact->id_pep; ?>" />
-				</div>
-			</form>
-	<?php } else {
-		
-		echo __('form.select_file_enabled_in_edit_mode');
-	}?>
 		<form action="contacts/save" method="post" onsubmit="return validate()">
 			<input type="hidden" name="hidden" value="form_sent" />
 			<input type="hidden" name="id_pep" value="<?php echo $contact->id_pep; ?>" />
@@ -148,23 +165,7 @@ $tt=microtime(true);
 			<table style="margin: 0">
 				<tr>
 					<td>
-						<div>
-							<?php if ($contact->photo != null) { 
-							//echo Debug::vars('145', $photo); exit;?>
-								
-								<img src="data:image/jpeg;base64,<?php echo base64_encode(pack("H*",str_replace("\0", "",$contact->photo))); ?>" height="200" alt="photo" />
-								<br>
-							
-								
-							<?php 
-							//echo HTML::image('"data:image/jpeg;base64,'.base64_encode($contact['PHOTO']));
-							} else { 
-							
-								echo HTML::image("images/nophoto.png", array('height' => 200, 'alt' => 'photo'));
-							}
-							
-							?>
-						</div>
+
 						
 						
 						<fieldset>
@@ -321,8 +322,7 @@ $tt=microtime(true);
     ['id' => 4, 'name' => 'Team 1', 'parent' => 2],
     ['id' => 5, 'name' => 'Team 2', 'parent' => 2], 
 ];*/
-								//echo Debug::vars('324', $select_org);//exit;
-								//echo Debug::vars('325', array_slice($org_tree, 0, 5));//exit;
+								//echo Debug::vars('324', array_slice($org_tree, 0, 5));//exit;
 								$var2=$tree->buildTreeWithReferences($org_tree);
 								//echo Debug::vars('347', $var2);exit;
 							?>

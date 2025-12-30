@@ -83,9 +83,6 @@ class Model_Report_allContactsExport extends Model_Report_Base
                     join organization o on o.id_org=p.id_org
                     join organization_getchild(1, '.Arr::get($post, 'id_org_select', $user->id_orgctrl).') og on p.id_org=og.id_org';
 					
-			
-				//echo Debug::vars('134', $sql);exit;
-				Log::instance()->add(Log::ERROR, '146 '. $sql);
 				$t2=microtime(true);
 					$query = DB::query(Database::SELECT, $sql)
 					->execute(Database::instance('fb'))

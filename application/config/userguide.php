@@ -2,13 +2,13 @@
 
 return array(
 		// Enable the API browser.  TRUE or FALSE
-		'api_browser'  => TRUE,
+		//'api_browser'  => TRUE,
 
 	// Enable these packages in the API browser.  TRUE for all packages, or a string of comma seperated packages, using 'None' for a class with no @package
 	// Example: 'api_packages' => 'Kohana,Kohana/Database,Kohana/ORM,None',
 		//'api_packages' => true,
-		'api_packages' => 'Kohana/Database',
-// 'api_packages' => 'ParkResident/Emul,ParkResident/Garage,ParkResident/Gate,ParkResident/Parking,ParkResident/Place,ParkResident/ResidentPlace,ParkResident/Setup,ParkResident/Application',
+		//'api_packages' => 'Kohana/Database',
+
 	// Enables Disqus comments on the API and User Guide pages
 	//'show_comments' => Kohana::$environment === Kohana::PRODUCTION,
 	
@@ -50,10 +50,10 @@ return array(
 		'userguide' => array(
 
 			// Whether this modules userguide pages should be shown
-				'enabled' => true,
+			'enabled' => true,
 			
 			// The name that should show up on the userguide index page
-			'name' => 'Документация',
+			'name' => 'Userguide',
 
 			// A short description of this module, shown on the index page
 			'description' => 'Documentation viewer and api generation.',
@@ -76,19 +76,17 @@ return array(
 			// Copyright message, shown in the footer for this module
 			'copyright' => '&copy; 2008–2012 Artsec',
 		),
-		
-	
-			
-	'setting' => array(
+
+		'order' => array(
 
 			// Whether this modules userguide pages should be shown
 				'enabled' => true,
 			
 			// The name that should show up on the userguide index page
-			'name' => 'Настройки CRM2',
+			'name' => 'Заказ пропусков',
 
 			// A short description of this module, shown on the index page
-			'description' => 'Описание механизма настройки CRM2.',
+			'description' => 'Описание систем заказа пропусков.',
 			
 			// Copyright message, shown in the footer for this module
 			'copyright' => '&copy; 2008–2012 Artsec',
