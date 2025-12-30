@@ -2,14 +2,27 @@
 
 class Controller_Scheduler extends Controller_Template {
     
-    public $template = 'scheduler/template';
-    //public $template = 'template';
+    
+    public $viewDir = 'deep';
+	public $template = 'scheduler/deep/template';
     protected $_db_connection = 'scheduler_db';
     
     public function before()
     {
         parent::before();
-        
+		
+		$session = Session::instance();
+		//echo Debug::vars('15', $session);
+        if($session->get('fview', 0)){//переключение между папками с формами
+			$this->viewDir='deep';
+
+		} else {
+		
+			$this->viewDir='bs'; 
+		
+		}
+		 $this->template->set_filename('scheduler/'.$this->viewDir.'/template');
+		 
         // Проверка авторизации (раскомментируйте если нужно)
         // if (!Auth::instance()->logged_in()) {
         //     $this->redirect('login');
@@ -19,7 +32,7 @@ class Controller_Scheduler extends Controller_Template {
         // if (!Auth::instance()->logged_in('admin')) {
         //     throw new HTTP_Exception_403('Access denied');
         // }
-        
+       
         $this->template->title = 'Scheduler Tasks';
         $this->template->content = '';
         $this->template->styles = array(
@@ -39,7 +52,7 @@ class Controller_Scheduler extends Controller_Template {
             '//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'
         );
 		
-		//echo Debug::vars('33', get_class_methods(get_class($this)));exit;
+		
 		
     }
     
@@ -69,13 +82,13 @@ class Controller_Scheduler extends Controller_Template {
             $tasks = $scheduler->get_tasks();
             $status = $scheduler->get_status();
             $statistics = $scheduler->get_statistics();
-            $this->template->content = View::factory('scheduler/index')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/index')
                 ->set('tasks', $tasks)
                 ->set('status', $status)
                 ->set('stats', $statistics);
                 
         } catch (Exception $e) {
-            $this->template->content = View::factory('scheduler/error')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/error')
                 ->set('error', $e->getMessage());
         }
     }
@@ -98,13 +111,13 @@ class Controller_Scheduler extends Controller_Template {
             // Получаем логи выполнения
             $logs = $this->_get_task_logs($task['db_task']['id']);
        
-            $this->template->content = View::factory('scheduler/task')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/task')
                 ->set('task', $task)
                 ->set('logs', $logs)
                 ->set('task_name', $task_name);
                 
         } catch (Exception $e) {
-            $this->template->content = View::factory('scheduler/error')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/error')
                 ->set('error', $e->getMessage());
         }
     }
@@ -162,7 +175,7 @@ class Controller_Scheduler extends Controller_Template {
                 SELECT id, name FROM `scheduler_tasks` ORDER BY name
             ")->as_array();
             
-            $this->template->content = View::factory('scheduler/logs')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/logs')
                 ->set('logs', $logs)
                 ->set('tasks', $tasks)
                 ->set('current_task_id', $task_id)
@@ -171,7 +184,7 @@ class Controller_Scheduler extends Controller_Template {
                 ->set('total_logs', $total_logs);
                 
         } catch (Exception $e) {
-            $this->template->content = View::factory('scheduler/error')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/error')
                 ->set('error', $e->getMessage());
         }
     }
@@ -226,13 +239,13 @@ class Controller_Scheduler extends Controller_Template {
                 LIMIT 10
             ")->as_array();
             
-            $this->template->content = View::factory('scheduler/stats')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/stats')
                 ->set('total_stats', $total_stats)
                 ->set('daily_stats', $daily_stats)
                 ->set('top_tasks', $top_tasks);
                 
         } catch (Exception $e) {
-            $this->template->content = View::factory('scheduler/error')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/error')
                 ->set('error', $e->getMessage());
         }
     }
@@ -333,6 +346,25 @@ class Controller_Scheduler extends Controller_Template {
 	}
     
     /**
+     * переключение формы
+     */
+   public function action_toggleView()
+    {
+        // Получаем текущее значение триггера из сессии
+        $current_value = $this->session->get('fview', 0);
+        
+        // Меняем значение на противоположное (0->1, 1->0)
+        $new_value = ($current_value == 0) ? 1 : 0;
+        
+        // Сохраняем новое значение в сессии
+        $this->session->set('fview', $new_value);
+        
+               
+        // Или перенаправить куда-то
+         $this->redirect('scheduler');
+    }
+    
+   /**
      * Создание новой задачи (форма)
      */
     public function action_create()
@@ -351,7 +383,7 @@ class Controller_Scheduler extends Controller_Template {
     {
         $available_classes = $this->_get_available_task_classes();
         
-        $this->template->content = View::factory('scheduler/create')
+        $this->template->content = View::factory('scheduler/'.$this->viewDir.'/create')
             ->set('available_classes', $available_classes)
             ->set('errors', array());
     }
@@ -419,7 +451,7 @@ class Controller_Scheduler extends Controller_Template {
                 }
 				
 				
-        $this->template->content = View::factory('scheduler/create')
+        $this->template->content = View::factory('scheduler/'.$this->viewDir.'/create')
             ->set('available_classes', $available_classes)
             ->set('errors', $errors)
             ->set('form_data', array(
@@ -512,12 +544,12 @@ class Controller_Scheduler extends Controller_Template {
                 throw new Exception("Task not found: {$task_name}");
             }
             
-            $this->template->content = View::factory('scheduler/delete')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/delete')
                 ->set('task_name', $task_name)
                 ->set('task', $task);
                 
         } catch (Exception $e) {
-            $this->template->content = View::factory('scheduler/error')
+            $this->template->content = View::factory('scheduler/'.$this->viewDir.'/error')
                 ->set('error', $e->getMessage());
         }
     }
@@ -554,7 +586,7 @@ class Controller_Scheduler extends Controller_Template {
             
          
         } catch (Exception $e) {
-			$this->template->content = View::factory('scheduler/error')
+			$this->template->content = View::factory('scheduler/'.$this->viewDir.'/error')
                 ->set('error', $e->getMessage());
         }
 		$this->redirect('scheduler');

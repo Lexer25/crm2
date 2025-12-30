@@ -14,6 +14,9 @@
 				 <a href="<?php echo URL::site('scheduler/create');?>" class="btn btn-outline-success">
                     <i class="fas fa-plus"></i> Create Task
                 </a>
+				<a href="<?php echo URL::site('scheduler/toggleView');?>" class="btn btn-outline-success">
+                    <i class="fas fa-plus"></i> toggleView
+                </a>
 				
 				
             </div>
@@ -101,7 +104,7 @@
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-hover table-striped mb-0">
+                        <table class="table">
                             <thead class="table-dark">
                                 <tr>
                                     <th>Name</th>

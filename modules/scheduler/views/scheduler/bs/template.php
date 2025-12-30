@@ -43,6 +43,7 @@
                 <a class="nav-link" href="<?php echo URL::site('scheduler/stats');?>">
                     <i class="fas fa-chart-bar"></i> Statistics
                 </a>
+								
             </div>
         </div>
     </nav>
