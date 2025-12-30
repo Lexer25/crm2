@@ -7,8 +7,8 @@ return array
 		'type'			=> 'pdo',
 		'connection'	=> array(
 			
-			//'dsn'		=> 'odbc:SDUO_235',
-			'dsn'		=> 'odbc:SDUO',
+			'dsn'		=> 'odbc:Kalibr',
+			//'dsn'		=> 'odbc:SDUO',
 			
 			'username'	=> 'SYSDBA',
 			'password'	=> 'temp',
