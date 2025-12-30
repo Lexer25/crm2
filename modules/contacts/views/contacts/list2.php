@@ -1,7 +1,6 @@
 <?php 
 //это "новая" форма. В нее передается полный список пиплов, и на ее основе строится общий вид
 //это сделано с целью ускорения подготовки страницы.
-$token = Profiler::start('test', 'profiler');
 //echo Debug::vars('13',$people );exit;
 //echo Debug::vars('14',$company );exit;
 //echo Debug::vars('15', Session::instance()->get('viewDeletePeopleOnly'));//exit;
@@ -16,7 +15,7 @@ if ($alert) { ?>
 	</p>
 </div>
 <?php }
-
+//echo Debug::vars('19 fired', Session::instance()->get('viewDeletePeopleOnly'));//exit;
 include Kohana::find_file('views','alert'); ?>
 <div class="onecolumn">
 	<div class="header">
@@ -28,11 +27,23 @@ include Kohana::find_file('views','alert'); ?>
 		
 		
 		<span><?php 
+		//уточняющая запись: какие сотрудники? уволенные или действующие?
+		
+		$typeContact=__('contacts.title'); 
+		
+		if(Session::instance()->get('viewDeletePeopleOnly') == 1){
+			$typeContact=__('Уволенные сотрудники'); 
+			
+		}
+		
 			if (isset($filter)){
+				echo $typeContact;
+				echo '. ';
 				echo __('contacts.titleSearch', array(':filter'=>$filter));
 			} else {
-			echo __('contacts.title'); 
+			echo $typeContact; 
 			}
+			
 			if (isset($company)) echo ' - ' . iconv('CP1251', 'UTF-8', $company['NAME']);
 			?></span>
 		<?php if (isset($company)) { ?>
@@ -103,9 +114,7 @@ include Kohana::find_file('views','alert'); ?>
 				<tbody>
 					<?php foreach ($people as $pep=>$pepVal) 
 					{ 
-					//echo Debug::vars('103', $pep, $pepVal);//exit;
-					//$peppep=new Contact(Arr::get($pep,'ID_PEP'));
-					//$org = new Company($peppep->id_org);
+					
 					?>
 					<tr>
 						<!--
@@ -219,14 +228,13 @@ include Kohana::find_file('views','alert'); ?>
 							    
 							     );
 
-							 ?>
-							
-							<?php if (Arr::get($pepVal, 'ACTIVE') == 1) {
+//echo Debug::vars('222', $pepVal);exit;							 
+							 if (Arr::get($pepVal, 'ACTIVE') == 1) {
 
 									switch (ConfigType::howDeletePeople()) {
 										case 0://делать неактивным. Вывожу надпись что сотрудник будет Уволен
 										?>
-										<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.confirmSetNotActive'); ?>')) location.href='<?php echo URL::base() . 'contacts/fired/' . Arr::get($pepVal, 'ACTIVE'); ?>';">
+										<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.confirmSetNotActive'); ?>')) location.href='<?php echo URL::base() . 'contacts/fired/' . Arr::get($pepVal, 'ID_PEP'); ?>';">
 										 <?php echo HTML::image('images/icon_delete.png', array('title' => __('tip.fired'), 'class' => 'help '.$dis2_lighten)); ?>
 										</a>
 										<?php 
@@ -234,7 +242,7 @@ include Kohana::find_file('views','alert'); ?>
 										break;
 										case 1:// удалять сотрудника. Вывожу надпись, что сотрудник будет удален
 											?>
-											<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.confirmdelete'); ?>')) location.href='<?php echo URL::base() . 'contacts/fired/' . Arr::get($pepVal, 'ACTIVE'); ?>';">
+											<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.confirmdelete'); ?>')) location.href='<?php echo URL::base() . 'contacts/fired/' . Arr::get($pepVal, 'ID_PEP'); ?>';">
 											 <?php echo HTML::image('images/icon_delete.png', array('title' => __('tip.delete'), 'class' => 'help '.$dis2_lighten)); ?>
 											</a>
 											<?php 
@@ -247,7 +255,7 @@ include Kohana::find_file('views','alert'); ?>
 							?>
 										
 								<?php } else {?>
-									<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.restore'); ?>')) location.href='<?php echo URL::base() . 'contacts/restore/' . Arr::get($pepVal, 'ACTIVE'); ?>';">
+									<a href="javascript:" <?php echo $dis2 ?> onclick="if (confirm('<?php echo __('contacts.restore'); ?>')) location.href='<?php echo URL::base() . 'contacts/restore/' . Arr::get($pepVal, 'ID_PEP'); ?>';">
 										<?php echo HTML::image('images/restore_16.png', array('title' => __('tip.restore'), 'class' => 'help '.$dis2_lighten)); ?>
 								</a>
 								

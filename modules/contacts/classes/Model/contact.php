@@ -24,9 +24,10 @@ class Model_Contact extends Model
 			from people p
 			join organization o on o.id_org=p.id_org
 			left join card c on c.id_pep=p.id_pep
-			where p."ACTIVE">0
+			where p."ACTIVE"='.$this->peopleIsActive.'
 			and p.surname containing \''.$filter.'\'
-			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name, p."ACTIVE"';
+			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name, p."ACTIVE"
+			order by p.surname';
 		}else {	
 		$sql='select p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name as orgName, p."ACTIVE",
 			COALESCE(count(case when c.id_cardtype=1 then 1 end), 0) AS count1,
@@ -34,15 +35,16 @@ class Model_Contact extends Model
 			from people p
 			join organization o on o.id_org=p.id_org
 			left join card c on c.id_pep=p.id_pep
-			where p."ACTIVE">0
-			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name, p."ACTIVE"';
+			where p."ACTIVE"='.$this->peopleIsActive.'
+			group by p.id_pep, p.surname,p.name,p.patronymic, p.post, p.id_org, o.name, p."ACTIVE"
+			order by p.surname';
 		}
 
 //echo Debug::vars('41', $sql);exit;		
 		$query = DB::query(Database::SELECT, iconv('UTF-8', 'CP1251',$sql))
 					->execute(Database::instance('fb'))
 					->as_array();
-			
+	
 		return $query;
 
 	}

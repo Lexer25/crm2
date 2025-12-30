@@ -151,6 +151,7 @@ class Controller_Contacts extends Controller_Template
 	*/
 	public function action_index($filter = null)
 	{
+		
 		$t1=microtime(true);
 		//если указано, что выводить с учетом фильтра, либо ВСЕХ (ALL), то начинаю выборку с учетом фильтра.
 		if((!is_null($filter)) OR (strtoupper($this->request->param('id')) == 'ALL')){
@@ -163,11 +164,13 @@ class Controller_Contacts extends Controller_Template
 		
 		$id_orgctrl=$this->user->id_orgctrl;//организация для управления текущего пользователя
 		// если $this->session->get('is_host') == 1, то работаем в режиме быстрой регистрации. Для этого $id_orgctrl берется из настроек fastorder для текущего юзера
+		//если 0, то работаем в обычном (полном) режиме
+	
 		if($this->session->get('is_host') == 1) {
 		//предстоит работа с быстрой регистрацией. Для этого:
 			//проверяю наличие настроек для текущего юзера
 			$id_orgctrl=Arr::get(Kohana::$config->load('system')->get('fastorder'), $this->user->id_pep);
-			
+		
 			//если настройки нет, то перевожу оператора на настройку
 			if(is_null($id_orgctrl)) $this->redirect('contacts/disp/hostSetup');
 			
@@ -178,45 +181,44 @@ class Controller_Contacts extends Controller_Template
 			
 			//если все в порядке - работаем дальше
 		}
+		
 		//что отображать: Session::instance()->get('viewDeletePeopleOnly') == 1 - значит, отображать уволенных.
 		if(Session::instance()->get('viewDeletePeopleOnly') == 1) {
-			$contacts ->peopleIsActive=0;
-			$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
+			$contacts ->peopleIsActive=0;//признак -выводить уволенных
 			
+		
 		} else {
 			//иначе - отображать Активных
-			$contacts ->peopleIsActive=1;
+			$contacts ->peopleIsActive=1;//признак - выводить активных
 		}
 		
 
 			
 		$list = $contacts->getListUser($id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter));
 	
-		//echo Debug::vars('190', count($list), (microtime(true)-$t1));exit;
-
 		//контроль количества выводимых строк. если стро много - то будет заметное "торможение".
+
+		//$list = array_slice($contacts->newInit(), 0, 5);
+		$list = $contacts->newInit($filter);//май 2025 г, получаю весь список пиплов сразу. Время выполнения примерно 0,2 секунды.
+		//echo Debug::vars('203', Kohana::$config->load('config_newcrm')->get('table_view_max_contact'));exit;
 		$alert='';
 		if(count($list)>Kohana::$config->load('config_newcrm')->get('table_view_max_contact')){
 			$alert=__('contCount', array(':contCount'=>Kohana::$config->load('config_newcrm')->table_view_max_contact, ':totalCount'=>count($list)));
 			$list=array_slice($list, 0, Kohana::$config->load('config_newcrm')->get('table_view_max_contact'));
 			
 		}
-		//$list = array_slice($contacts->newInit(), 0, 5);
-		$list = $contacts->newInit($filter);//май 2025 г, получаю весь список пиплов сразу. Время выполнения примерно 0,2 секунды.
-		//echo Debug::vars('203', count($list), (microtime(true)-$t1));exit;
-		$fl=$alert;
+//echo Debug::vars('208', count($list));exit;	
+
 			
+		
+		}
+		$arrAlert='';
 		$arrAlert = $this->session->get('arrAlert'); //извлечь алерт из сессии
 		$this->session->delete('arrAlert');//очистить алерт в сессии
-		}
 
-		//include Kohana::find_file('views\alerttest','testarralert');
 		$view = View::factory('contacts/list2')// это "новый" вариант, где все должно браться из единого массива, и этот вариант работает быстрее в 10 раз, но еще не доделан
-		//$view = View::factory('contacts/list')// это "старый" вариант, где много new
-			
 			->bind('people', $list)
-			->bind('alert', $fl)
-			->bind('arrAlert[]', $arrAlert[])
+			->bind('alert', $alert)
 			->bind('filter', $filter)
 			->bind('arrAlert', $arrAlert)
 			->bind('t1', $t1)
@@ -626,19 +628,16 @@ class Controller_Contacts extends Controller_Template
 	{
 		
 		$id_pep=$this->request->param('id');
-		//$key=new Keyk();
+		
 		$contact=new Contact($id_pep);
-		
-		
-		echo Debug::vars('633', $contact); //exit;
 		
 		$alert='';
 		/* удаляю карту сотрудника*/
+		
 		switch (ConfigType::howDeletePeople()) {
 			case 0://делать неактивным
 			if($contact->setNotActiveOnIdPep() == 0){
-					$cards = Model::factory('Card')->getListByPeople($contact->id_pep);
-				//echo Debug::vars('617', $cards); exit;
+			$cards = Model::factory('Card')->getListByPeople($contact->id_pep);
 		
 				if(count($cards)>0)
 				{
@@ -646,19 +645,15 @@ class Controller_Contacts extends Controller_Template
 					{
 						$key=new Keyk(Arr::get($value, 'ID_CARD'));
 						$key->delCard();
-						
 					}
-				
 				}
 				
-				$alert.='<br>'.__('contact.setNotActiveOK', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
+				$alert.=__('contact.setNotActiveOK', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
 				$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>$alert);	
 			} else {
-				$alert.='<br>'.__('contact.setNotActiveErr', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
+				$alert.=__('contact.setNotActiveErr', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
 				$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>$alert);
 		}
-		
-		
 		break;
 		
 		case 1:// удалять сотрудника
@@ -668,18 +663,16 @@ class Controller_Contacts extends Controller_Template
 			$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>$alert);	
 		} else {
 			$alert=__('contact.deleteErr', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
-			
 			$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>$alert);	
-			
 		}
 		
 		break;
-		//echo Debug::vars('677', $contact); exit;
-		
 	
 		}
 		Session::instance()->set('arrAlert',$arrAlert);
-		$this->redirect('companies/people/'.$contact->id_org);
+		
+
+		$this->redirect('contacts');
 	}
 	
 	/*
@@ -723,15 +716,14 @@ class Controller_Contacts extends Controller_Template
 			
 			//$contact->setAclDefault();// Категории доступа должны храниться в ss_accessuser
 			$alert=__('contact.setIsActiveOK', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
-				
+			$arrAlert[]=array('actionResult'=>0, 'actionDesc'=>$alert);		
 		} else {
 			$alert=__('contact.setIsActiveErr', array(':name'=>iconv('CP1251', 'UTF-8',$contact->name),':surname'=>iconv('CP1251', 'UTF-8',$contact->surname),':patronymic'=>iconv('CP1251', 'UTF-8',$contact->patronymic)));
-	
+			$arrAlert[]=array('actionResult'=>3, 'actionDesc'=>$alert);
 		}
-		
-		
-		
-		Session::instance()->set('alert',$alert);
+	
+	Session::instance()->set('arrAlert',$arrAlert);
+		Session::instance()->set('viewDeletePeopleOnly', 0);//показывать только активных пиплов
 		$this->redirect('contacts');
 	}
 	
