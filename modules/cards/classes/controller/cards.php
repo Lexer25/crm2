@@ -96,7 +96,7 @@ class Controller_Cards extends Controller_Template
 		*при регистрации 
 		
 		*/
-		echo Debug::vars('22', $_POST, $this->session->get('identifier')); exit;
+		//echo Debug::vars('22', $_POST, $this->session->get('identifier')); exit;
 		$pattern = trim(Arr::get($_POST, 'q', null));// убрал лишние знаки вокруг строки поиска
 		$this->session->set('search_card', $pattern);//параметры поиска мы сохраняем, чтобы повторно вывести в строке поиска.
 		$temp=$pattern;
@@ -169,7 +169,7 @@ class Controller_Cards extends Controller_Template
 						$temp->id_card=Arr::get($post, 'q');
 						$temp->id_cardtype=4;
 						$var2=$temp->search();
-						echo Debug::vars('99', $_POST, $this->session->get('identifier'), $pattern, $var2); exit;
+						//echo Debug::vars('99', $_POST, $this->session->get('identifier'), $pattern, $var2); exit;
 					//$this->session->set('search_card', $pattern);	//в поисковой строке будет ГРЗ без изменения
 					$this->action_index($var2);	
 						
@@ -299,7 +299,7 @@ class Controller_Cards extends Controller_Template
 						$temp->id_card=Arr::get($post, 'q');
 						$temp->id_cardtype=4;
 						$var2=$temp->search();
-						echo Debug::vars('99', $_POST, $this->session->get('identifier'), $pattern, $var2); exit;
+						//echo Debug::vars('99', $_POST, $this->session->get('identifier'), $pattern, $var2); exit;
 					//$this->session->set('search_card', $pattern);	//в поисковой строке будет ГРЗ без изменения
 					$this->action_index($var2);	
 						

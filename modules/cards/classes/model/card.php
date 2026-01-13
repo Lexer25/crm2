@@ -204,7 +204,7 @@ class Model_Card extends Model
 				':id_cardtype'		=> $id_cardtype,
 				':note'		=> $note
 			)); 
-			echo Debug::vars('172', $sql);EXIT;
+			//echo Debug::vars('172', $sql);EXIT;
 		try
 		{
 			$query=DB::query(Database::INSERT, iconv('UTF-8', 'CP1251',$sql))
@@ -248,7 +248,7 @@ class Model_Card extends Model
 				where c.id_card=\''.$id.'\' 
 				order by d.name';
 
-		//	echo Debug::vars('210', $sql); exit;
+			//echo Debug::vars('210', $sql); exit;
 		$query = DB::query(Database::SELECT,$sql)
 			
 			

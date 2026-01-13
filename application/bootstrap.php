@@ -150,6 +150,7 @@ Kohana::modules(array(
 	'access' => MODPATH.'access',
 	'setup' => MODPATH.'setup',
 	'doors' => MODPATH.'doors',
+	'scheduler' => MODPATH.'scheduler',
 	));
 /*
 Добавляю хранение настроек в базе данных

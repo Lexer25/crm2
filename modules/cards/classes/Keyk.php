@@ -385,11 +385,12 @@ class Keyk
 	{
 		$sql='delete from card where id_card=\''.$this->id_card.'\'';
 		//echo Debug::vars('386', $sql);//exit;
+		$t1=microtime(true);
 		try {
 				DB::query(Database::DELETE,$sql)	
 				->execute(Database::instance('fb'));
 				$result= 0;	
-				
+		Log::instance()->add(Log::DEBUG, '393 удаление карты :card выполнено за :sec', array(':card'=>$this->id_card, ':sec'=>(microtime(true) - $t1)));		
 			} catch (Exception $e) {
 				Log::instance()->add(Log::DEBUG, $e->getMessage());
 				

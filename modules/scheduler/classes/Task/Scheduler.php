@@ -10,6 +10,7 @@ class Task_Scheduler extends Minion_Task {
         'reset' => NULL,
         'run' => FALSE,
         'force' => FALSE,
+        'enabled' => FALSE,
     );
 
     /**
@@ -17,7 +18,11 @@ class Task_Scheduler extends Minion_Task {
      */
     protected function _execute(array $params)
     {
-        if ($params['list']) {
+        if(Arr::get($params,'enabled', false){
+			Log::instance()->add(Log::DEBUG, '21 Модуль scheduler отключен');	
+			exit;	
+		}
+		if ($params['list']) {
             return $this->_list_tasks();
         }
 

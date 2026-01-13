@@ -363,7 +363,7 @@ class Controller_Contacts extends Controller_Template
 			Session::instance()->set('alert', __('contact.saved'));
 		} else {
 			$contact->update($id, $surname, $name, $patronymic, $datebirth, $numdoc, $datedoc, $workstart, $workend, $active, $peptype, $post, $tabnum, $org, $login, $password, $note);
-			echo Debug::vars('101 ', $id, $id_org_old, $org); //exit;
+			//echo Debug::vars('101 ', $id, $id_org_old, $org); //exit;
 			if(($id_org_old != $org) and ($inherit ==1)) // если есть изменения в организации, и включено наследование, то надо поменять и набор категорий доступа
 			{
 				
@@ -1023,7 +1023,7 @@ class Controller_Contacts extends Controller_Template
 	*/
 	public function action_saveACL()
 	{
-		echo Debug::vars('274', $_POST); //exit;
+		//echo Debug::vars('274', $_POST); //exit;
 		$id=$this->request->post('id');
 		$contact_acl_befor=json_decode($this->request->post('contact_acl_befor'));// массив категорий доступа до изменения
 		$user_acl_anabled=json_decode($this->request->post('user_acl_anabled'));// массив категорий доступа, которые может менять текущий оператор.
@@ -1061,7 +1061,9 @@ class Controller_Contacts extends Controller_Template
 	{
 		$id=$this->request->param('id');
 		$card = new Keyk($id);
+		//$t1=microtime(true);
 		$card->delCard();
+		//echo Debug::vars('1066', (microtime(true) - $t1));exit;
 		Session::instance()->set('alert', __('cards.deleted', array(':id_card'=>$id)));
 		$this->redirect('contacts/cardlist/' . $card->id_pep);
 	}
@@ -1252,7 +1254,7 @@ class Controller_Contacts extends Controller_Template
         $force_org = Arr::get($_GET, 'id_org');
 
 		$contacts = Model::factory('Contact');
-		echo Debug::vars('1263', $contacts);//exit;
+		//echo Debug::vars('1263', $contacts);//exit;
 
         // Инициализация переменных
         $people = new Guest2();
