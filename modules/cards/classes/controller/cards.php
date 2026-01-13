@@ -23,7 +23,8 @@ class Controller_Cards extends Controller_Template
 		 $post=Validation::factory(array('key_type'=>trim($this->request->param('id'))));//определяю тип идентификатора, который надо выводить
 		 $post->rule('key_type', 'not_empty')
 				->rule('key_type', 'alpha_numeric');
-				$cards=array();
+		$cards=array();
+		//определяю какой тип идентификаторов надо выводить. Тип записываю в сессию
 		if($post->check())
 		{
 			switch(Arr::get($post, 'key_type')){
@@ -326,13 +327,14 @@ class Controller_Cards extends Controller_Template
 	{
 		//echo Debug::vars('326', $this->user);//exit;
 		//echo Debug::vars('46', $filter); exit;
+		$t1=microtime(true);
 		$this->id_type = $this->session->get('identifier', 1);//получил тип идентификатора для отображения
 
 		$cards = Model::factory('Card');
 		if(is_null($filter)){// если фильтра (списка) нет, то выбираю все, что разрешено авторизованному пользователю
 		
-		$q = $cards->getCountUser($this->user->id_orgctrl, iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
-		
+		//$q = $cards->getCountUser($this->user->id_orgctrl, iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
+		//echo Debug::vars('337', $q);exit;
 		$list = $cards->getListUser($this->user->id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter), $this->id_type);
 		
 		//$q=0;
@@ -343,8 +345,14 @@ class Controller_Cards extends Controller_Template
 			$list=$filter;//todo надо сделать фильтрацию, отобрать только те номера, которые доступны текущему пользователю
 		}
 		
+		$alert='';
+		if(count($list)>Kohana::$config->load('config_newcrm')->get('table_view_max_contact')){
+			$alert=__('contCount', array(':contCount'=>Kohana::$config->load('config_newcrm')->table_view_max_contact, ':totalCount'=>count($list)));
+			$list=array_slice($list, 0, Kohana::$config->load('config_newcrm')->get('table_view_max_contact'));
+			
+		}
 		
-
+//echo Debug::vars('349', $list);exit;
 		$catdTypelist = $cards->getcatdTypelist();//формирую переменную, что затем передать ее во view
 		
 		//echo Debug::vars('55', $list ); //exit;	
@@ -359,9 +367,9 @@ class Controller_Cards extends Controller_Template
 				
 		$this->template->content = View::factory('cards/list')
 			->bind('cards', $list)
-			->bind('cardsList', $list)
+			//->bind('cardsList', $list)
 			->bind('catdTypelist', $catdTypelist)
-			->bind('alert', $fl)
+			->bind('alert', $alert)
 			->bind('arrAlert', $arrAlert)
 			->bind('filter', $filter)
 			;

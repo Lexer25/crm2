@@ -18,7 +18,7 @@ class Task_Scheduler extends Minion_Task {
      */
     protected function _execute(array $params)
     {
-        if(Arr::get($params,'enabled', false){
+        if(Arr::get($params,'enabled', false)){
 			Log::instance()->add(Log::DEBUG, '21 Модуль scheduler отключен');	
 			exit;	
 		}

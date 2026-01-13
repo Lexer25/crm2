@@ -66,6 +66,7 @@ class Model_Card extends Model
 			return $query->as_array();
 	}
 	
+		
 	/**
 	 * Подготовка списка идентификторов, доступных для текущего оператора.
 	 * @param unknown $id_org
@@ -81,18 +82,24 @@ class Model_Card extends Model
 
 					
 		if(is_null($filter) or $filter=='') {// если фильтра нет, то выбираем всех пиплов из родительской и подчиненной организаций
-		$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
-				c.id_card
-					from people p
-					join card c on c.id_pep=p.id_pep
+				 
+		//$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
+		$sql='select FIRST 100000
+					 c.id_card, c.id_cardtype, c.flag, c.status, c.timestart, c.timeend, c."ACTIVE", c.id_pep, p.surname, p.name, p.patronymic, p.post, o.id_org, o.name as orgName
+                    from people p
+                    join card c on c.id_pep=p.id_pep
         join organization o on o.id_org=p.id_org
 		join organization_getchild (1, ' . $id_org . ') og on og.id_org = p.id_org
 		 where c.id_cardtype='.$id_cardtype;
+		 
+		 
+		 
 		} else {
-			$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
-				c.id_card
-					from people p
-					join card c on c.id_pep=p.id_pep
+			//$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
+			$sql='select FIRST 100000
+			 c.id_card, c.id_cardtype, c.flag, c.status, c.timestart, c.timeend, c."ACTIVE", c.id_pep, p.surname, p.name, p.patronymic, p.post, o.id_org, o.name as orgName
+                    from people p
+                    join card c on c.id_pep=p.id_pep
         join organization o on o.id_org=p.id_org
 		join organization_getchild (1, ' . $id_org . ') og on og.id_org = p.id_org
             where c.id_card= \''.$filter.'\'
@@ -101,11 +108,18 @@ class Model_Card extends Model
 			
 		}
 		//echo Debug::vars('48',$sql ); //exit;	
-
-		$res = DB::query(Database::SELECT, $sql)
+		
+	
+		$query = DB::query(Database::SELECT, $sql)
 			->execute(Database::instance('fb'));
 			
-		return $res->as_array();
+			foreach($query as $key){
+				
+			$key['id_card_on_screen']='id_card_on_screen';
+			//echo Debug::vars('116', $key);exit;
+		}
+			
+		return $query->as_array();
 	}
 	
 	
