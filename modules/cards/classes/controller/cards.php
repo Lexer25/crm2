@@ -331,50 +331,40 @@ class Controller_Cards extends Controller_Template
 		$this->id_type = $this->session->get('identifier', 1);//получил тип идентификатора для отображения
 
 		$cards = Model::factory('Card');
-		if(is_null($filter)){// если фильтра (списка) нет, то выбираю все, что разрешено авторизованному пользователю
-		
-		//$q = $cards->getCountUser($this->user->id_orgctrl, iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
-		//echo Debug::vars('337', $q);exit;
-		$list = $cards->getListUser($this->user->id_orgctrl, Arr::get($_GET, 'page', 1), $this->listsize, iconv('UTF-8', 'CP1251', $filter), $this->id_type);
-		
-		//$q=0;
-		//$list=array();
-		} else {
 
-			$q=count($filter);
-			$list=$filter;//todo надо сделать фильтрацию, отобрать только те номера, которые доступны текущему пользователю
-		}
-		
-		$alert='';
-		if(count($list)>Kohana::$config->load('config_newcrm')->get('table_view_max_contact')){
-			$alert=__('contCount', array(':contCount'=>Kohana::$config->load('config_newcrm')->table_view_max_contact, ':totalCount'=>count($list)));
-			$list=array_slice($list, 0, Kohana::$config->load('config_newcrm')->get('table_view_max_contact'));
-			
-		}
-		
-//echo Debug::vars('349', $list);exit;
-		$catdTypelist = $cards->getcatdTypelist();//формирую переменную, что затем передать ее во view
-		
-		//echo Debug::vars('55', $list ); //exit;	
-		$fl = $this->session->get('alert');
-		$this->session->delete('alert');
-		
-		$arrAlert = $this->session->get('arrAlert');
-		$this->session->delete('arrAlert');
-		
-		$filter=$this->session->get('search_card');
-		//для правильного отображения номера RFID в разделе поиска беру данные из сессии
+	//	if(!is_null($filter)){// если фильтра (списка) нет, показать пустое поле
+			$q = $cards->getCountUser($this->user->id_orgctrl, iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
+			$alert='';
+			//если карт больше, чем разрешено для вывода на экрна, то выбирается только разрешенное количество карт.
+			if($q>Kohana::$config->load('config_newcrm')->get('table_view_max_contact')){
+				$alert=__('contCount', array(':contCount'=>Kohana::$config->load('config_newcrm')->table_view_max_contact, ':totalCount'=>$q));
+			} else {
 				
+				
+			}
+			$list = $cards->getListUser($this->user->id_orgctrl, 1, Kohana::$config->load('config_newcrm')->table_view_max_contact, iconv('UTF-8', 'CP1251', $filter), $this->id_type);
+			
+		
+			$catdTypelist = $cards->getcatdTypelist();//формирую переменную, что затем передать ее во view
+			
+			$fl = $this->session->get('alert');
+			$this->session->delete('alert');
+			
+			$arrAlert = $this->session->get('arrAlert');
+			$this->session->delete('arrAlert');
+			
+			$filter=$this->session->get('search_card');
+			//для правильного отображения номера RFID в разделе поиска беру данные из сессии
+		//}		
 		$this->template->content = View::factory('cards/list')
 			->bind('cards', $list)
-			//->bind('cardsList', $list)
 			->bind('catdTypelist', $catdTypelist)
 			->bind('alert', $alert)
 			->bind('arrAlert', $arrAlert)
 			->bind('filter', $filter)
 			;
 			//echo View::factory('profiler/stats');
-	}
+		}
 
 	/**2.12.2024 Удаление идентификатора
 	*@input id - номер RFID или ГРЗ

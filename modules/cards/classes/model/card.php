@@ -83,9 +83,8 @@ class Model_Card extends Model
 					
 		if(is_null($filter) or $filter=='') {// если фильтра нет, то выбираем всех пиплов из родительской и подчиненной организаций
 				 
-		//$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
-		$sql='select FIRST 100000
-					 c.id_card, c.id_cardtype, c.flag, c.status, c.timestart, c.timeend, c."ACTIVE", c.id_pep, p.surname, p.name, p.patronymic, p.post, o.id_org, o.name as orgName
+			$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
+					c.id_card, c.id_cardtype, c.flag, c.status, c.timestart, c.timeend, c."ACTIVE", c.id_pep, p.surname, p.name, p.patronymic, p.post, o.id_org, o.name as orgName
                     from people p
                     join card c on c.id_pep=p.id_pep
         join organization o on o.id_org=p.id_org
@@ -95,9 +94,8 @@ class Model_Card extends Model
 		 
 		 
 		} else {
-			//$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
-			$sql='select FIRST 100000
-			 c.id_card, c.id_cardtype, c.flag, c.status, c.timestart, c.timeend, c."ACTIVE", c.id_pep, p.surname, p.name, p.patronymic, p.post, o.id_org, o.name as orgName
+			$sql='select FIRST ' . $perpage . ' SKIP ' . ($page - 1) * $perpage . ' 
+				c.id_card, c.id_cardtype, c.flag, c.status, c.timestart, c.timeend, c."ACTIVE", c.id_pep, p.surname, p.name, p.patronymic, p.post, o.id_org, o.name as orgName
                     from people p
                     join card c on c.id_pep=p.id_pep
         join organization o on o.id_org=p.id_org
@@ -107,19 +105,66 @@ class Model_Card extends Model
 			
 			
 		}
-		//echo Debug::vars('48',$sql ); //exit;	
+	//	echo Debug::vars('48',$sql ); //exit;	
 		
 	
 		$query = DB::query(Database::SELECT, $sql)
-			->execute(Database::instance('fb'));
-			
-			foreach($query as $key){
+			->execute(Database::instance('fb'))
+			->as_array();
+		
+		//получаю формат хранения карт в базе данных
+		$baseFormatRfid=Kohana::$config->load('system')->get('baseFormatRfid', 0);
+		
+		foreach(array_slice($query, 0, 10) as $key=>$value){
+			//echo Debug::vars('119',$key,  $value);//exit;	
+			//echo Debug::vars('120',$baseFormatRfid);exit;	
+		//дополняю массив преобразованием в десятичный вид
+			if(Arr::get($value, 'ID_CARDTYPE') ==1){//обработка идентификаторов RFID
+				if($baseFormatRfid==0){//в базе данных номера карт хранятся в формате HEX 8 байт
+							$result=Model::factory('stat')->hexToDec(Arr::get($value, 'ID_CARD'));
+				}
+				if($baseFormatRfid==1){//в базе данных номера карт хранятся в формате 001A
+							$result=Model::factory('stat')->conv001AToDec(Arr::get($value, 'ID_CARD'));
+				}
+				//сохранил десятичный вид для RFID
+				$query[$key]['ID_CARD_ON_SCREEN']=$result;
+				//$query[$key]['ID_CARD_ON_SCREEN']='130';
 				
-			$key['id_card_on_screen']='id_card_on_screen';
-			//echo Debug::vars('116', $key);exit;
+			}
+			//echo Debug::vars('132', $query[$key]);exit;
 		}
+		//echo Debug::vars('116', array_slice($query, 0, 10));exit;	
+		return $query;
+	}
+	
+	
+	/**20.08.2024 преобразование номера идентификатора от формата хранения в базе данных в десятичный вид.
+	*/
+	public function makeDecFromBase($pattern)
+	{
 			
-		return $query->as_array();
+			$bf=$this->baseFormatRfid;
+			$sf=$this->screenFormatRFID;
+			$result='';
+		//echo Debug::vars('138', $this->id_cardtype, $pattern, $bf, $sf); //exit;	
+			if($this->id_cardtype ==1){//обработка идентификаторов RFID
+			
+			
+			if($bf==0){//в базе данных номера карт хранятся в формате HEX 8 байт
+				
+						$result=Model::factory('stat')->hexToDec($pattern);
+				
+			}
+			
+			if($bf==1){//в базе данных номера карт хранятся в формате 001A
+				
+						$result=Model::factory('stat')->conv001AToDec($pattern);
+
+			}
+		}	
+		
+		//echo Debug::vars('218', $result);exit;
+		return $result;
 	}
 	
 	

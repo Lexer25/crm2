@@ -102,35 +102,39 @@ if ($alert) { ?>
 			
 				
 					<?php 
+					//собираю константы, чтобы не сократить время на обращение к ним.
 					$listStatus=array(0=>__('RFID'),
 									1=>__('RFID Mifare'),
 									2=>__('RFID Mifare Encrytped'),
 									3=>__('RFID LR UHF')
 									);
-									
+					$getListAllowedIdOrg=Acls::getListAllowedIdOrg();	
+					$is_admin=Auth::instance()->logged_in('admin');					
 					foreach ($cards as $key) { 
 						
 					//$key=new Keyk(Arr::get($card,'ID_CARD'));
 					
 										
 					//echo Debug::vars('114', $key);	
-				//	$cardtype=Arr::get($catdTypelist, $key->id_cardtype);
+				
 					$cardtype=Arr::get($catdTypelist, Arr::get($key, 'ID_CARDTYPE'));
 								
 					
 					// - признак: разрешен ли показ подробностей. Если не разрешен, то ссылки должны быть не активными.
-					$is_allowed=in_array(Arr::get($key, 'ID_ORG'), Acls::getListAllowedIdOrg());// - признак: разрешен ли показ подробностей. Если не разрешен, то ссылки должны быть не активными.
+					//$is_allowed=in_array(Arr::get($key, 'ID_ORG'), Acls::getListAllowedIdOrg());// - признак: разрешен ли показ подробностей. Если не разрешен, то ссылки должны быть не активными.
+					$is_allowed=in_array(Arr::get($key, 'ID_ORG'), $getListAllowedIdOrg);// - признак: разрешен ли показ подробностей. Если не разрешен, то ссылки должны быть не активными.
 					
 					echo'<tr>';
 						
-						echo '<td>'.++$sn;'</td>';
+						echo '<td>'.++$sn.'</td>';
 						echo '<td>'; 
 						
 						echo $is_allowed? HTML::anchor('cards/edit/' . Arr::get($key, 'ID_CARD'), Arr::get($key, 'ID_CARD')) : Arr::get($key, 'ID_CARD_ON_SCREEN') .' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
-		
+						
+							
 			//если включен показ кода идентификатора, то показывю его в формате DEC				
 			if((Arr::get($cardtype, 'id') == 1) AND (Kohana::$config->load('system')->get('formatViewAll') == 1)){
-				echo ' ('.Arr::get($key,'ID_CARD_ON_DEC').')';
+				echo ' ('.Arr::get($key,'ID_CARD_ON_SCREEN').')';
 			}
 
 						if(Arr::get($key,'flag') & 1) echo HTML::image('/images/icon_guest2.png', array('width'=>'16')); '</td>';
@@ -142,7 +146,7 @@ if ($alert) { ?>
 						  echo Arr::get($key,'IS_ACTIVE').' '.(Arr::get($key,'IS_ACTIVE') == '1') ? __('yes') : __('no');
 						echo '</td>'; 
 						echo '<td>'; 
-							if (Auth::instance()->logged_in('admin'))
+							if ($is_admin)
 							    echo $is_allowed? HTML::anchor('contacts/edit/' . Arr::get($key,'ID_PEP'), iconv('CP1251', 'UTF-8', Arr::get($key,'NAME') . ' ' . Arr::get($key,'SURNAME'))) : iconv('CP1251', 'UTF-8', Arr::get($key,'NAME') . ' ' . Arr::get($key,'SURNAME')).' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
 							else 
 								echo HTML::anchor('contacts/view/' . Arr::get($key,'ID_PEP'), iconv('CP1251', 'UTF-8', Arr::get($key,'NAME') . ' ' . Arr::get($key,'SURNAME'))); 
@@ -154,7 +158,7 @@ if ($alert) { ?>
 						
 						echo '<td>';
 						
-							if (Auth::instance()->logged_in('admin'))
+							if ($is_admin)
 							    echo $is_allowed? HTML::anchor('companies/edit/' . Arr::get($key,'ID_ORG'), iconv('CP1251', 'UTF-8', Arr::get($key,'ORGNAME'))) : iconv('CP1251', 'UTF-8', Arr::get($key,'ORGNAME')).' '.HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>"32"));
 							else 
 								echo HTML::anchor('companies/view/' . Arr::get($key,'ID_ORG'), iconv('CP1251', 'UTF-8', Arr::get($key,'ORGNAME'))); 
