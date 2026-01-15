@@ -23,10 +23,7 @@
 	<br class="clear"/>
 	<div class="content">
 	
-		<?php
 		
-		echo Debug::vars('28', $q);//exit;
-		?>
 
 		<form id="form_data" name="form_data" action="" method="post">
 			

@@ -326,13 +326,21 @@ class Controller_Cards extends Controller_Template
 	public function action_index($filter = null)
 	{
 		//echo Debug::vars('326', $this->user);//exit;
-		//echo Debug::vars('46', $filter); exit;
+		//echo Debug::vars('46', $filter); //exit;
 		$t1=microtime(true);
 		$this->id_type = $this->session->get('identifier', 1);//получил тип идентификатора для отображения
 
 		$cards = Model::factory('Card');
-
-	//	if(!is_null($filter)){// если фильтра (списка) нет, показать пустое поле
+		$filter=$this->session->get('search_card');
+	echo Debug::vars('335', $filter); //exit;
+		if(empty($filter)){// если фильтра (списка) нет, показать пустое поле
+			
+			$contents = View::factory('cards/listStart')			
+			;
+			
+		} else {
+			
+			//если фильтр есть
 			$q = $cards->getCountUser($this->user->id_orgctrl, iconv('UTF-8', 'CP1251', $filter), $this->id_type);//подсчет количества карт, доступных текущему пользователю. Это необходимо для правильного разбиения на страницы
 			$alert='';
 			//если карт больше, чем разрешено для вывода на экрна, то выбирается только разрешенное количество карт.
@@ -353,10 +361,12 @@ class Controller_Cards extends Controller_Template
 			$arrAlert = $this->session->get('arrAlert');
 			$this->session->delete('arrAlert');
 			
-			$filter=$this->session->get('search_card');
+			
+			
 			//для правильного отображения номера RFID в разделе поиска беру данные из сессии
-		//}		
-		$this->template->content = View::factory('cards/list')
+		 	
+		//$this->template->content = View::factory('cards/list')
+		$contents = View::factory('cards/list')
 			->bind('cards', $list)
 			->bind('catdTypelist', $catdTypelist)
 			->bind('alert', $alert)
@@ -365,6 +375,9 @@ class Controller_Cards extends Controller_Template
 			;
 			//echo View::factory('profiler/stats');
 		}
+		
+		$this->template->content=$contents;
+	}
 
 	/**2.12.2024 Удаление идентификатора
 	*@input id - номер RFID или ГРЗ
