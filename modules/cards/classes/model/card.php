@@ -88,8 +88,8 @@ class Model_Card extends Model
                     from people p
                     join card c on c.id_pep=p.id_pep
         join organization o on o.id_org=p.id_org
-		join organization_getchild (1, ' . $id_org . ') og on og.id_org = p.id_org
-		 where c.id_cardtype='.$id_cardtype;
+		join organization_getchild (1, ' . $id_org . ') og on og.id_org = p.id_org';
+		// where c.id_cardtype='.$id_cardtype;
 		 
 		 
 		 
@@ -100,8 +100,8 @@ class Model_Card extends Model
                     join card c on c.id_pep=p.id_pep
         join organization o on o.id_org=p.id_org
 		join organization_getchild (1, ' . $id_org . ') og on og.id_org = p.id_org
-            where c.id_card= \''.$filter.'\'
-             and c.id_cardtype='.$id_cardtype;
+            where c.id_card= \''.$filter.'\'';
+          //   and c.id_cardtype='.$id_cardtype;
 			
 			
 		}

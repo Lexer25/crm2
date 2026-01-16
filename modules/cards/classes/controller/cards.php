@@ -67,12 +67,191 @@ class Controller_Cards extends Controller_Template
 	
 	
 	
-	/**
+	/**15.01.2025 доработка механизма поиска идентификатора.
 	 * подготовка входных данных для поиска по идентификторам
 	 * особенность: при поиске необоходимо проверять права оператора: можно ли ему показывать информацию по владельцу карты?
 	 * если можно - то показывать все
 	 * если нельзя - то надо показать результат поиска, но не давать прав на редактирование.
 	 */
+	
+	public function action_searchDeep()
+	{
+		
+		echo Debug::vars('80', $_POST);//exit;
+        if ($this->request->method() === 'POST') {
+            $form_data = $this->request->post();
+            $errors = [];
+            
+            // Проверяем, что хотя бы одно поле заполнено
+            $hex = isset($form_data['hex']) ? trim($form_data['hex']) : '';
+            $dec = isset($form_data['dec']) ? trim($form_data['dec']) : '';
+			
+          //  $type = isset($form_data['RFID']) ? trim($form_data['RFID']);
+			$type='RFID';
+            $type = isset($form_data['UHF']) ? trim($form_data['UHF']) : $type;
+            $type = isset($form_data['GRZ']) ? trim($form_data['GRZ']) : $type;
+            
+            if (empty($hex) && empty($dec)) {
+                $errors[] = 'Заполните хотя бы одно поле: HEX или DEC';
+            }
+			
+			
+            // Валидация HEX поля
+            if (!empty($hex)) {
+                if (!preg_match('/^[0-9A-Fa-f]{1,10}$/', $hex)) {
+                    $errors['hex'] = 'HEX поле должно содержать только цифры 0-9 и буквы A-F (макс. 10 символов)';
+                }
+            }
+            
+            // Валидация DEC поля
+            if (!empty($dec)) {
+                if (!preg_match('/^[0-9]{1,12}$/', $dec)) {
+                    $errors['dec'] = 'DEC поле должно содержать только цифры 0-9 (макс. 12 символов)';
+                }
+            }
+            
+            // Если есть ошибки, показываем форму снова
+            if (!empty($errors)) {
+                $view = View::factory('cards/listStart')
+                    ->set('form_data', $form_data)
+                    ->set('errors', $errors);
+               
+				$this->template->content=$view;
+                return;
+            }
+            
+            // Если ошибок нет, выполняем поиск
+            // ... ваш код поиска карты ...
+			switch($type){
+				case 'RFID'://поиск по номеру RFID
+				//$hex='0111DA001B';
+				
+					$temp=new Keyk();
+					$temp->id_card=$hex;
+					$temp->id_cardtype=1;
+					$var2=$temp->search();//если такая карта есть, то var2 будет содержать ее данные
+					
+					$this->session->set('search_card', $hex);
+					
+					/* if(!empty($var2))  {
+						$this->session->set('search_card', $hex);
+						
+					} else {
+						$this->session->delete('search_card');
+						
+						 $view = View::factory('cards/listStart')
+                    ->set('form_data', $form_data)
+                    ->set('errors', $errors);
+               
+				$this->template->content=$view;
+                return;
+					} */
+					//$this->action_index($var2);
+					
+				break;
+			}
+           // echo Debug::vars('137');exit;
+            // Перенаправляем или показываем результаты
+            $this->redirect('cards');
+        } else {
+            // Если запрос не POST, перенаправляем на форму
+            $this->redirect('cards');
+        }
+		
+		//========================
+		echo Debug::vars('159', $_POST, $this->session->get('identifier')); exit;
+		$pattern = trim(Arr::get($_POST, 'q', null));// убрал лишние знаки вокруг строки поиска
+		$this->session->set('search_card', $pattern);//параметры поиска мы сохраняем, чтобы повторно вывести в строке поиска.
+		$temp=$pattern;
+		$post=Validation::factory($_POST);
+		$_key='';
+		switch($this->session->get('identifier')){ //определяю тип идентификатора для поиска. параметр identifier передается в сессии
+			case 1:// поиск надо вести в RFID
+				if(Kohana::$config->load('system')->get('screenFormatRFID') == 2){ // если формат экрана 2 (DEC10), то проверяю что это число
+					$post->rule('q', 'not_empty')
+						->rule('q', 'digit')
+						->rule('q', 'range', array(':value', 100, pow(2,32)))
+						;
+					if($post->check()){//если проверка на целое десятичное DEC выполнена, то преобразовываю его к формату базы данных
+						if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 0){ //преобразование DEC к HEX8
+							$_key=Model::Factory('Stat')->decDigitToHEX8(Arr::get($post, 'q'));//привожу формат DEC к HEX8
+						}
+
+						if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 1){ //преобразование DEC к 001A
+							$_key=$idcard=Model::Factory('Stat')->decDigitTo001A(Arr::get($post, 'q'));//привожу формат HEX8 к 001A
+						}
+					
+					} else {
+						//переход на основную страницу с указанием, что проверка не пройдена
+						$alert=__(implode(",", $post->errors('validateCard')));
+						$alert=__('Указанный номер идентификатора не может быть найден.');
+						$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>$alert);
+						Session::instance()->set('arrAlert',$arrAlert);
+						//echo Debug::vars('115', $arrAlert);//exit;
+						Session::instance()->set('arrAlert',$arrAlert);
+						$this->redirect('cards');
+					}
+				}
+				
+				if(Kohana::$config->load('system')->get('screenFormatRFID') == 0){ // если формат экрана как формат базы, то это должен быть строго HEX в любом случае
+				//проверка, что код для поиска содержит только цифры и значения HEX
+				
+					$post->rule('q', 'not_empty')
+						->rule('q', 'regex', array(':value', '/^[A-F0-9]+$/'))
+						->rule('idcard', 'min_length', array(':value', Kohana::$config->load('rfid')->get('min_length')))
+						->rule('idcard', 'max_length', array(':value', Kohana::$config->load('rfid')->get('max_length')))
+						;
+						
+					if($post->check()){
+						$_key=Arr::get($post, 'q');
+					
+					} else {
+						$alert=__(implode(",", $post->errors('validateCard')));
+						$arrAlert[]=array('actionResult'=>2, 'actionDesc'=>$alert);
+						Session::instance()->set('arrAlert',$arrAlert);
+						//echo Debug::vars('137');exit;
+						$this->redirect('cards');
+					}						
+				}
+					//echo Debug::vars('138',$pattern,  $_key);exit;
+					$temp=new Keyk();
+					$temp->id_card=$_key;
+					$temp->id_cardtype=1;
+					$var2=$temp->search();
+
+					//echo Debug::vars('144', $_key, $temp, $var2);exit;
+					$this->action_index($var2);
+	
+			
+			break;
+			case 4://поиск ГРЗ	
+				$post->rule('q', 'not_empty')
+					->rule('q', 'regex', array(':value', '/^[A-F0-9]+$/'));
+					if($post->check()){
+						$temp=new Keyk();
+						$temp->id_card=Arr::get($post, 'q');
+						$temp->id_cardtype=4;
+						$var2=$temp->search();
+						//echo Debug::vars('99', $_POST, $this->session->get('identifier'), $pattern, $var2); exit;
+					//$this->session->set('search_card', $pattern);	//в поисковой строке будет ГРЗ без изменения
+					$this->action_index($var2);	
+						
+				} else {
+					
+					$this->action_index();	
+				}
+			
+			
+			break;
+			
+			default:
+				$this->action_index();	
+			break;
+			
+		} 
+	
+		
+	}
 	
 	public function action_search()
 	{
@@ -97,7 +276,7 @@ class Controller_Cards extends Controller_Template
 		*при регистрации 
 		
 		*/
-		//echo Debug::vars('22', $_POST, $this->session->get('identifier')); exit;
+		echo Debug::vars('22', $_POST, $this->session->get('identifier')); exit;
 		$pattern = trim(Arr::get($_POST, 'q', null));// убрал лишние знаки вокруг строки поиска
 		$this->session->set('search_card', $pattern);//параметры поиска мы сохраняем, чтобы повторно вывести в строке поиска.
 		$temp=$pattern;
@@ -325,14 +504,15 @@ class Controller_Cards extends Controller_Template
 	*/
 	public function action_index($filter = null)
 	{
-		//echo Debug::vars('326', $this->user);//exit;
-		//echo Debug::vars('46', $filter); //exit;
 		$t1=microtime(true);
 		$this->id_type = $this->session->get('identifier', 1);//получил тип идентификатора для отображения
 
 		$cards = Model::factory('Card');
+	//получаю номер карты для поиска
 		$filter=$this->session->get('search_card');
-	echo Debug::vars('335', $filter); //exit;
+		$this->session->delete('search_card');
+		//$filter=$this->request->param('id');
+		echo Debug::vars('515', $filter);//exit;
 		if(empty($filter)){// если фильтра (списка) нет, показать пустое поле
 			
 			$contents = View::factory('cards/listStart')			
