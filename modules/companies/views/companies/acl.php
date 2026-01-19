@@ -107,7 +107,7 @@ if ($alert) { ?>
 		<span><?php echo $company ? __('company.title') . ': ' . iconv('CP1251', 'UTF-8', Arr::get($company, 'NAME')) . ' ' . iconv('CP1251', 'UTF-8', Arr::get($company, 'SURNAME')) : __('company.new'); ?></span>
 		<?php if ($company) { ?>
 		<div class="switch">
-			<table cellpadding="0" cellspacing="0">
+			<table>
 			<tbody>
 				<tr>
 					<td>
@@ -148,7 +148,8 @@ if ($alert) { ?>
 				}
 
 		?>
-					<div>
+				<div>
+					Недоступные категории доступа
 					<table>
 					<?php for ($j=0; $j<count($aaa); $j++){ //начинаю перебор массивово с перечнями категорий доступа
 					  
@@ -157,23 +158,24 @@ if ($alert) { ?>
  										
 						foreach (Arr::get($aaa, $j) as $key=>$value) //вывод построчный
 						{
-							echo '<td>';
+							
 														
 							   // echo Debug::vars('174', $key, $value); exit;
 							if(in_array(Arr::get($value, 'ID_ACCESSNAME'), $aclsForCurrentUser)){
-    							echo Form::checkbox('aclList['.Arr::get($value, 'ID_ACCESSNAME').']', 1, in_array (Arr::get($value, 'ID_ACCESSNAME'), $res))
-    							.' '
-		                      . iconv('CP1251', 'UTF-8', Arr::get($value, 'NAME', ''));
+    							// echo Form::checkbox('aclList['.Arr::get($value, 'ID_ACCESSNAME').']', Arr::get($value, 'ID_ACCESSNAME'), in_array (Arr::get($value, 'ID_ACCESSNAME'), $res))
+    							// .' '
+		                      // . iconv('CP1251', 'UTF-8', Arr::get($value, 'NAME', ''));
 
 							} else {
-							    
-							    echo Form::checkbox('aclList['.Arr::get($value, 'ID_ACCESSNAME').']', 1, in_array (Arr::get($value, 'ID_ACCESSNAME'), $res), array("disabled"=>"disabled"))
+						echo '<td>';	    
+							    echo Form::checkbox('aclList['.Arr::get($value, 'ID_ACCESSNAME').']', Arr::get($value, 'ID_ACCESSNAME'), in_array (Arr::get($value, 'ID_ACCESSNAME'), $res), array("disabled"=>"disabled"))
 							    .' '
 		                          . iconv('CP1251', 'UTF-8', Arr::get($value, 'NAME', ''));
+							echo '</td>';
 							}
 					 
 							
-							echo '</td>';
+						
 						}
 						echo '</tr>';
 		}
@@ -182,7 +184,45 @@ if ($alert) { ?>
 		  
 		 
 					</table>
+					Доступные категории доступа
+					<table>
+					<?php for ($j=0; $j<count($aaa); $j++){ //начинаю перебор массивово с перечнями категорий доступа
+					  
+						echo '<tr>';
+
+ 										
+						foreach (Arr::get($aaa, $j) as $key=>$value) //вывод построчный
+						{
+							
+														
+							   // echo Debug::vars('174', $key, $value); exit;
+							if(in_array(Arr::get($value, 'ID_ACCESSNAME'), $aclsForCurrentUser)){
+							echo '<td>';	
+    							echo Form::checkbox('aclList['.Arr::get($value, 'ID_ACCESSNAME').']', Arr::get($value, 'ID_ACCESSNAME'), in_array (Arr::get($value, 'ID_ACCESSNAME'), $res))
+    							.' '
+		                      . iconv('CP1251', 'UTF-8', Arr::get($value, 'NAME', ''));
+							echo '</td>';
+							} else {
+							    
+							    // echo Form::checkbox('aclList['.Arr::get($value, 'ID_ACCESSNAME').']', Arr::get($value, 'ID_ACCESSNAME'), in_array (Arr::get($value, 'ID_ACCESSNAME'), $res), array("disabled"=>"disabled"))
+							    // .' '
+		                          // . iconv('CP1251', 'UTF-8', Arr::get($value, 'NAME', ''));
+							}
+					 
+							
+							
+						}
+						echo '</tr>';
+		}
+						?>
+						
+		  
+		 
+					</table>
+					
+					
 					</div>
+					
 			<?php
 			$user=new User();
 			$acl=new Acl(true);
@@ -219,7 +259,43 @@ if ($alert) { ?>
 			<!-- <input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset()" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.backtolist'); ?>" onclick="location.href='<?php echo URL::base(); ?>companies'" /> -->
+			</div>
 		</form>
 		
+		</div>
+	
+</div>
+
+
+
+<div class="onecolumn">
+	<div class="header">
+		<span><?php echo $company ? __('Наследование прав доступа') . ': ' . iconv('CP1251', 'UTF-8', Arr::get($company, 'NAME')) . ' ' . iconv('CP1251', 'UTF-8', Arr::get($company, 'SURNAME')) : __('company.new'); ?></span>
+
+	</div>
+	<br class="clear" />
+	<div class="content">
+	<?php echo Kohana::message('anymess', 'companyAclInheritDesc');?>
+	<fieldset>
+		<legend><?php echo __('Установка прав доступа'); ?></legend>
+		<?php
+
+		echo Form::open('/Accesss');
+		
+			// echo Form::checkbox('addForContact', 1, true).__('Добавить контакту категории доступа родительской организации к уже имеющимся категориям доступа.').'<br>';
+			// echo Form::checkbox('addForChild', 1, true).__('Удалить у контакта категории доступа, не входящие в категории доступа родительской организации.').'<br><br>';
+			// echo Form::checkbox('addForChild', 1, true).__('Обрабаывать вложенные группы.').'<br>';
+			// echo Form::hidden('id_org', Arr::get($company, 'ID_ORG'));
+			echo '<br>';
+			echo Form::radio('todo','add',true).__('Добавить контакту категории доступа родительской организации к уже имеющимся категориям доступа.').'<br>';
+			echo Form::radio('todo','del').__('Удалить у контакта категории доступа, не входящие в категории доступа родительской организации.').'<br><br>';
+			echo Form::checkbox('makeForForChild', 1, true).__('Обрабаывать вложенные группы.').'<br>';
+			echo Form::hidden('id_org', Arr::get($company, 'ID_ORG'));
+			
+			echo Form::submit('aclStart', __('Начать'));
+		echo Form::close()
+		?>
+									
+	</fieldset>
 	</div>
 </div>

@@ -11,7 +11,7 @@ class exportXlsx
 	
 	public function __construct(Report $report)
 	{
-		define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+		define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br>');
 		require_once APPPATH . '/vendor/PHPExcel-1.8/Classes/PHPExcel.php';
 		require_once APPPATH . '/vendor//PHPExcel-1.8/Classes/PHPExcel/Writer/Excel2007.php';
 		//https://snipp.ru/php/phpexcel?ysclid=lrwbz922se302951359 

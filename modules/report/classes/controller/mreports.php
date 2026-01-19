@@ -54,7 +54,7 @@ class Controller_mreports extends Controller_Template {
 	
 	
 	/*
-	18.10.2024 отчет для Щербинки статистика выданных карт
+	18.10.2024 отчет 
 	*Report Unic ID, далее RUID
 	*Модель отчета формируется как RUID_report
 	*Модель должна лежать в папке Model/RUID/report.php 
@@ -66,11 +66,10 @@ class Controller_mreports extends Controller_Template {
 	
 	public function action_makeReport()
 	{
-	
 		//echo Debug::vars('29 report stat', $_POST);exit;
-		$post=Validation::factory(Arr::get($_POST, 'dataReport'))
+		
+		$post=Validation::factory($_POST)
 			->rule('id_report', 'not_empty')
-			
 			;
 			
 		if($post->check()){
@@ -93,8 +92,9 @@ class Controller_mreports extends Controller_Template {
 				;
 		} else {
 			
+			$message=implode(",", $post->errors('mreports'));
 			$content = View::factory('reportError', array(
-			'mess'=> $post->errors(),
+			'mess'=> $message,
 			));
 		}
 		
@@ -105,31 +105,57 @@ class Controller_mreports extends Controller_Template {
 	
 	/*
 		18.10.2024 экспорт результата
+		экспортируется уже подготовленный ранее файл
 	*/
 	public function action_export()
 	{
-		//echo Debug::vars('76',$_POST);exit;
-
+		//echo Debug::vars('76',$_POST, Session::instance()->id());exit;
 		if(Arr::get($_POST, 'savecsv'))
 		{
-			$report=Session::instance()->get('report');
-			Session::instance()->delete('report');
+			/**2.03.2025 
+			*
+			*
+			*/
+			$report=Session::instance()->get('report');//из сессия "достаю" параметры отчета
+			Session::instance()->delete('report');//очищаю сессию от отчета
+			echo Debug::vars('121', $report);exit;
 			$csv=new ExportCsv($report);
-			
-			
+			//echo Debug::vars('118', $csv->filename);exit;
+			if($csv->makeOk) 
+			{
+				echo Debug::vars('125', $this);exit;
+				$content = Model::Factory('mreport')->send_file($csv->filename);//передача файла через браузер
+				//удалить файл с диска, чтобы не занимал место
+			} else {
+				echo Debug::vars('129', $this);exit;
+				$this->redirect($this->request->referrer());
+			}
 		};
+		
+		/** 2.03.2025 экспорт осуществляется средствами ExportXlsx
+		*
+		*
+		*/
 		if(Arr::get($_POST, 'savexls'))
 		{
-			$csv=new ExportXlsx(Session::instance()->get('report'));
-			//$csv->makeReport();
-			//$csv->sendFile();
+			$report=Session::instance()->get('report');//из сессия "достаю" параметры отчета
+			Session::instance()->delete('report');//очищаю сессию от отчета
+			$csv=new ExportXlsx($report);//беру отчет из сессии.
+			
 		}
+		
+		
+		/*экспорт файла в pdf. Имеется возможность (для отладки) сначала вывести отчет на экран,
+		*
+		*
+		*/
 		if(Arr::get($_POST, 'savepdf')) 
 		{
 			/*  $reportData=new ExportPdf(Session::instance()->get('report'));
 			 $csv->makeReport();
 			 $csv->sendFile(); */
-		 	$reportData=Session::instance()->get('report');
+		 	$report=Session::instance()->get('report');//из сессия "достаю" параметры отчета
+			Session::instance()->delete('report');//очищаю сессию от отчета
 			
 			if(Kohana::find_file('views','exportpdf'))
 				{
@@ -137,14 +163,14 @@ class Controller_mreports extends Controller_Template {
 				// ->bind('report', $report); 
 				
 				$content=View::Factory('exportpdf')
-					->bind('reportData', $reportData)
+					->bind('reportData', $report)
 				 ; 
 				} else {
 					throw new  Exception('Нет файла view!');
 				}
 					
-				//if(false){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
-				if(true){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
+				if(false){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
+				//if(true){ // переключатель: true - делать экспорт в pdf, false - выводит отчет на экран браузера
 				
 					require_once APPPATH . 'vendor/dompdf/autoload.inc.php';
 					Dompdf\Autoloader::register();
@@ -166,9 +192,9 @@ class Controller_mreports extends Controller_Template {
 					$width=10;
 					$canvas = $dompdf->get_canvas();
 					$canvas->page_text($pageWidth/2, $pageHeight - 40, $text, $font, $size, $color);
-					$dompdf->stream($reportData->fileName.'_'.date('Y-m-d_H_i_s'));
+					$dompdf->stream($report->fileName.'_'.date('Y-m-d_H_i_s'));//отправка файла через браузер.
 				} else {
-//echo Debug::vars('49', $content);//exit;
+					//echo Debug::vars('49', $content);//exit;
 						$this->template->content = $content;
 				}
 						 

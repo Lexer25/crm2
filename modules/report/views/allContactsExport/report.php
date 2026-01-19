@@ -20,25 +20,19 @@ if(isset($report)) $data=$report;//если установлен $report, то �
 $ruid='allContactsExport';
 	?>
 	</div>
-	<br class="clear" />
+	<br class="clear">
     <div class="content">
         <form action="mreports/makeReport" method="post" onsubmit="return validate()">
-		
-
-          
-
-            <?php
+        <?php
 			//передаю RUID отчета
 			
 			
-			echo Form::hidden('dataReport[id_report]', $ruid);
-			echo Form::hidden('dataReport[fileName]', 'Список контактов');
-            
-           echo Form::submit(NULL, __('button.allContactsExport'));
+			echo Form::hidden('id_report', $ruid);
+			echo Form::hidden('fileName', 'Список контактов');
+
+			echo Form::submit(NULL, __('button.allContactsExport'));
             echo Form::close();
-			
-          	
-            ?>
+        ?>
 
 
     </div>
@@ -126,7 +120,7 @@ $ruid='allContactsExport';
 		//echo __('Время выполнения :timeexec сек.', array(':timeexec'=>(microtime(true)-$t1)));
 		} else { ?>
 		<div style="margin: 100px 0; text-align: center;">
-			<?php echo __('history.empty'); ?><br /><br />
+			<?php echo __('history.empty'); ?><br><br>
 		</div>
 		<?php } ?>
 			<?php 	

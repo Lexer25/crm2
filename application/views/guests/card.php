@@ -129,7 +129,7 @@
 											<?php } else {
 											?>
 												<input type="text" size="12" maxlength="8" id="idcard" name="idcard" value="<?php if (isset($card)) echo Arr::get($card, 'ID_CARD'); ?>" />
-												<br />
+												<br>
 											<?php } ?>
 												<span class="error" id="error11" style="color: red; display: none;"><?php echo __('card.emptyid'); ?></span>
 												<span class="error" id="error12" style="color: red; display: none;"><?php echo __('card.wrongcharacter'); ?></span>
@@ -153,7 +153,7 @@
 													} else {
 														echo date("d.m.Y");
 													}														?>" />
-												<br />
+												<br>
 												<span class="error" id="error2" style="color: red; display: none;"><?php echo __('card.emptystarttime'); ?></span>
 											</div>
 										</td>
@@ -172,7 +172,7 @@
 
 														echo date('d.m.Y', strtotime('+1 year'));
 													}														?>" />
-												<br />
+												<br>
 												<span class="error" id="error3" style="color: red; display: none;"><?php echo __('card.wrongendtime'); ?></span>
 											</div>
 										</td>
@@ -192,14 +192,14 @@
 								</tbody>
 							</table>
 						</fieldset>
-						<br />
-						<br />
+						<br>
+						<br>
 
-						<br />
+						<br>
 						
-						<br />
+						<br>
 						<div id="cardactions1">
-							<br />
+							<br>
 							<?php if (isset($card) or 1) { ?>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
@@ -230,10 +230,10 @@
 				
 				</tr>
 			</table>
-			<br />
+			<br>
 			<?php if (isset($card)) { ?>
 			<div id="cardhistory">
-			<br />
+			<br>
 			<h3><?php echo __('cards.loadhistory'); ?></h3>
 			<table class="data" width="100%" cellpadding="0" cellspacing="0">
 				<thead>
@@ -264,14 +264,14 @@
 					<?php } ?>
 				</tbody>
 			</table>
-			<br />
+			<br>
 			
 			<input type="button" value="<?php echo __('cards.reload'); ?>" onclick="reload('<?php echo Arr::get($card, 'ID_CARD'); ?>')" />
-			<br />
+			<br>
 			</div>
 			<?php } ?>
-			<br />
-			<br />
+			<br>
+			<br>
 			<?php if (isset($card)) 
 			{?>
 				<input type="button" value="<?php echo __('cards.delete'); ?>" onclick="deletecard('<?php echo Arr::get($card, 'ID_CARD'); ?>')" />

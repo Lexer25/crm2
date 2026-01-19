@@ -10,13 +10,31 @@
 class tempCSV
 {
 	
-	public $fileName = 'C:\\xampp\\htdocs\\crm2\\reportDefault.tmp';//имя создаваемого файла
-	public $fp;
+	public $path = 'temp';//имя создаваемого файла
+	public $fileName = 'reportDefault.tmp';//имя создаваемого файла
+	public $fp;//указатель на файл (file pointer)
+	public $separator=",";//разделитель данных в файле
 	
 	public function __construct()
 	{
-			
-		$this->fp=$this->makeFile($this->fileName);		
+		$path='';
+		if(Kohana::$config->load('report')->get('filePath') !== null) $this->path = Kohana::$config->load('report')->get('filePath');
+		if(Kohana::$config->load('report')->get('separator') !== null) $this->separator = Kohana::$config->load('report')->get('separator');
+		
+		//проверяю наличие папки для временных файлов
+			$path = $this->path;
+			if (!file_exists($path)) {
+				mkdir($path, 0777, true);
+				//echo Debug::vars('22', "Директория создана успешно!"); exit;
+			} else {
+				//echo "Директория уже существует.";
+				//echo Debug::vars('25', "Директория уже существует."); exit;
+			}
+		//если папки нет, то создаю папку		
+		//$this->fp=$this->makeFile($this->fileName);	
+		//echo Debug::vars('30', Session::instance()->id());exit;
+		
+		$this->fileName=$this->path.DIRECTORY_SEPARATOR.Session::instance()->id();	//имя файла формируется как номер сессии.	
 		
 	}
 	
@@ -24,25 +42,40 @@ class tempCSV
 	*@input $filename - имя открываемого файла
 	*@output - указать ресурса.
 	*/
-	public function getFile($fileName)
+	public function getFile($fileName = null)
 	{
+		if(is_null($fileName))
+		{
+			$this->fp=fopen($this->fileName, "r");
+			return true;			
+		} else {
+			$this->fp=fopen($fileName, 'r');
+			return true;
+		}
 		
-		$this->fp=fopen($this->fileName, "r");	
-		return;
+		return false;
 	}
 	
 	/**4.02.2025 открываю файл для записи
 	*@input $filename - имя создавамого файла
 	*@output - указать ресурса.
 	*/
-	public function makeFile($fileName)
+	public function makeFile($fileName = null)
 	{
-		return fopen($fileName, 'w');
+		if(is_null($fileName))
+		{
+			$this->fp=fopen($this->fileName, 'w');
+			return true;			
+		} else {
+			$this->fp=fopen($fileName, 'w');
+			return true;
+		}
+		return false;
 	}
 	
 	/**4.02.2025 закрываю файл для записи
 	*@input $fp - указатель ресурса
-	*@output - пока не знаю.
+	*@output - пока не используется.
 	*/
 	public function closeFile()
 	{
@@ -58,7 +91,7 @@ class tempCSV
 	public function addRow(array $row)
 	{
 				
-		return fputcsv ($this->fp, $row);//добавил строку в файл/ возвращает количество записанных символом или false
+		return fputcsv ($this->fp, $row, $this->separator);//добавил строку в файл/ возвращает количество записанных символом или false
 	}
 	
 	
@@ -68,11 +101,7 @@ class tempCSV
 	public function getRow()
 	{
 				
-		return fgetcsv ($this->fp);//добавил строку в файл/ возвращает количество записанных символом или false
+		return fgetcsv ($this->fp, $this->separator);//получить одну строку из файла с данными
 	}
-	
-	
-	
-	
 	
 }

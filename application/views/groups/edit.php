@@ -52,20 +52,20 @@
 			<?php echo Form::hidden('hidden', 'form_sent') . Form::hidden('id', $group['ID_GROUP']); ?>
 			<p>
 				<label for="name"><?php echo __('group.name'); ?></label>
-				<br />
+				<br>
 				<input type="text" id="name" name="name" size="50" value="<?php echo iconv('CP1251', 'UTF-8', $group['NAME']); ?>" />
-				<br />
+				<br>
 				<span class="error" id="error1" style="color: red; display: none;"><?php echo __('group.emptyname'); ?></span>
 			</p>
-			<br />
+			<br>
 			<p>
 				<label for="desc"><?php echo __('group.description'); ?></label>
-				<br />
+				<br>
 				<input type="text" id="desc" name="desc" size="50" value="<?php echo iconv('CP1251', 'UTF-8', $group['DESCRIPTION']); ?>" />
-				<br />
+				<br>
 			</p>
-			<br />
-			<br />
+			<br>
+			<br>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset();" />

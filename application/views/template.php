@@ -1,9 +1,9 @@
 <!DOCTYPE HTML> 
-<html> 
+<html lang="ru">
 <head> 
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 	<title><?php echo Kohana::$config->load('main')->get('orgname');?></title>
-	<base href="http://<?php echo Kohana::$config->load('config_newcrm')->iphost.'/'.Kohana::$config->load('config_newcrm')->siteurl;?>/"/>
+	<base href="http://<?php echo Kohana::$config->load('config_newcrm')->iphost.'/'.Kohana::$config->load('config_newcrm')->siteurl;?>/">
 	<link rel="stylesheet" type="text/css" media="all" href="css/screen.css">
 	<link rel="stylesheet" type="text/css" media="all" href="css/datepicker.css">
 	<link rel="stylesheet" type="text/css" media="all" href="css/theme.blue.css">
@@ -15,27 +15,27 @@
 	<?php //echo HTML::style('static/css/modal.css'); ?>
  
 	
-	<link rel="stylesheet" href="static/css/themes/blue/style.css" type="text/css" media="print, projection, screen" />
+	<link rel="stylesheet" href="static/css/themes/blue/style.css" type="text/css" media="print, screen">
 	
 	
 	<!--[if IE]>
 	<link rel="stylesheet" type="text/css" media="all" href="css/ie.css" >
-	<script type="text/javascript" src="js/excanvas.js"></script>
+	<script src="js/excanvas.js"></script>
 	<![endif]-->
 	
-	<script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
-	<script type="text/javascript" src="js/jquery-ui.js"></script>
-	<script type="text/javascript" src="js/crm2_hint.js"></script>
-	<script type="text/javascript" src="js/visualize/jquery.visualize.js"></script>
-	<script type="text/javascript" src="js/fancybox/jquery.fancybox-1.3.0.js"></script><!--что оно делает-->
-	<script type="text/javascript" src="js/jquery.fancybox.min.js"></script>
-	<script type="text/javascript" src="js/jquery.tablesorter.js"></script>
-	<script type="text/javascript" src="js/jquery.tablesorter.widgets.js"></script>
-	<script type="text/javascript" src="js/jquery.tablesorter.pager.js"></script>
-	<script type="text/javascript" src="js/crm2_custom_blue.js"></script>
-	<script type="text/javascript" src="js/crm2_template_tablesorter.js"></script>
-	<script type="text/javascript" src="js/multi-month-picker.js"></script>
-	<script type="text/javascript" src="js/jquery.select2.js"></script>
+	<script src="js/jquery-3.7.1.min.js"></script>
+	<script src="js/jquery-ui.js"></script>
+	<script src="js/crm2_hint.js"></script>
+	<script src="js/visualize/jquery.visualize.js"></script>
+	<script src="js/fancybox/jquery.fancybox-1.3.0.js"></script><!--что оно делает-->
+	<script src="js/jquery.fancybox.min.js"></script>
+	<script src="js/jquery.tablesorter.js"></script>
+	<script src="js/jquery.tablesorter.widgets.js"></script>
+	<script src="js/jquery.tablesorter.pager.js"></script>
+	<script src="js/crm2_custom_blue.js"></script>
+	<script src="js/crm2_template_tablesorter.js"></script>
+	<script src="js/multi-month-picker.js"></script>
+	<script src="js/jquery.select2.js"></script>
 	<style>
 	/*
 		это стиль для нижней таблицы состояний
@@ -91,7 +91,9 @@
 	</head> 
 	<body>
 		<div class="content_wrapper">
-			<?php include Kohana::find_file('views', 'header'); ?>		
+			<?php 
+			$timeStart=microtime(true);
+			include Kohana::find_file('views', 'header'); ?>		
 			<br>
 			<br>
 			<?php include Kohana::find_file('views', 'sidebar'); ?>
@@ -104,14 +106,13 @@
 
 //вывод строки статуса					
 				if (Kohana::$config->load('config_newcrm')->bottom_status_table) include Kohana::find_file('views', 'bottom_status_table');	
-				
-				//echo Debug::vars('108', I18n::$lang);//exit;
-				
-								?>
+					?>
 				</div>
 			</div>
 		</div>
-
+<div id="someidentifier">
+<?php echo __('Time execute :time sec.', array(':time'=> number_format((microtime(true) - $timeStart), 3))); ?>
+</div>
 	<script>
 	function updateAdditionalInfo() {
 			var currentTime = new Date();

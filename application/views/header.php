@@ -6,23 +6,20 @@
 //echo phpinfo(INFO_GENERAL);
 ?>
 <div id="header">
-	<div id="logo"><img src="images/logo2.png" alt="logo"/></div>
+	<div id="logo"><img src="images/logo2.png" alt="logo"></div>
 	
 
 	<div id="search">
 		<?php 
-		
+		echo  __('system.version'). ConfigType::getCityCrmVer().' ';
 		if(Arr::get(Session::instance()->get('auth_user_crm'), 'ID_PEP') == 1) echo HTML::anchor('settings/mainManual', HTML::image('images/shortcut/setting.png', array('width'=>20, 'title'=>'Настройка')));
+		
 		echo ' | '. HTML::anchor('logout', __('logout'));
-
-		?>
-	</div>
-	<div id="search">
-		<?php echo  __('system.version'). ConfigType::getCityCrmVer(); ?>
+		 ?>
 	</div>
 
 	<div id="account_info">
-		<img src="images/icon_online.png" alt="Online" class="mid_align"/>
+		<img src="images/icon_online.png" alt="Online" class="mid_align">
 		<?php 
 			$huser=Session::instance()->get('auth_user_crm');
 			$userAdmin=new Contact(Arr::get($huser, 'ID_PEP'));
@@ -40,3 +37,4 @@
 
 	
 </div>
+

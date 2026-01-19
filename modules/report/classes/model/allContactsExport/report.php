@@ -57,8 +57,6 @@ class Model_allContactsExport_report extends Model
 					join organization_getchild(1, '.$user->id_orgctrl .') og on og.id_org=p.id_org
 					 join accessuser au on au.id_accessname=ssa.id_accessname and au.id_pep='.$user->id_pep.'
 					where p."ACTIVE">0';
-			
-									
 						
 				//echo Debug::vars('21', $sql);exit;
 				$query = DB::query(Database::SELECT, $sql)

@@ -205,50 +205,50 @@ if ($alert) { ?>
 						<legend>Персональные данные</legend>
 						<div>
 							<label for="surname"><?php echo __('contact.surname'); ?></label>
-							<br />
+							<br>
 							<input type="text" size="50" name="surname" id="surname" value="<?php echo iconv('CP1251', 'UTF-8', $guest->surname); ?>" />
-							<br />
+							<br>
 							<span class="error" id="error1" style="color: red; display: none;"><?php echo __('contact.emptysurname'); ?></span>
 						</div>
-						<br />
+						<br>
 						<div>
 							<table align="left">
 								<tr>
 									<td>
 										<label for="name"><?php echo __('contact.name'); ?></label>
-										<br />
+										<br>
 										<input type="text" size="50" name="name" id="name" value="<?php echo iconv('CP1251', 'UTF-8', $guest->name); ?>" style="width: 150px" />
 									</td>
 									<td style="padding-left: 15px">
 										<label for="patronymic"><?php echo __('contact.patronymic'); ?></label>
-										<br />
+										<br>
 										<input type="text" size="50" name="patronymic" id="patronymic" value="<?php echo iconv('CP1251', 'UTF-8', $guest->patronymic); ?>" style="width: 150px" />
 									</td>
 								</tr>
 							</table>
 						</div>
 						<br style="clear: both;" />
-						<br />
+						<br>
 						
-						<br />
+						<br>
 						<div>
 							<table align="left">
 								<tr>
 									<td>
 										<label for="numdoc"><?php echo __('contact.numdoc'); ?></label>
-										<br />
+										<br>
 										<input type="text" size="23" name="numdoc" id="numdoc" value="<?php echo iconv('CP1251', 'UTF-8', $guest->numdoc); ?>" />
 									</td>
 									<td style="padding-left: 15px">
 										<label for="datedoc"><?php echo __('contact.datedoc'); ?></label>
-										<br />
+										<br>
 										<input type="text" name="datedoc" id="datedoc" value="<?php 
 											if(!is_null($guest->datedoc)) {
 													echo date('d.m.Y', strtotime($guest->datedoc));
 											} else {
 													echo date("d.m.Y");
 											}												?>" style="width: 100px;" />
-										<br />
+										<br>
 										<span class="error" id="error31" style="color: red; display: none;"><?php echo __('contact.emptydatedoc'); ?></span>
 										<span class="error" id="error32" style="color: red; display: none;"><?php echo __('contact.wrongdatedoc'); ?></span>
 										<span class="errpr" id="error33" style="color: red; display: none;"><?php echo __('contact.wrongdate'); ?></span>
@@ -265,7 +265,7 @@ if ($alert) { ?>
 					</td>
 					<td style="padding-left: 40px; vertical-align: top;">
 
-						<br />
+						<br>
 			<input type="hidden" name="hidden" value="form_sent" />
 			<input type="hidden" name="id_cardtype" value="1" />
 			<?php if (isset($card)) { ?>
@@ -335,7 +335,7 @@ if ($alert) { ?>
 												<?php } else {
 												?>
 													<input type="text" size="12" maxlength="8"  id="idcard" name="idcard" value="<?php if (isset($card)) echo Arr::get($card, 'ID_CARD'); ?>" />
-													<br />
+													<br>
 												<?php } ?>
 													<span class="error" id="error11" style="color: red; display: none;"><?php echo __('card.emptyid'); ?></span>
 													<span class="error" id="error12" style="color: red; display: none;"><?php echo __('card.wrongcharacter'); ?></span>
@@ -360,7 +360,7 @@ if ($alert) { ?>
 														} else {
 															echo date("d.m.Y");
 														}														?>" />
-													<br />
+													<br>
 													<span class="error" id="error2" style="color: red; display: none;"><?php echo __('card.emptystarttime'); ?></span>
 												</div>
 											</td>
@@ -379,7 +379,7 @@ if ($alert) { ?>
 
 															echo date('d.m.Y', strtotime('+1 day'));
 														}														?>" />
-													<br />
+													<br>
 													<span class="error" id="error3" style="color: red; display: none;"><?php echo __('card.wrongendtime'); ?></span>
 												</div>
 											</td>
@@ -401,9 +401,9 @@ if ($alert) { ?>
 				<?php 
 					}
 				?>			
-							<br />
+							<br>
 							
-							<br />
+							<br>
 						</td>
 						<td style="padding-left: 80px; vertical-align: top;">
 						<br>
@@ -422,7 +422,7 @@ if ($alert) { ?>
 						</td>
 					</tr>
 				</table>
-			<br />
+			<br>
 			
 				<?php
 				

@@ -157,7 +157,7 @@ if ($alert) { ?>
 					</td>
 				</tr>
 			</table>
-			<br />
+			<br>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset()" />

@@ -146,8 +146,12 @@ Kohana::modules(array(
 	'mreports' => MODPATH.'report',
 	'companies' => MODPATH.'companies',
 	'monitors' => MODPATH.'monitors',
+<<<<<<< HEAD
 	'order' => MODPATH.'order',
 	
+=======
+	'access' => MODPATH.'access',
+>>>>>>> a2cc38f5116d622e7fd826d7a6d0bd183c054467
 	));
 /*
 Добавляю хранение настроек в базе данных

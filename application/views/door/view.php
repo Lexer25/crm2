@@ -163,32 +163,32 @@ $device=new Device($door->parent );
 				<input type="hidden" name="id_server" size="15"  value="<?php echo $door->id; ?>" />
 			<p>
 				<label for="name"><?php echo __('door.name'); ?></label>
-				<br />
+				<br>
 				<input type="text" id="name" name="name" disabled  size="50" value="<?php echo iconv('CP1251', 'UTF-8', $door->name); ?>" />
-				<br />
+				<br>
 				<span class="error" id="error1" style="color: red; display: none;"><?php echo __('door.emptyname'); ?></span>
 			</p>
-			<br />
+			<br>
 		<p>
 				<label for="name"><?php echo __('door.parentname'); ?></label>
-				<br />
+				<br>
 				<input type="text" id="name" name="name" disabled  size="50" value="<?php echo iconv('CP1251', 'UTF-8', $device->name); ?>" />
-				<br />
+				<br>
 				<span class="error" id="error1" style="color: red; display: none;"><?php echo __('door.emptyname'); ?></span>
 			</p>
-			<br />
+			<br>
 		
 			
 			<p>
 				<label for="access"><?php echo __('door.is_active'); ?></label>
-				<br />
+				<br>
 				<?php echo Form::checkbox('is_active', 1, $door->is_active ==1, array('disabled'=>'disabled')).'<br>'; 
 				
 				?>
 			</p>
-			<br />
-			<br />
-			<br />
+			<br>
+			<br>
+			<br>
 			<?php
 				echo 'id_dev='.$door->id;
 			?>

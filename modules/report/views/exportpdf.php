@@ -1795,6 +1795,10 @@
 		}</style>
 	</head>
 	<body class="page">
+	<?php
+		//echo Debug::vars('1799', $reportData);exit;
+	
+	?>
 		<table style="width: 100%" class="header">
 			<tr>
 				<td style="width: 50%; vertical-align: middle;">

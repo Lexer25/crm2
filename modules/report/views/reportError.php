@@ -6,12 +6,12 @@
 
 	
 	
-	<br class="clear"/>
+	<br class="clear">
 	<div class="content">
 	<?php
-		echo __('messAboutReportErr');
-		echo Debug::vars($mess);
-	
+		
+		echo $mess;
+			
 	?>
 		
 		

@@ -99,7 +99,7 @@
 					} ?>
 				</tbody>
 			</table>
-			<br />
+			<br>
 			<?php if (!$isadmin) { ?>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;

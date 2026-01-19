@@ -169,7 +169,7 @@ if ($alert) { ?>
 			</table>
 					</div>
 <div>
-			<br />
+			<br>
 			<?php if (!$contact) {?>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;

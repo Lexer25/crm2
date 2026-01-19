@@ -358,6 +358,7 @@ $tt=microtime(true);
 												
 												?>
 									/>
+<<<<<<< HEAD
 							
 							<input type="text" 
 													id="idcard" 
@@ -370,6 +371,8 @@ $tt=microtime(true);
 													/>
 													
 													
+=======
+>>>>>>> a2cc38f5116d622e7fd826d7a6d0bd183c054467
 									
 							<br />
 							<span class="error" id="error4" style="color: red; display: none;"><?php echo __('contact.emptypost'); ?></span>

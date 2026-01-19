@@ -46,35 +46,35 @@
 			<input type="hidden" name="id" value="<?php echo $user->id; ?>" />
 			<p>
 				<label for="surname"><?php echo __('contact.surname'); ?></label>
-				<br />
+				<br>
 				<input type="text" size="50" name="surname" id="surname" value="<?php echo $user->surname; ?>" />
 			</p>
-			<br />
+			<br>
 			<p>
 				<label for="name"><?php echo __('contact.name'); ?></label>
-				<br />
+				<br>
 				<input type="text" size="50" name="name" id="name" value="<?php echo $user->name; ?>" />
 			</p>
-			<br />
+			<br>
 			<p>
 				<label for="email"><?php echo __('contact.email'); ?></label>
-				<br />
+				<br>
 				<input type="text" size="50" name="email" id="email" value="<?php echo $user->email; ?>" />
 			</p>
-			<br />
+			<br>
 			<p>
 				<label for="username"><?php echo __('contact.login'); ?></label>
-				<br />
+				<br>
 				<input type="text" name="username" id="username" size="12" value="<?php echo $user->username; ?>" />
 			</p>
-			<br />
+			<br>
 			<p<?php if ($user->id < 0) echo ' style="display: none"'; ?>>
 				<label for="password"><?php echo __('contact.password'); ?></label>
-				<br />
+				<br>
 				<input type="password" size="12" name="password" id="password" value="" />
 			</p>
-			<br />
-			<br />
+			<br>
+			<br>
 			<input type="submit" value="<?php echo __('button.save'); ?>" />
 			&nbsp;&nbsp;
 			<input type="button" value="<?php echo __('button.cancel'); ?>" onclick="document.forms[0].reset()" />

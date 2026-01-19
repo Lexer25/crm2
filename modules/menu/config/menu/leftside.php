@@ -94,7 +94,7 @@ return [
 		
 		
 		'fastreg'=>[	//быстрая регистрация в выбранную организацию
-					'url'     => '',
+					'url'     => 'fastreg',
 					'icon'    => 'icon_contacts.png',
 					'title'   => 'contacts.host',
 					'tooltip' => 'contacts',
@@ -242,7 +242,7 @@ return [
 				
 		//раздел Отчеты		
 		'Reports'=>[
-					'url'     => '',
+					'url'     => 'reports',
 					'icon'    => 'export.png',
 					'title'   => 'report.reports',
 					'tooltip' => 'report.reports',
