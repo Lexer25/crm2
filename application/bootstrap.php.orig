@@ -140,15 +140,18 @@ Kohana::modules(array(
 	'cards' => MODPATH . 'cards', // подключение модуля cards
 	'contacts' => MODPATH . 'contacts', // подключение модуля contacts
 	
-	//'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
+	'passoffice' => MODPATH . 'passoffice', // подключение модуля Passoffice
 	'kohana-acl' => MODPATH . 'kohana-acl', // подключение модуля Passoffice
 	'menu' => MODPATH.'menu',
 	'mreports' => MODPATH.'report',
 	'companies' => MODPATH.'companies',
 	'monitors' => MODPATH.'monitors',
+<<<<<<< HEAD
 	'order' => MODPATH.'order',
 	
+=======
 	'access' => MODPATH.'access',
+>>>>>>> a2cc38f5116d622e7fd826d7a6d0bd183c054467
 	));
 /*
 Добавляю хранение настроек в базе данных
