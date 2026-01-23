@@ -286,6 +286,14 @@ return [
 									'visible' => true,
 								],
 						
+						'exportAllCard'=>[
+									'url'     => 'reports/allCard',
+									'icon'    => '',
+									'title'   => 'mreport.allcard',
+									'tooltip' => 'mreport.allcard',
+									'visible' => true,
+								],
+						
 						
 						
 						

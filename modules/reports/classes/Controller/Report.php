@@ -40,8 +40,10 @@ class Controller_Report extends Controller_Template {
 		//echo Debug::vars('37', $params);exit;
        // try {
 			Session::instance()->delete('current_report');
-            $report = Report_Factory::create($report_name);
+            $report = Report_Factory::create($report_name);//вызываю модель, которая готовит нужные данные.
+		
             $report->set_params($params);//передал все входные параметры в модель
+
             $report->generate($params);//генерация данных. Теперь у экземпляра report заполнено поле data=>report, и при этом данные сохранены в файл
             // Сохраняем отчет в сессии для кнопки "Сохранить"
             
