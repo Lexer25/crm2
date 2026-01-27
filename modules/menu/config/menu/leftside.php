@@ -289,8 +289,8 @@ return [
 						'exportAllCard'=>[
 									'url'     => 'reports/allCard',
 									'icon'    => '',
-									'title'   => 'mreport.allcard',
-									'tooltip' => 'mreport.allcard',
+									'title'   => 'Список всех идентификаторов',
+									'tooltip' => 'Идентификаторы и их свойства',
 									'visible' => true,
 								],
 						

@@ -22,7 +22,7 @@ $("select").select2();
 </script>
 
 <br class="clear">
-<div >12345
+<div >
 <?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
    
   	<?php 
@@ -33,72 +33,7 @@ $("select").select2();
     
  
 			<br>
-			<fieldset>
-				<legend><?php echo __('Идентификаторы'); ?></legend>
-				 <table cellspacing="5" cellpadding="5">
-                <tbody>
-                <tr>
-                    <th align="right" style="padding-right: 10px;">
-                        <label for="reportdatestart"><?php echo __('report.datestart'); ?></label>
-                    </th>
-                    <td>
-                        <div style="padding-bottom: 10px;">
-							
-							<input type="text" size="12" name="reportdatestart" id="carddatestart" value="<?php echo $reportdatestart;?>" />
-							
-                            <br>
-                            <span class="error" id="error2" style="color: red; display: none;"><?php echo __('report.emptystarttime'); ?></span>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <th align="right" style="padding-right: 10px;">
-                        <label for="reportdateend"><?php echo __('report.dateend'); ?></label>
-                    </th>
-                    <td>
-                        <div style="padding-bottom: 10px;">
-                           	<input type="text" size="12" name="reportdateend" id="carddateend" value="<?php echo $reportdateend;?>" />
-							
-							
-                            <br>
-                            <span class="error" id="error3" style="color: red; display: none;"><?php echo __('report.wrongendtime'); ?></span>
-                        </div>
-                    </td>
-                </tr>
-
-
-                </tbody>
-            </table>
-			
-
-						
-						<?php 
-							//$id_orgctrl=23;//орагизация, которой может управлять текущий авторизованный пользователь.
-							$org_tree = Model::Factory('Company')->getOrgListForOnce($user->id_orgctrl);
-							$tree=new Tree();
-						
-							$var2=$tree->buildTreeWithReferences($org_tree);
-					//	echo Debug::vars('85', $var2);exit;	
-							//$select_org=1;//выбранная организации из предыдущего отчета.
-							$select_org = isset($params['id_org_select']) ? $params['id_org_select'] : $user->id_orgctrl;
-
-							?>
-							
-							<select name="id_org_select" required>
-							
-								<?php
-								
-								
-									echo $tree->out_options($var2, $select_org);
-									
-								?>
-							</select>
-							
-
-					
-							
-			</fieldset>				
+		
 			<?php 
 			
 			
