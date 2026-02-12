@@ -11,8 +11,9 @@ class Controller_Report extends Controller_Template {
     {
         $report_name = $this->request->param('report');
       //  try {
+		  //echo Debug::vars('14', $report_name);exit;
             $report = Report_Factory::create($report_name);//возвращает экземпляр модели отчета, которая содержит имя, дату, форму для заполнения, форму для результата и набор параметров.
-					
+		//echo Debug::vars('16', $report->get_form());exit;			
 			$content = View::factory('report/layout')
                 ->set('report_name', $report_name)
                 ->set('report_title',  $report->report_title)
@@ -82,7 +83,7 @@ class Controller_Report extends Controller_Template {
 	   $report_data = Session::instance()->get('current_report');
 	 	$report=Arr::get(Arr::get($report_data,'data'), 'report');
         if (!$report_data) {
-            $this->redirect('reports');
+            $this->redirect('report');
         }
      		$csv=new ExportCsv($report);
 			if($csv->makeOk) 
@@ -119,7 +120,7 @@ class Controller_Report extends Controller_Template {
     $report_data = Session::instance()->get('current_report_data');
     
     if (!$report_data) {
-        $this->redirect('reports/'.$report_name);
+        $this->redirect('report/'.$report_name);
     }
 
     $view = View::factory('report/result')
@@ -143,7 +144,7 @@ class Controller_Report extends Controller_Template {
 	   $report_data = Session::instance()->get('current_report');
         
         if (!$report_data) {
-            $this->redirect('reports');
+            $this->redirect('report');
         }
         
 		//echo Debug::vars('80',$report_data );exit;
@@ -156,11 +157,11 @@ class Controller_Report extends Controller_Template {
             
             // Сохранение в файл
             $filename = $report_data['name'].'_'.date('Y-m-d_His').'.html';
-            $filepath = DOCROOT.'reports/'.$filename;
+            $filepath = DOCROOT.'report/'.$filename;
             
             // Создаем папку если не существует
-            if (!is_dir(DOCROOT.'reports')) {
-                mkdir(DOCROOT.'reports', 0755, true);
+            if (!is_dir(DOCROOT.'report')) {
+                mkdir(DOCROOT.'report', 0755, true);
             }
             
             // Сохраняем HTML
@@ -189,7 +190,7 @@ class Controller_Report extends Controller_Template {
         $report_data = Session::instance()->get('current_report');
         
         if (!$report_data) {
-            $this->redirect('reports');
+            $this->redirect('report');
         }
         
         $format = $this->request->param('format', 'html');

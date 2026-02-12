@@ -15,7 +15,7 @@ class ViewReport extends  Kohana_View {
 	// Array of global variables
 	protected static $_global_data = array();
 	
-	public $_base_dir = 'reports';
+	public $_base_dir = 'report';
 
 	/**
 	 * Returns a new View object. If you do not define the "file" parameter,

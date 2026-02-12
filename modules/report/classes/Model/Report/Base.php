@@ -23,14 +23,18 @@ abstract class Model_Report_Base {
     
     public function get_form() //генерация формы для ввода параметров отчета
     {
-        if (!file_exists($this->_form_path)) {
+        
+		//echo Debug::vars('27', $this->_form_path);//exit;
+		//echo Debug::vars('27', file_exists($this->_form_path));exit;
+		if (!file_exists($this->_form_path)) {
             return $this->_get_default_form();
         }
         
         // Передаем переменные в форму
         $params = $this->_params;
         $report_name = $this->_name;
-       // echo Debug::vars('33', $report_name.'/form');exit;
+		
+        //echo Debug::vars('33', $report_name.'/form');exit;
         // ob_start();
         // include $this->_form_path;
        // return ob_get_clean();

@@ -18,11 +18,11 @@
 
 ?>
 
-
+123
 <br class="clear">
 	<div class="content">
 
-   <?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
+   <?php echo Form::open('report/'.$report_name.'/generate', array('method' => 'get')); ?>
 
    <input type="hidden" name="report" value="<?php echo $report_name; ?>">
 

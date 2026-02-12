@@ -1,32 +1,32 @@
 <?php
 
-Route::set('reports', 'reports/<report>(.<format>)')
+Route::set('report', 'report/<report>(.<format>)')
     ->defaults(array(
         'controller' => 'report',
         'action' => 'index',
         'format' => 'html'
     ));	
 
-Route::set('reports_generate', 'reports/<report>/generate')
+Route::set('report_generate', 'report/<report>/generate')
     ->defaults(array(
         'controller' => 'report',
         'action' => 'generate'
     ));
 
-Route::set('reports_save', 'reports/<report>/save')
+Route::set('report_save', 'report/<report>/save')
     ->defaults(array(
         'controller' => 'report',
         'action' => 'save'
     ));
 
-Route::set('reports_download', 'reports/<report>/download.<format>')
+Route::set('report_download', 'report/<report>/download.<format>')
     ->defaults(array(
         'controller' => 'report',
         'action' => 'download',
         'format' => 'html'
     ));
 	
-Route::set('report_result', 'reports/<report>/result')
+Route::set('report_result', 'report/<report>/result')
     ->defaults(array(
         'controller' => 'report',
         'action' => 'result'

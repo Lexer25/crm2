@@ -5,13 +5,12 @@ class Report_Factory {
     {
         // Приводим к правильному формату имени класса
         $class_name = 'Model_Report_'.ucfirst(strtolower($report_name));
-        
         if (!class_exists($class_name)) {
             // Пробуем загрузить вручную
             $file_path = self::get_model_path($report_name, $data=null);
  
 		    if (file_exists($file_path)) {
-                require_once $file_path;
+                require_once $file_path;//возвращает модель отчета
             } else {
                 throw new Kohana_Exception('Report not found: :name class_name :class_name ', 
                     array(':name' => $report_name, ':class_name'=>$class_name));
@@ -26,19 +25,19 @@ class Report_Factory {
     public static function get_model_path($report_name)
     {
         $report_name = strtolower($report_name);
-        return MODPATH.'reports/reports/'.$report_name.'/'.ucfirst($report_name).'.php';
+        return MODPATH.'report/report/'.$report_name.'/'.ucfirst($report_name).'.php';
     }
     
     public static function get_view_path($report_name)
     {
         $report_name = strtolower($report_name);
-        return MODPATH.'reports/reports/'.$report_name.'/view.php';
+        return MODPATH.'report/report/'.$report_name.'/view.php';
     }
     
     public static function get_available_reports()
     {
         $reports = array();
-        $reports_dir = MODPATH.'reports/reports/';
+        $reports_dir = MODPATH.'report/report/';
         
         if (is_dir($reports_dir)) {
             $dirs = glob($reports_dir.'*', GLOB_ONLYDIR);
@@ -56,6 +55,6 @@ class Report_Factory {
 	 public static function get_form_path($report_name)
     {
         $report_name = strtolower($report_name);
-        return MODPATH.'reports/reports/'.$report_name.'/form.php';
+        return MODPATH.'report/report/'.$report_name.'/form.php';
     }
 }

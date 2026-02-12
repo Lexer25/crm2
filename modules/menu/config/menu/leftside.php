@@ -253,7 +253,7 @@ return [
 				
 		//раздел Отчеты		
 		'Reports'=>[
-					'url'     => 'reports',
+					'url'     => 'report',
 					'icon'    => 'export.png',
 					'title'   => 'report.reports',
 					'tooltip' => 'report.reports',
@@ -262,7 +262,7 @@ return [
 						
 						'report1'=>[
 									//'url'     => 'mreports/reportSelect/234',
-									'url'     => 'reports/regRegestry',//реестр выданных пропусков
+									'url'     => 'report/regRegestry',//реестр выданных пропусков
 									'icon'    => '',
 									'title'   => 'mreport.report1',
 									'tooltip' => 'mreport.report1',
@@ -271,7 +271,7 @@ return [
 						
 						'history2'=>[
 									//'url'     => 'mreports/reportSelect/history2',
-									'url'     => 'reports/history',
+									'url'     => 'report/history',
 									'icon'    => '',
 									'title'   => 'mreport.history',
 									'tooltip' => 'mreport.history',
@@ -279,7 +279,7 @@ return [
 								],
 						
 						'exportAllContact'=>[
-									'url'     => 'reports/allContactsExport',
+									'url'     => 'report/allContactsExport',
 									'icon'    => '',
 									'title'   => 'mreport.allcontact',
 									'tooltip' => 'mreport.allcontact',
@@ -287,7 +287,7 @@ return [
 								],
 						
 						'exportAllCard'=>[
-									'url'     => 'reports/allCard',
+									'url'     => 'report/allCard',
 									'icon'    => '',
 									'title'   => 'Список всех идентификаторов',
 									'tooltip' => 'Идентификаторы и их свойства',
