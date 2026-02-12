@@ -32,6 +32,14 @@ if ($alert) { ?>
 		<?php echo $topbuttonbar;?>
 	</div>
 		<?php
+				
+				// Удаление проблемных свойств
+				
+    unset($report->session);
+    unset($report->user);
+    unset($report->request);
+    unset($report->response);
+
 				echo Form::open('reports/savecsv');
 				echo Form::hidden('id_pep', $pep->id_pep); 
 				echo Form::hidden('forsave', serialize ($report->result)); 

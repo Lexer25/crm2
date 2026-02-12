@@ -454,10 +454,15 @@ $dompdf->stream();
 	*/
 	public function action_savexlsx ()
 	{
-		//echo Debug::vars('29', $_POST); exit;
-		$id_pep=Arr::get($_POST, 'id_pep');
-		$forsave=unserialize(Arr::get($_POST, 'forsave'));
-		//echo Debug::vars('190', $forsave, count($forsave->colimnTitle)); exit;
+	
+    
+    $id_pep = Arr::get($_POST, 'id_pep');
+    
+    // 2. Теперь десериализуем
+    $forsave = unserialize(Arr::get($_POST, 'forsave'));
+		
+		
+		
 		define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 		require_once APPPATH . '/vendor/PHPExcel-1.8/Classes/PHPExcel.php';
 		require_once APPPATH . '/vendor//PHPExcel-1.8/Classes/PHPExcel/Writer/Excel2007.php';
@@ -615,6 +620,7 @@ $dompdf->stream();
 		$id_pep=Arr::get($_POST, 'id_pep');
 		$report=Model::factory('ReportWorkTime');
 		//$report->init_org($id_org);
+		//echo Debug::vars('618', get_object_vars($report));exit;
 		$report->init_pep($id_pep);
 		$report->timestart=Arr::get($_POST, 'reportdatestart');
 		$report->timeend=Arr::get($_POST, 'reportdateend');
@@ -648,9 +654,7 @@ $dompdf->stream();
 			))
 		;
 		
-		
-			
-			$content = View::factory('report/wt_as_desktop')
+		$content = View::factory('report/wt_as_desktop')
 				->bind('id_pep', $id_pep)
 				->bind('report', $report)
 				->bind('duration', $duration)
