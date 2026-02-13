@@ -294,6 +294,14 @@ return [
 									'visible' => true,
 								],
 						
+						'regOrderStat'=>[
+									'url'     => 'report/regOrder',
+									'icon'    => '',
+									'title'   => 'Бюро пропусков регистрация',
+									'tooltip' => 'Статистика выданных пропусков в бюро пропусвков',
+									'visible' => true,
+								],
+						
 						
 						
 						
