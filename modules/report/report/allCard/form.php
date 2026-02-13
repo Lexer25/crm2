@@ -23,7 +23,7 @@ $("select").select2();
 
 <br class="clear">
 <div >
-<?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
+<?php echo Form::open('report/'.$report_name.'/generate', array('method' => 'get')); ?>
    
   	<?php 
 		

@@ -8,7 +8,7 @@ $department = isset($params['department']) ? $params['department'] : '';
 
 ?>
 
-<form method="get" action="<?php echo URL::site('reports/'.$report_name.'/generate'); ?>" class="report-form">
+<form method="get" action="<?php echo URL::site('report/'.$report_name.'/generate'); ?>" class="report-form">
     <input type="hidden" name="report" value="<?php echo $report_name; ?>">
     
     <div class="form-group">

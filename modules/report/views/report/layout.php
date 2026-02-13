@@ -48,7 +48,7 @@
             <div id="result-tab" class="tab-pane <?php echo $active_tab == 'result' ? '' : 'hidden'; ?>">
                 <?php if (!empty($result_content)): ?>
                     <div class="result-actions">
-                        <form method="post" action="<?php echo URL::site('reports/'.$report_name.'/save'); ?>">
+                        <form method="post" action="<?php echo URL::site('report/'.$report_name.'/save'); ?>">
                             <button type="submit" class="btn btn-success">
                                 <i class="icon-save"></i> <?php echo __('Save Report');?>
                             </button>

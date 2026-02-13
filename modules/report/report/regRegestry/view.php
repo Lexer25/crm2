@@ -73,7 +73,7 @@
 			}
 			
 			/* if($filePresent){
-			echo Form::open('mreports/export');
+			echo Form::open('mreport/export');
 				
 				echo Form::submit('savecsv', __('button.savecsv'));
 				//echo Form::submit('savexls', __('button.savexlsx'));

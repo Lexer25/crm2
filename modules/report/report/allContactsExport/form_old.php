@@ -19,7 +19,7 @@ $reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Da
 ?>
 <br class="clear">
 <div >
-<?php echo Form::open('reports/'.$report_name.'/generate', array('method' => 'get')); ?>
+<?php echo Form::open('report/'.$report_name.'/generate', array('method' => 'get')); ?>
    
   	<?php 
 		

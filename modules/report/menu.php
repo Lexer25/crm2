@@ -1,13 +1,13 @@
 'Reports'=>[
-					'url'     => 'reports',
+					'url'     => 'report',
 					'icon'    => 'export.png',
-					'title'   => 'report.reports',
-					'tooltip' => 'report.reports',
+					'title'   => 'report.report',
+					'tooltip' => 'report.report',
 					'visible' => true, // можно запретить показ, если false
 					'items'   => [
 						
 						'report1'=>[
-									'url'     => 'reports/regRegestry',//реестр выданных пропусков
+									'url'     => 'report/regRegestry',//реестр выданных пропусков
 									'icon'    => '',
 									'title'   => 'mreport.report1',
 									'tooltip' => 'mreport.report1',
@@ -15,7 +15,7 @@
 								],
 						
 						'history2'=>[
-									'url'     => 'reports/history',
+									'url'     => 'report/history',
 									'icon'    => '',
 									'title'   => 'mreport.history',
 									'tooltip' => 'mreport.history',
@@ -23,7 +23,7 @@
 								],
 						
 						'exportAllContact'=>[
-									'url'     => 'reports/allContactsExport',
+									'url'     => 'report/allContactsExport',
 									'icon'    => '',
 									'title'   => 'mreport.allcontact',
 									'tooltip' => 'mreport.allcontact',
@@ -32,7 +32,7 @@
 						
 //=========23.01.2026 вставка для пункта меню Идентификаторы						
 						'exportAllCard'=>[
-									'url'     => 'reports/allCard',
+									'url'     => 'report/allCard',
 									'icon'    => '',
 									'title'   => 'Список всех идентификаторов',
 									'tooltip' => 'Идентификаторы и их свойства',
