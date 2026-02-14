@@ -86,9 +86,9 @@ class Model_Report_regOrder extends Model_Report_Base
 								
 									
 				$query = DB::query(Database::SELECT,
-				'SELECT p.id_pep,             p.surname || \' \' || p.name || \' \' || p.patronymic as fio,
+				'SELECT   p.surname || \' \' || p.name || \' \' || p.patronymic as fio,
                          count(distinct go.id_guestorder) as ordered_count  ,
-                         count(distinct e.id_card) as ordered_count
+                         count(distinct e.id_card) as issued_count
                     FROM guestorder go
                     JOIN people p ON p.id_pep = go.id_pep
                     JOIN events e ON go.id_guest = e.ess1
@@ -96,8 +96,8 @@ class Model_Report_regOrder extends Model_Report_Base
                         AND e.id_eventtype IN (17)
                     WHERE go.timeorder BETWEEN :date_start AND :date_end
                     and go.timeorder BETWEEN :date_start AND :date_end
-                    GROUP BY 1, 2
-                    ORDER BY 2')
+                    GROUP BY 1
+                    ORDER BY 1')
 				->param(':date_start', Arr::get($post, 'reportdatestart'))
 				->param(':date_end', Arr::get($post, 'reportdateend'))
 				//	;
