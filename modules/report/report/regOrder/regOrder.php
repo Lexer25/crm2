@@ -18,7 +18,7 @@
 
 class Model_Report_regOrder extends Model_Report_Base
 {
-	public $report_title='History21';
+	public $report_title='Отчет по Бюро пропусков';
 	
 	private $selectYear;
 	private $selectMonth;
@@ -89,10 +89,30 @@ class Model_Report_regOrder extends Model_Report_Base
 						where go.timeorder >\''.Arr::get($post, 'reportdatestart').'\'
 						and go.timeorder<\''.Arr::get($post, 'reportdateend').'\'
 						group by 1';
+						
+			
+			
+			$query = DB::query(Database::SELECT,
+				'SELECT 
+						p.surname || \' \' || p.name || \' \' || p.patronymic as fio, 
+						 count(distinct go.id_guestorder) as ordered_count,  -- уникальные заказы
+						count(distinct e.id_card) as issued_count  -- количество выданных пропусков
+					FROM guestorder go
+					JOIN people p ON p.id_pep = go.id_pep
+					LEFT JOIN events e ON go.id_guest = e.ess1 
+						AND e.datetime BETWEEN :date_start AND :date_end
+						AND e.id_eventtype IN (17)
+					WHERE go.timeorder BETWEEN :date_start AND :date_end
+					GROUP BY 1
+					ORDER BY 1')
+				->param(':date_start', Arr::get($post, 'reportdatestart'))
+					->param(':date_end', Arr::get($post, 'reportdateend'))
+					->param(':pep_id', 33719);
 				
-				$query = DB::query(Database::SELECT, $sql)
-				->execute(Database::instance('fb'))
-				->as_array();
+				
+				echo Debug::vars('113', $query->compile(Database::instance('fb')));exit;
+				//->execute(Database::instance('fb'));
+				//->as_array();
 				
 				foreach ($query as $key=>$value)
 				{
@@ -102,7 +122,7 @@ class Model_Report_regOrder extends Model_Report_Base
 				
 				
 			
-			$_report->titleColumn=array('Оператор', 'Количество зарегистрированных заявок' );
+			$_report->titleColumn=array('Оператор', 'Количество зарегистрированных заявок', 'Количество выданных пропусков' );
 			$_report->rowData=$query;
 			$_report->totalCountRow=count($query);
 			//==========================

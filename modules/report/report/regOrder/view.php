@@ -1,12 +1,15 @@
 <div class="onecolumn">
 	<div class="header">
-		<span><?php echo __('regOrder3') ; ?></span>
+		<span><?php 
+		//echo __('Количество заявок и выданных пропусков') ; 
+		echo $report->titleReport; 
+		?></span>
 <?php
 	
-    //echo Debug::vars('9-9', $report); //exit;
+    //echo Debug::vars('9-9', $report); exit;
 $data=array();
 if(isset($report)) $data=$report;
-$ruid='regOrder3';//
+//$ruid='regOrder3';//
 	?>
 	</div>
 	<br class="clear">
@@ -21,8 +24,8 @@ $ruid='regOrder3';//
 		if ($data->totalCountRow>1) { 
 		
 			echo __('<p>Отчет содержит :count записей.</p>', array(':count'=>$data->totalCountRow));
-			echo __('<p>Отчет подготовлен за :count секунд.</p>', array(':count'=>$data->timeExecute));
-			echo __('<p>Будут показаны первые 100 событий. Для получения полного отчета нажмите "Сохранить результат".</p>');
+			
+			if($data->totalCountRow>$data->totalCountRow) echo __('<p>Будут показаны первые 100 событий. Для получения полного отчета нажмите "Сохранить результат".</p>');
 			
 			
 			  $tempFile=new tempCSV;
@@ -68,6 +71,8 @@ $ruid='regOrder3';//
 		<?php } 
 			
 		}
+			
+			echo __('<p>Отчет подготовлен за :count секунд.</p>', array(':count'=>number_format($data->timeExecute, 3, '.', '')));
 			?>
 	</div>
 </div>
