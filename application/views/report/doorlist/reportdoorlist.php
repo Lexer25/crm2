@@ -1810,7 +1810,7 @@ $company_admin=new Company($id_admin->id_org);
 </td>
 
 <td style="width: 50%; text-align: right;">
-<h1 style="text-align: right">ОАО "Акрихин"</h1>
+<h1 style="text-align: right">ПАО "Калибр"</h1>
 <span style="font-weight: bold; font-size: 0.7em;">Подготовлен: <?php echo date('d.m.Y H:i:s');?></span>
 </td>
 </tr>

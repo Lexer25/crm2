@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 /**
 *20.09.2024
-*Класс для формирования строки события под требоания Акрихина.
+
 
 */
 class AkrihinMonitor
