@@ -77,7 +77,7 @@ class Controller_Cards extends Controller_Template
 	public function action_searchDeep()
 	{
 		
-		echo Debug::vars('80', $_POST);//exit;
+		//echo Debug::vars('80', $_POST);exit;
         if ($this->request->method() === 'POST') {
             $form_data = $this->request->post();
             $errors = [];
@@ -120,12 +120,24 @@ class Controller_Cards extends Controller_Template
                 return;
             }
             
+
             // Если ошибок нет, выполняем поиск
             // ... ваш код поиска карты ...
+			//echo Debug::vars('125', $form_data);//exit;
+			/*
+			array(3) (
+				"type" => string(4) "RFID"
+				"hex" => string(0) ""
+				"dec" => string(10) "0014061540"
+			)
+			*/
 			switch($type){
 				case 'RFID'://поиск по номеру RFID
 				//$hex='0111DA001B';
-				
+					 if (!empty($dec)) {//преобразую формат DEC к формату хранения в базе данных
+						 $hex=$this->convertRfidDecToBase($dec);
+					 }
+				//echo Debug::vars('140', $hex);exit;	 
 					$temp=new Keyk();
 					$temp->id_card=$hex;
 					$temp->id_cardtype=1;
@@ -133,20 +145,22 @@ class Controller_Cards extends Controller_Template
 					
 					$this->session->set('search_card', $hex);
 					
-					/* if(!empty($var2))  {
+					 if(!empty($var2))  {
 						$this->session->set('search_card', $hex);
 						
 					} else {
-						$this->session->delete('search_card');
 						
-						 $view = View::factory('cards/listStart')
+
+				$errors[]= strtr('Идентификатор ":dec" не найден', array(':dec'=>$dec)); 
+						$this->session->delete('search_card');
+						$view = View::factory('cards/listStart')
                     ->set('form_data', $form_data)
                     ->set('errors', $errors);
                
 				$this->template->content=$view;
                 return;
-					} */
-					//$this->action_index($var2);
+					} 
+					
 					
 				break;
 			}
@@ -370,6 +384,24 @@ class Controller_Cards extends Controller_Template
 		
 	}
 	
+	
+	/**15.02.2026 преобразование кода карты RFID DEC к формату карты хранения в базе данных
+	*@input строка номера идентификатора в формате DEC
+	*@output строка номер идентификатора в формате его хранения в базе данных
+	*/
+	public function convertRfidDecToBase($keyDec){
+		if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 0){ //преобразование DEC к HEX8
+			$_key=Model::Factory('Stat')->decDigitToHEX8($keyDec);//привожу формат DEC к HEX8
+		}
+
+		if (Kohana::$config->load('system')->get('baseFormatRfid', 0) == 1){ //преобразование DEC к 001A
+			$_key=$idcard=Model::Factory('Stat')->decDigitTo001A($keyDec);//привожу формат HEX8 к 001A
+		}
+		
+		return $_key;
+		
+	}
+	
 	/**21.08.2024 расширенный поиск карты
 	*номер карты преобразуется в несколько форматов, и выполняется поиск.
 	*/
@@ -512,7 +544,7 @@ class Controller_Cards extends Controller_Template
 		$filter=$this->session->get('search_card');
 		$this->session->delete('search_card');
 		//$filter=$this->request->param('id');
-		echo Debug::vars('515', $filter);//exit;
+		//echo Debug::vars('515', $filter);//exit;
 		if(empty($filter)){// если фильтра (списка) нет, показать пустое поле
 			
 			$contents = View::factory('cards/listStart')			
