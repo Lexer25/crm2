@@ -24,74 +24,88 @@ $user = new User();
     position: absolute;
     background: white;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 3px;
     max-height: 250px;
     overflow-y: auto;
-    width: 350px;
+    width: 400px;
     z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    font-size: 13px;
-}
-
-#document-suggestions div {
-    padding: 8px 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    transition: background 0.2s;
-}
-
-#document-suggestions div:last-child {
-    border-bottom: none;
-}
-
-#document-suggestions div:hover {
-    background: #f5f9ff;
-}
-
-#document-suggestions div.selected {
-    background: #e3f2fd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    font-size: 12px;
+    line-height: 1.3;
 }
 
 #document-suggestions .suggestion-header {
-    padding: 8px 10px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    font-weight: bold;
-    color: #495057;
+    padding: 4px 8px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    font-size: 11px;
+    color: #666;
+    font-weight: normal;
     cursor: default;
 }
 
-#document-suggestions .suggestion-header:hover {
-    background: #f8f9fa;
+#document-suggestions .suggestion-item {
+    padding: 4px 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-#document-suggestions .inactive-guest {
+#document-suggestions .suggestion-item:last-child {
+    border-bottom: none;
+}
+
+#document-suggestions .suggestion-item:hover {
+    background: #f0f7ff;
+}
+
+#document-suggestions .suggestion-item.selected {
+    background: #e3f2fd;
+}
+
+#document-suggestions .suggestion-item.inactive {
     color: #999;
+}
+
+#document-suggestions .suggestion-item.loading,
+#document-suggestions .suggestion-item.error,
+#document-suggestions .suggestion-item.message {
+    color: #666;
     font-style: italic;
+    cursor: default;
+    white-space: normal;
+}
+
+#document-suggestions .suggestion-item.loading:hover,
+#document-suggestions .suggestion-item.error:hover,
+#document-suggestions .suggestion-item.message:hover {
+    background: white;
+}
+
+#document-suggestions .guest-name {
+    font-weight: 500;
+    margin-right: 8px;
 }
 
 #document-suggestions .guest-id {
-    color: #6c757d;
-    font-size: 11px;
-    margin-top: 2px;
+    color: #888;
+    font-size: 10px;
+    margin-right: 8px;
 }
 
 #document-suggestions .guest-status {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 3px;
     font-size: 10px;
-    margin-left: 5px;
+    opacity: 0.8;
 }
 
-#document-suggestions .status-active {
-    background: #d4edda;
-    color: #155724;
-}
-
-#document-suggestions .status-inactive {
-    background: #f8d7da;
-    color: #721c24;
+/* Компактный режим для заголовка */
+#document-suggestions .suggestion-header {
+    padding: 2px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 </style>
 
@@ -155,7 +169,6 @@ $user = new User();
         
         // Добавляем контейнер после поля номера документа
         if (docnum2Field) {
-            // Убеждаемся, что родительский элемент имеет позиционирование
             var parent = docnum2Field.parentNode;
             var computedStyle = window.getComputedStyle(parent);
             if (computedStyle.position === 'static') {
@@ -170,7 +183,6 @@ $user = new User();
             var docnum2 = docnum2Field ? docnum2Field.value.trim() : '';
             
             if (docnum1 && docnum2) {
-                // Показываем индикатор загрузки
                 showSuggestionsLoading();
                 
                 var xhr = new XMLHttpRequest();
@@ -207,8 +219,8 @@ $user = new User();
             suggestionsContainer.innerHTML = '';
             
             var loadingItem = document.createElement('div');
-            loadingItem.style.cssText = 'padding: 15px; text-align: center; color: #666;';
-            loadingItem.innerHTML = 'Поиск... <span style="font-size: 11px;">(идет загрузка)</span>';
+            loadingItem.className = 'suggestion-item loading';
+            loadingItem.innerHTML = 'Поиск...';
             suggestionsContainer.appendChild(loadingItem);
             suggestionsContainer.style.display = 'block';
         }
@@ -218,7 +230,7 @@ $user = new User();
             suggestionsContainer.innerHTML = '';
             
             var errorItem = document.createElement('div');
-            errorItem.style.cssText = 'padding: 15px; text-align: center; color: #dc3545;';
+            errorItem.className = 'suggestion-item error';
             errorItem.textContent = message;
             suggestionsContainer.appendChild(errorItem);
             suggestionsContainer.style.display = 'block';
@@ -234,36 +246,36 @@ $user = new User();
             if (response.success && response.data && response.data.length > 0) {
                 var results = response.data;
                 
-                // Заголовок с количеством результатов
+                // Заголовок (тонкий)
                 var header = document.createElement('div');
                 header.className = 'suggestion-header';
-                header.textContent = 'Найдено гостей: ' + results.length;
+                header.textContent = 'Найдено: ' + results.length;
                 suggestionsContainer.appendChild(header);
                 
-                // Создаем элементы для каждого гостя
+                // Создаем элементы для каждого гостя (в одну строку)
                 results.forEach(function(guest, index) {
                     var item = document.createElement('div');
+                    item.className = 'suggestion-item';
                     item.setAttribute('data-index', index);
                     
-                    // Формируем ФИО
+                    // Формируем ФИО одной строкой
                     var fullName = [guest.surname, guest.name, guest.patronymic]
                         .filter(function(part) { return part && part.trim() !== ''; })
                         .join(' ');
                     
-                    // Добавляем класс для неактивных гостей
+                    // Добавляем индикатор активности и ID
+                    var statusMarker = guest.is_active ? '🟢' : '⚪';
+                    var idText = 'ID:' + guest.id_pep;
+                    
+                    // Все в одну строку
+                    item.innerHTML = '<span class="guest-name">' + fullName + '</span> ' +
+                                    '<span class="guest-id">' + idText + '</span> ' +
+                                    '<span class="guest-status">' + statusMarker + '</span>';
+                    
                     if (!guest.is_active) {
-                        item.classList.add('inactive-guest');
+                        item.classList.add('inactive');
                     }
                     
-                    // Формируем содержимое
-                    var statusHtml = guest.is_active ? 
-                        '<span class="guest-status status-active">Активен</span>' : 
-                        '<span class="guest-status status-inactive">Неактивен</span>';
-                    
-                    item.innerHTML = '<strong>' + fullName + '</strong> ' + statusHtml + 
-                                    '<div class="guest-id">ID: ' + guest.id_pep + '</div>';
-                    
-                    // При клике заполняем поля
                     item.onclick = function() {
                         selectGuest(guest);
                     };
@@ -277,9 +289,8 @@ $user = new User();
                 docnum2Field.addEventListener('keydown', handleSuggestionKeydown);
                 
             } else if (response.message) {
-                // Показываем сообщение, если гостей не найдено
                 var message = document.createElement('div');
-                message.style.cssText = 'padding: 15px; text-align: center; color: #666;';
+                message.className = 'suggestion-item message';
                 message.textContent = response.message || 'Гости не найдены';
                 suggestionsContainer.appendChild(message);
                 suggestionsContainer.style.display = 'block';
@@ -311,18 +322,15 @@ $user = new User();
             var fullName = [guest.surname, guest.name, guest.patronymic]
                 .filter(function(part) { return part && part.trim() !== ''; })
                 .join(' ');
-            showNotification('Выбран гость: ' + fullName, 'success');
+            showNotification('Выбран: ' + fullName, 'success');
             
-            // Скрываем список
             hideSuggestions();
-            
-            // Удаляем обработчик клавиш
             docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
         }
         
         // Функция обработки клавиш для навигации по списку
         function handleSuggestionKeydown(event) {
-            var items = suggestionsContainer.querySelectorAll('div[data-index]');
+            var items = suggestionsContainer.querySelectorAll('.suggestion-item:not(.suggestion-header):not(.loading):not(.error):not(.message)');
             
             if (items.length === 0) return;
             
@@ -342,7 +350,10 @@ $user = new User();
                 case 'Enter':
                     event.preventDefault();
                     if (selectedIndex >= 0 && selectedIndex < items.length) {
-                        items[selectedIndex].click();
+                        var index = items[selectedIndex].getAttribute('data-index');
+                        if (index !== null && currentResults[index]) {
+                            selectGuest(currentResults[index]);
+                        }
                     }
                     break;
                     
@@ -355,12 +366,10 @@ $user = new User();
         
         // Функция обновления выделенного элемента
         function updateSelectedItem(items) {
-            // Убираем выделение со всех
             items.forEach(function(item) {
                 item.classList.remove('selected');
             });
             
-            // Выделяем текущий
             if (selectedIndex >= 0 && selectedIndex < items.length) {
                 items[selectedIndex].classList.add('selected');
                 items[selectedIndex].scrollIntoView({ block: 'nearest' });
@@ -375,7 +384,7 @@ $user = new User();
             docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
         }
         
-        // Добавляем обработчики событий для полей ввода
+        // Добавляем обработчики событий
         if (docnum1Field) {
             docnum1Field.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
@@ -383,7 +392,6 @@ $user = new User();
                 searchTimeout = setTimeout(searchGuestsByDocument, 1000);
             });
             
-            // Очищаем скрытое поле при изменении документа
             docnum1Field.addEventListener('focus', function() {
                 var idField = document.getElementById('selected_guest_id');
                 if (idField) {
@@ -422,7 +430,6 @@ $user = new User();
                 field.addEventListener('input', function() {
                     var idField = document.getElementById('selected_guest_id');
                     if (idField && idField.value) {
-                        // Если пользователь вручную меняет ФИО, сбрасываем связанного гостя
                         idField.value = '';
                     }
                 });
@@ -606,7 +613,7 @@ $user = new User();
     }
 </script>
 
-<!-- Далее идет HTML/PHP часть формы (она остается без изменений) -->
+<!-- Далее идет HTML/PHP часть формы (без изменений) -->
 <?php if ($user->id_orgctrl == 1) {
     switch ($mode) {
         case 'buro':
