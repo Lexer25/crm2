@@ -552,28 +552,35 @@ function selectGuest(guest) {
             }
         }
         
-        // Добавляем обработчики событий
-        if (docnum1Field) {
-            docnum1Field.removeEventListener('input', searchGuestsByDocument);
-            docnum1Field.addEventListener('input', function() {
-                console.log('docnum1 input событие');
-                clearTimeout(searchTimeout);
-                hideSuggestions();
-                clearNotification();
-                searchTimeout = setTimeout(function() {
-                    console.log('Таймер сработал для docnum1, запускаем поиск');
-                    searchGuestsByDocument();
-                }, 1000);
-            });
-            
-            docnum1Field.addEventListener('focus', function() {
-                var idField = document.getElementById('selected_guest_id');
-                if (idField) {
-                    idField.value = '';
-                }
-                clearNotification();
-            });
-        }
+		if (docnum1Field) {
+			docnum1Field.addEventListener('input', function() {
+				console.log('docnum1 input событие, значение:', this.value);
+				console.log('Тип значения:', typeof this.value);
+				console.log('Длина значения:', this.value.length);
+				clearTimeout(searchTimeout);
+				hideSuggestions();
+				clearNotification();
+				searchTimeout = setTimeout(function() {
+					console.log('Таймер сработал для docnum1, запускаем поиск');
+					searchGuestsByDocument();
+				}, 1000);
+			});
+		}
+
+		if (docnum2Field) {
+			docnum2Field.addEventListener('input', function() {
+				console.log('docnum2 input событие, значение:', this.value);
+				console.log('Тип значения:', typeof this.value);
+				console.log('Длина значения:', this.value.length);
+				clearTimeout(searchTimeout);
+				hideSuggestions();
+				clearNotification();
+				searchTimeout = setTimeout(function() {
+					console.log('Таймер сработал для docnum2, запускаем поиск');
+					searchGuestsByDocument();
+				}, 1000);
+			});
+}
         
         if (docnum2Field) {
             docnum2Field.removeEventListener('input', searchGuestsByDocument);

@@ -3011,7 +3011,7 @@ public function action_searchByDocument()
 	
 	    
     // Логируем входящие данные
-    //Log::instance()->add(Log::DEBUG, 'searchByDocument called with POST: ' . print_r($_POST, true));
+    Log::instance()->add(Log::DEBUG, '3014 searchByDocument called with POST: ' . print_r($_POST, true));
     
     $docnum1 = trim(Arr::get($_POST, 'docnum1', ''));
     $docnum2 = trim(Arr::get($_POST, 'docnum2', ''));
@@ -3023,18 +3023,18 @@ public function action_searchByDocument()
         'data' => array(),
         'message' => ''
     );
-    
+   
     try {
-        if (empty($docnum1) || empty($docnum2)) {
+        if (strlen($docnum1) === 0 || strlen($docnum2) === 0) {
             $result['message'] = 'Заполните серию и номер документа';
-            Log::instance()->add(Log::DEBUG, 'Empty fields, returning: ' . json_encode($result));
+            Log::instance()->add(Log::DEBUG, '3030 Empty fields, returning: ' . json_encode($result));
             $this->response->body(json_encode($result));
             return;
         }
         
         // Формируем паттерн поиска: серия#номер@%
         $searchPattern = $docnum1 . '#' . $docnum2 . '%';
-     //   Log::instance()->add(Log::DEBUG, 'Search pattern: ' . $searchPattern);
+        Log::instance()->add(Log::DEBUG, '3037 Search pattern: ' . $searchPattern);
         
         // Ищем всех гостей с таким документом (активных и неактивных)
         $sql = "SELECT id_pep, surname, name, patronymic, numdoc, \"ACTIVE\" as is_active
@@ -3042,7 +3042,7 @@ public function action_searchByDocument()
                 WHERE numdoc LIKE :search_pattern
                 ORDER BY \"ACTIVE\" DESC, id_pep DESC";
         
-       // Log::instance()->add(Log::DEBUG, 'SQL: ' . $sql);
+        Log::instance()->add(Log::DEBUG, 'SQL: ' . $sql);
         
         $query = DB::query(Database::SELECT, $sql)
             ->param(':search_pattern', $searchPattern)
