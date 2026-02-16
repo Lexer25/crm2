@@ -438,32 +438,59 @@ function showSuggestions(response) {
     }
 }
         
-        // Функция выбора гостя
-        function selectGuest(guest) {
-            surnameField.value = guest.surname || '';
-            nameField.value = guest.name || '';
-            patronymicField.value = guest.patronymic || '';
-            
-            // Добавляем или обновляем скрытое поле с ID гостя
-            var idField = document.getElementById('selected_guest_id');
-            if (!idField) {
-                idField = document.createElement('input');
-                idField.type = 'hidden';
-                idField.name = 'selected_guest_id';
-                idField.id = 'selected_guest_id';
-                document.getElementById('main_form').appendChild(idField);
-            }
-            idField.value = guest.id_pep;
-            
-            // Показываем уведомление об успешном выборе под полями документа
-            var fullName = [guest.surname, guest.name, guest.patronymic]
-                .filter(function(part) { return part && part.trim() !== ''; })
-                .join(' ');
-            showNotification('✅ Выбран: ' + fullName, 'success');
-            
-            hideSuggestions();
-            docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
+       // Функция выбора гостя
+function selectGuest(guest) {
+    // Заполняем ФИО
+    surnameField.value = guest.surname || '';
+    nameField.value = guest.name || '';
+    patronymicField.value = guest.patronymic || '';
+    
+    // Парсим numdoc для заполнения полей документа
+    if (guest.numdoc && guest.numdoc !== '#@') {
+        var parts = guest.numdoc.split('#');
+        
+        // Серия документа (docnum1)
+        if (parts.length > 0) {
+            docnum1Field.value = parts[0] || '';
         }
+        
+        // Номер и тип документа (docnum2 и doc_type)
+        if (parts.length > 1) {
+            var numberParts = parts[1].split('@');
+            // Номер документа (docnum2)
+            if (numberParts.length > 0) {
+                docnum2Field.value = numberParts[0] || '';
+            }
+            // Тип документа (doc_type)
+            if (numberParts.length > 1) {
+                var docTypeField = document.getElementById('doc_type');
+                if (docTypeField) {
+                    docTypeField.value = numberParts[1];
+                }
+            }
+        }
+    }
+    
+    // Добавляем или обновляем скрытое поле с ID гостя
+    var idField = document.getElementById('selected_guest_id');
+    if (!idField) {
+        idField = document.createElement('input');
+        idField.type = 'hidden';
+        idField.name = 'selected_guest_id';
+        idField.id = 'selected_guest_id';
+        document.getElementById('main_form').appendChild(idField);
+    }
+    idField.value = guest.id_pep;
+    
+    // Показываем уведомление об успешном выборе под полями документа
+    var fullName = [guest.surname, guest.name, guest.patronymic]
+        .filter(function(part) { return part && part.trim() !== ''; })
+        .join(' ');
+    showNotification('✅ Выбран: ' + fullName, 'success');
+    
+    hideSuggestions();
+    docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
+}
         
         // Функция обработки клавиш для навигации по списку
         function handleSuggestionKeydown(event) {
