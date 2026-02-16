@@ -3000,73 +3000,85 @@ private function saveSettings($settings) {
     HTTP::redirect('order/buro_details/' . $id_buro);
 }
 
-/**
- * API эндпоинт для поиска гостя по номеру документа
- * Возвращает JSON с данными гостя
- */
 public function action_searchByDocument()
 {
+    // Отключаем шаблон для AJAX запросов
+    $this->auto_render = false;
+    
     // Устанавливаем заголовок для JSON ответа
     $this->response->headers('Content-Type', 'application/json');
+	
+	    
+    // Логируем входящие данные
+    //Log::instance()->add(Log::DEBUG, 'searchByDocument called with POST: ' . print_r($_POST, true));
     
-    $docnum1 = Arr::get($_POST, 'docnum1', '');
-    $docnum2 = Arr::get($_POST, 'docnum2', '');
+    $docnum1 = trim(Arr::get($_POST, 'docnum1', ''));
+    $docnum2 = trim(Arr::get($_POST, 'docnum2', ''));
+    
+    //Log::instance()->add(Log::DEBUG, 'docnum1: "' . $docnum1 . '", docnum2: "' . $docnum2 . '"');
     
     $result = array(
         'success' => false,
-        'data' => null,
+        'data' => array(),
         'message' => ''
     );
     
     try {
-        // Поиск гостя по серии и номеру документа (без учета типа документа)
-        // Ищем документы, которые содержат серию#номер в любом формате
-        $sql = "SELECT id_pep, surname, name, patronymic, numdoc 
-                FROM people 
-                WHERE numdoc LIKE :search_pattern 
-                AND \"ACTIVE\" = 1";
+        if (empty($docnum1) || empty($docnum2)) {
+            $result['message'] = 'Заполните серию и номер документа';
+            Log::instance()->add(Log::DEBUG, 'Empty fields, returning: ' . json_encode($result));
+            $this->response->body(json_encode($result));
+            return;
+        }
         
-        // Формируем паттерн поиска: серия#номер@
-        $searchPattern = $docnum1 . '#' . $docnum2 . '@%';
+        // Формируем паттерн поиска: серия#номер@%
+        $searchPattern = $docnum1 . '#' . $docnum2 . '%';
+     //   Log::instance()->add(Log::DEBUG, 'Search pattern: ' . $searchPattern);
+        
+        // Ищем всех гостей с таким документом (активных и неактивных)
+        $sql = "SELECT id_pep, surname, name, patronymic, numdoc, \"ACTIVE\" as is_active
+                FROM people 
+                WHERE numdoc LIKE :search_pattern
+                ORDER BY \"ACTIVE\" DESC, id_pep DESC";
+        
+       // Log::instance()->add(Log::DEBUG, 'SQL: ' . $sql);
         
         $query = DB::query(Database::SELECT, $sql)
             ->param(':search_pattern', $searchPattern)
             ->execute(Database::instance('fb'))
             ->as_array();
         
+    //    Log::instance()->add(Log::DEBUG, 'Query results count: ' . count($query));
+        
         if (!empty($query)) {
-            $guest_data = $query[0];
-            $result['success'] = true;
-            $result['data'] = array(
-                'id_pep' => $guest_data['id_pep'],
-                'surname' => iconv('CP1251', 'UTF-8', $guest_data['surname']),
-                'name' => iconv('CP1251', 'UTF-8', $guest_data['name']),
-                'patronymic' => iconv('CP1251', 'UTF-8', $guest_data['patronymic'])
-            );
-            $result['message'] = 'Гость найден';
-        } else {
-            // Попробуем найти без фильтра по ACTIVE
-            $sql2 = "SELECT id_pep, surname, name, patronymic, numdoc 
-                    FROM people 
-                    WHERE numdoc LIKE :search_pattern";
-            
-            $query2 = DB::query(Database::SELECT, $sql2)
-                ->param(':search_pattern', $searchPattern)
-                ->execute(Database::instance('fb'))
-                ->as_array();
+            $guests = array();
+            foreach ($query as $row) {
+              //  Log::instance()->add(Log::DEBUG, '3052 Raw row data: ' . Debug::vars($row));
                 
-            if (!empty($query2)) {
-                $result['message'] = 'Гость найден, но неактивен';
-            } else {
-                $result['message'] = 'Гость с таким номером документа не найден';
+                $guests[] = array(
+                    'id_pep' => $row['ID_PEP'],
+                    'surname' => iconv('CP1251', 'UTF-8', $row['SURNAME']),
+                    'name' => iconv('CP1251', 'UTF-8', $row['NAME']),
+                    'patronymic' => iconv('CP1251', 'UTF-8', $row['PATRONYMIC']),
+                    'is_active' => ($row['IS_ACTIVE'] == 1)
+                );
             }
+            // Log::instance()->add(Log::DEBUG, '3062 Raw row data: ' . Debug::vars($guests));
+            $result['success'] = true;
+            $result['data'] = $guests;
+            $result['message'] = 'Найдено гостей: ' . count($guests);
+        } else {
+            $result['message'] = 'Гости с таким номером документа не найдены';
         }
         
     } catch (Exception $e) {
-        Log::instance()->add(Log::DEBUG, 'Search by document error: ' . $e->getMessage());
+        Log::instance()->add(Log::ERROR, 'Search by document error: ' . $e->getMessage());
+        Log::instance()->add(Log::ERROR, 'Stack trace: ' . $e->getTraceAsString());
         $result['message'] = 'Ошибка поиска: ' . $e->getMessage();
+        $result['success'] = false;
     }
     
+    Log::instance()->add(Log::DEBUG, 'Returning result: ' . json_encode($result));
     $this->response->body(json_encode($result));
 }
 
