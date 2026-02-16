@@ -20,6 +20,17 @@ $user = new User();
 ?>
 
 <style>
+
+#document-suggestions .guest-doc {
+    color: #0066cc;
+    font-size: 11px;
+    margin-right: 8px;
+    font-family: monospace;
+    background: #e6f2ff;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
 /* Стили для полей документа в одной строке */
 .doc-fields-row {
     display: flex;
@@ -358,58 +369,74 @@ $user = new User();
             }
         }
         
-        // Функция отображения результатов
-        function showSuggestions(response) {
-            suggestionsContainer.innerHTML = '';
-            selectedIndex = -1;
+       // Функция отображения результатов
+function showSuggestions(response) {
+    suggestionsContainer.innerHTML = '';
+    selectedIndex = -1;
+    
+    if (response.success && response.data && response.data.length > 0) {
+        var results = response.data;
+        
+        // Заголовок
+        var header = document.createElement('div');
+        header.className = 'suggestion-header';
+        header.textContent = 'Найдено: ' + results.length;
+        suggestionsContainer.appendChild(header);
+        
+        // Создаем элементы для каждого гостя
+        results.forEach(function(guest, index) {
+            var item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.setAttribute('data-index', index);
             
-            if (response.success && response.data && response.data.length > 0) {
-                var results = response.data;
-                
-                // Заголовок
-                var header = document.createElement('div');
-                header.className = 'suggestion-header';
-                header.textContent = 'Найдено: ' + results.length;
-                suggestionsContainer.appendChild(header);
-                
-                // Создаем элементы для каждого гостя
-                results.forEach(function(guest, index) {
-                    var item = document.createElement('div');
-                    item.className = 'suggestion-item';
-                    item.setAttribute('data-index', index);
-                    
-                    // Формируем ФИО одной строкой
-                    var fullName = [guest.surname, guest.name, guest.patronymic]
-                        .filter(function(part) { return part && part.trim() !== ''; })
-                        .join(' ');
-                    
-                    // Индикатор активности и данные
-                    var statusMarker = guest.is_active ? '🟢' : '⚪';
-                    var idText = 'ID:' + guest.id_pep;
-                    var numdocText = guest.numdoc || '';
-                    
-                    item.innerHTML = '<span class="guest-name">' + fullName + '</span> ' +
-                                    '<span class="guest-id">' + idText + '</span> ' +
-                                    '<span class="guest-numdoc">' + numdocText + '</span> ' +
-                                    '<span class="guest-status">' + statusMarker + '</span>';
-                    
-                    if (!guest.is_active) {
-                        item.classList.add('inactive');
-                    }
-                    
-                    item.onclick = function() {
-                        selectGuest(guest);
-                    };
-                    
-                    suggestionsContainer.appendChild(item);
-                });
-                
-                suggestionsContainer.style.display = 'block';
-                
-                // Добавляем обработчик клавиш для навигации
-                docnum2Field.addEventListener('keydown', handleSuggestionKeydown);
+            // Формируем ФИО одной строкой
+            var fullName = [guest.surname, guest.name, guest.patronymic]
+                .filter(function(part) { return part && part.trim() !== ''; })
+                .join(' ');
+            
+            // Извлекаем серию и номер документа из numdoc
+            var docSeries = '';
+            var docNumber = '';
+            var docDisplay = '';
+            
+            if (guest.numdoc && guest.numdoc !== '#@') {
+                var parts = guest.numdoc.split('#');
+                if (parts.length > 0) {
+                    docSeries = parts[0];
+                }
+                if (parts.length > 1) {
+                    var numberParts = parts[1].split('@');
+                    docNumber = numberParts[0];
+                }
+                docDisplay = docSeries + ' ' + docNumber;
             }
-        }
+            
+            // Индикатор активности
+            var statusMarker = guest.is_active ? '🟢' : '⚪';
+            
+            // Формируем строку: ФИО + документ + ID + статус
+            item.innerHTML = '<span class="guest-name">' + fullName + '</span> ' +
+                            '<span class="guest-doc">' + docDisplay + '</span> ' +
+                            '<span class="guest-id">ID:' + guest.id_pep + '</span> ' +
+                            '<span class="guest-status">' + statusMarker + '</span>';
+            
+            if (!guest.is_active) {
+                item.classList.add('inactive');
+            }
+            
+            item.onclick = function() {
+                selectGuest(guest);
+            };
+            
+            suggestionsContainer.appendChild(item);
+        });
+        
+        suggestionsContainer.style.display = 'block';
+        
+        // Добавляем обработчик клавиш для навигации
+        docnum2Field.addEventListener('keydown', handleSuggestionKeydown);
+    }
+}
         
         // Функция выбора гостя
         function selectGuest(guest) {

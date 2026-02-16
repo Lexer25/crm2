@@ -3061,6 +3061,7 @@ public function action_searchByDocument()
                     'surname' => iconv('CP1251', 'UTF-8', $row['SURNAME']),
                     'name' => iconv('CP1251', 'UTF-8', $row['NAME']),
                     'patronymic' => iconv('CP1251', 'UTF-8', $row['PATRONYMIC']),
+					 'numdoc' => iconv('CP1251', 'UTF-8', $row['NUMDOC']), // ДОБАВЛЕНО!
                     'is_active' => ($row['IS_ACTIVE'] == 1)
                 );
             }
