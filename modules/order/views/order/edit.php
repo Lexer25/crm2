@@ -20,6 +20,75 @@ $user = new User();
 ?>
 
 <style>
+/* Стили для полей документа в одной строке */
+.doc-fields-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.doc-field-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.doc-field-group label {
+    white-space: nowrap;
+    font-size: 12px;
+    color: #666;
+    min-width: 40px;
+}
+
+.doc-field-group input,
+.doc-field-group select {
+    width: 120px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.doc-field-group select {
+    width: 140px;
+}
+
+/* Контейнер для уведомлений поиска - ПОД ПОЛЯМИ ДОКУМЕНТА */
+.doc-search-notification-container {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    min-height: 30px;
+}
+
+.doc-search-notification {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.doc-search-notification.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.doc-search-notification.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.doc-search-notification.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Стили для выпадающего списка результатов поиска */
 #document-suggestions {
     position: absolute;
     background: white;
@@ -27,7 +96,7 @@ $user = new User();
     border-radius: 3px;
     max-height: 250px;
     overflow-y: auto;
-    width: 400px;
+    width: 500px;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     font-size: 12px;
@@ -69,21 +138,6 @@ $user = new User();
     color: #999;
 }
 
-#document-suggestions .suggestion-item.loading,
-#document-suggestions .suggestion-item.error,
-#document-suggestions .suggestion-item.message {
-    color: #666;
-    font-style: italic;
-    cursor: default;
-    white-space: normal;
-}
-
-#document-suggestions .suggestion-item.loading:hover,
-#document-suggestions .suggestion-item.error:hover,
-#document-suggestions .suggestion-item.message:hover {
-    background: white;
-}
-
 #document-suggestions .guest-name {
     font-weight: 500;
     margin-right: 8px;
@@ -93,6 +147,16 @@ $user = new User();
     color: #888;
     font-size: 10px;
     margin-right: 8px;
+}
+
+#document-suggestions .guest-numdoc {
+    color: #666;
+    font-size: 10px;
+    margin-right: 8px;
+    font-family: monospace;
+    background: #f5f5f5;
+    padding: 1px 4px;
+    border-radius: 3px;
 }
 
 #document-suggestions .guest-status {
@@ -110,10 +174,58 @@ $user = new User();
 </style>
 
 <script type="text/javascript">
+    // Глобальное отключение всех старых функций поиска
+    window.fetchPersonDataByDocument = function() {
+        console.log('⚠️ Старая функция fetchPersonDataByDocument заблокирована');
+        return false;
+    };
+    
+    window.get_person_by_document = function() {
+        console.log('⚠️ Старая функция get_person_by_document заблокирована');
+        return false;
+    };
+    
+    // Перехватываем все AJAX запросы
+    (function() {
+        var originalOpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function(method, url, async) {
+            console.log('🌐 AJAX запрос перехвачен:', method, url);
+            
+            // Блокируем запросы к старому методу
+            if (url && url.toString().indexOf('get_person_by_document') !== -1) {
+                console.log('🚫 БЛОКИРУЕМ запрос к get_person_by_document');
+                return;
+            }
+            
+            return originalOpen.apply(this, arguments);
+        };
+    })();
+    
     // Передаем информацию о количестве бюро из PHP
     var countBuro = <?php echo (int)$user->count_buro; ?>;
+    var searchNotificationTimer = null;
     
     document.addEventListener('DOMContentLoaded', function() {
+        // Создаем контейнер для уведомлений под полями документа
+        var notificationContainer = document.createElement('div');
+        notificationContainer.id = 'doc-search-notification-container';
+        notificationContainer.className = 'doc-search-notification-container';
+        
+        // Находим контейнер с полями документа и вставляем уведомления после него
+        var docFieldsRow = document.querySelector('.doc-fields-row');
+        if (docFieldsRow) {
+            docFieldsRow.parentNode.insertBefore(notificationContainer, docFieldsRow.nextSibling);
+            console.log('Контейнер уведомлений добавлен после .doc-fields-row');
+        } else {
+            // Если не нашли, ищем по id полей
+            var docnum2Field = document.getElementById('docnum2');
+            if (docnum2Field) {
+                var parent = docnum2Field.closest('td') || docnum2Field.parentNode;
+                parent.appendChild(notificationContainer);
+                console.log('Контейнер уведомлений добавлен в конец ячейки');
+            }
+        }
+        
         var fields = [
             'surname',
             'name',
@@ -153,11 +265,17 @@ $user = new User();
 
     // Функция для настройки автозаполнения по документу
     function setupDocumentAutoFill() {
+        console.log('setupDocumentAutoFill инициализация');
+        
+        // Получаем ссылки на поля
         var docnum1Field = document.getElementById('docnum1');
         var docnum2Field = document.getElementById('docnum2');
         var surnameField = document.getElementById('surname');
         var nameField = document.getElementById('name');
         var patronymicField = document.getElementById('patronymic');
+        
+        console.log('docnum1Field найден:', docnum1Field);
+        console.log('docnum2Field найден:', docnum2Field);
         
         var searchTimeout;
         var selectedIndex = -1;
@@ -175,6 +293,7 @@ $user = new User();
                 parent.style.position = 'relative';
             }
             parent.appendChild(suggestionsContainer);
+            console.log('suggestionsContainer добавлен');
         }
         
         // Функция поиска гостей по документу
@@ -182,8 +301,15 @@ $user = new User();
             var docnum1 = docnum1Field ? docnum1Field.value.trim() : '';
             var docnum2 = docnum2Field ? docnum2Field.value.trim() : '';
             
+            console.log('=== НАЧАЛО ПОИСКА ===');
+            console.log('docnum1:', docnum1);
+            console.log('docnum2:', docnum2);
+            
             if (docnum1 && docnum2) {
-                showSuggestionsLoading();
+                console.log('Отправляем запрос с параметрами:', docnum1, docnum2);
+                
+                // Показываем уведомление "Поиск..." под полями документа
+                showNotification('🔍 Поиск...', 'info');
                 
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', 'order/searchByDocument', true);
@@ -195,47 +321,41 @@ $user = new User();
                             try {
                                 var response = JSON.parse(xhr.responseText);
                                 currentResults = response.data || [];
-                                showSuggestions(response);
+                                
+                                // Скрываем список перед обновлением
+                                hideSuggestions();
+                                
+                                // Показываем результаты только если есть данные
+                                if (response.success && response.data && response.data.length > 0) {
+                                    console.log('✅ Найдено гостей:', response.data.length);
+                                    showSuggestions(response);
+                                    // Очищаем уведомление
+                                    clearNotification();
+                                } else {
+                                    console.log('❌ Гости не найдены');
+                                    // Показываем красное уведомление под полями документа
+                                    showNotification('❌ Гость не найден', 'error');
+                                }
                             } catch (e) {
                                 console.error('Ошибка обработки ответа:', e);
-                                showSuggestionsError('Ошибка обработки данных');
+                                hideSuggestions();
+                                showNotification('❌ Ошибка обработки данных', 'error');
                             }
                         } else {
-                            showSuggestionsError('Ошибка сервера: ' + xhr.status);
+                            hideSuggestions();
+                            showNotification('❌ Ошибка сервера: ' + xhr.status, 'error');
                         }
                     }
                 };
                 
                 var params = 'docnum1=' + encodeURIComponent(docnum1) + 
                            '&docnum2=' + encodeURIComponent(docnum2);
+                console.log('Отправляемые параметры:', params);
                 xhr.send(params);
             } else {
                 hideSuggestions();
+                clearNotification();
             }
-        }
-        
-        // Функция отображения индикатора загрузки
-        function showSuggestionsLoading() {
-            suggestionsContainer.innerHTML = '';
-            
-            var loadingItem = document.createElement('div');
-            loadingItem.className = 'suggestion-item loading';
-            loadingItem.innerHTML = 'Поиск...';
-            suggestionsContainer.appendChild(loadingItem);
-            suggestionsContainer.style.display = 'block';
-        }
-        
-        // Функция отображения ошибки
-        function showSuggestionsError(message) {
-            suggestionsContainer.innerHTML = '';
-            
-            var errorItem = document.createElement('div');
-            errorItem.className = 'suggestion-item error';
-            errorItem.textContent = message;
-            suggestionsContainer.appendChild(errorItem);
-            suggestionsContainer.style.display = 'block';
-            
-            setTimeout(hideSuggestions, 2000);
         }
         
         // Функция отображения результатов
@@ -246,13 +366,13 @@ $user = new User();
             if (response.success && response.data && response.data.length > 0) {
                 var results = response.data;
                 
-                // Заголовок (тонкий)
+                // Заголовок
                 var header = document.createElement('div');
                 header.className = 'suggestion-header';
                 header.textContent = 'Найдено: ' + results.length;
                 suggestionsContainer.appendChild(header);
                 
-                // Создаем элементы для каждого гостя (в одну строку)
+                // Создаем элементы для каждого гостя
                 results.forEach(function(guest, index) {
                     var item = document.createElement('div');
                     item.className = 'suggestion-item';
@@ -263,13 +383,14 @@ $user = new User();
                         .filter(function(part) { return part && part.trim() !== ''; })
                         .join(' ');
                     
-                    // Добавляем индикатор активности и ID
+                    // Индикатор активности и данные
                     var statusMarker = guest.is_active ? '🟢' : '⚪';
                     var idText = 'ID:' + guest.id_pep;
+                    var numdocText = guest.numdoc || '';
                     
-                    // Все в одну строку
                     item.innerHTML = '<span class="guest-name">' + fullName + '</span> ' +
                                     '<span class="guest-id">' + idText + '</span> ' +
+                                    '<span class="guest-numdoc">' + numdocText + '</span> ' +
                                     '<span class="guest-status">' + statusMarker + '</span>';
                     
                     if (!guest.is_active) {
@@ -287,17 +408,6 @@ $user = new User();
                 
                 // Добавляем обработчик клавиш для навигации
                 docnum2Field.addEventListener('keydown', handleSuggestionKeydown);
-                
-            } else if (response.message) {
-                var message = document.createElement('div');
-                message.className = 'suggestion-item message';
-                message.textContent = response.message || 'Гости не найдены';
-                suggestionsContainer.appendChild(message);
-                suggestionsContainer.style.display = 'block';
-                
-                setTimeout(hideSuggestions, 2000);
-            } else {
-                hideSuggestions();
             }
         }
         
@@ -318,11 +428,11 @@ $user = new User();
             }
             idField.value = guest.id_pep;
             
-            // Показываем уведомление
+            // Показываем уведомление об успешном выборе под полями документа
             var fullName = [guest.surname, guest.name, guest.patronymic]
                 .filter(function(part) { return part && part.trim() !== ''; })
                 .join(' ');
-            showNotification('Выбран: ' + fullName, 'success');
+            showNotification('✅ Выбран: ' + fullName, 'success');
             
             hideSuggestions();
             docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
@@ -330,7 +440,7 @@ $user = new User();
         
         // Функция обработки клавиш для навигации по списку
         function handleSuggestionKeydown(event) {
-            var items = suggestionsContainer.querySelectorAll('.suggestion-item:not(.suggestion-header):not(.loading):not(.error):not(.message)');
+            var items = suggestionsContainer.querySelectorAll('.suggestion-item:not(.suggestion-header)');
             
             if (items.length === 0) return;
             
@@ -378,18 +488,28 @@ $user = new User();
         
         // Функция скрытия результатов
         function hideSuggestions() {
-            suggestionsContainer.style.display = 'none';
-            suggestionsContainer.innerHTML = '';
+            if (suggestionsContainer) {
+                suggestionsContainer.style.display = 'none';
+                suggestionsContainer.innerHTML = '';
+            }
             selectedIndex = -1;
-            docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
+            if (docnum2Field) {
+                docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
+            }
         }
         
         // Добавляем обработчики событий
         if (docnum1Field) {
+            docnum1Field.removeEventListener('input', searchGuestsByDocument);
             docnum1Field.addEventListener('input', function() {
+                console.log('docnum1 input событие');
                 clearTimeout(searchTimeout);
                 hideSuggestions();
-                searchTimeout = setTimeout(searchGuestsByDocument, 1000);
+                clearNotification();
+                searchTimeout = setTimeout(function() {
+                    console.log('Таймер сработал для docnum1, запускаем поиск');
+                    searchGuestsByDocument();
+                }, 1000);
             });
             
             docnum1Field.addEventListener('focus', function() {
@@ -397,14 +517,21 @@ $user = new User();
                 if (idField) {
                     idField.value = '';
                 }
+                clearNotification();
             });
         }
         
         if (docnum2Field) {
+            docnum2Field.removeEventListener('input', searchGuestsByDocument);
             docnum2Field.addEventListener('input', function() {
+                console.log('docnum2 input событие');
                 clearTimeout(searchTimeout);
                 hideSuggestions();
-                searchTimeout = setTimeout(searchGuestsByDocument, 1000);
+                clearNotification();
+                searchTimeout = setTimeout(function() {
+                    console.log('Таймер сработал для docnum2, запускаем поиск');
+                    searchGuestsByDocument();
+                }, 1000);
             });
             
             docnum2Field.addEventListener('focus', function() {
@@ -412,12 +539,13 @@ $user = new User();
                 if (idField) {
                     idField.value = '';
                 }
+                clearNotification();
             });
         }
         
         // Закрывать список при клике вне его
         document.addEventListener('click', function(event) {
-            if (!suggestionsContainer.contains(event.target) && 
+            if (suggestionsContainer && !suggestionsContainer.contains(event.target) && 
                 event.target !== docnum1Field && 
                 event.target !== docnum2Field) {
                 hideSuggestions();
@@ -437,55 +565,59 @@ $user = new User();
         });
     }
     
-    // Функция для показа уведомлений
-    function showNotification(message, type) {
-        // Удаляем предыдущее уведомление
-        var existingNotification = document.getElementById('doc-search-notification');
-        if (existingNotification) {
-            existingNotification.remove();
+    // Функция для очистки уведомления
+    function clearNotification() {
+        var container = document.getElementById('doc-search-notification-container');
+        if (container) {
+            container.innerHTML = '';
         }
+    }
+    
+    // Функция для показа уведомлений под полями документа
+    function showNotification(message, type) {
+        var container = document.getElementById('doc-search-notification-container');
+        if (!container) {
+            console.log('Контейнер уведомлений не найден, создаем новый');
+            container = document.createElement('div');
+            container.id = 'doc-search-notification-container';
+            container.className = 'doc-search-notification-container';
+            
+            // Пытаемся найти место для вставки
+            var docFieldsRow = document.querySelector('.doc-fields-row');
+            if (docFieldsRow) {
+                docFieldsRow.parentNode.insertBefore(container, docFieldsRow.nextSibling);
+            } else {
+                document.body.appendChild(container);
+            }
+        }
+        
+        // Очищаем контейнер
+        container.innerHTML = '';
         
         // Создаем новое уведомление
         var notification = document.createElement('div');
-        notification.id = 'doc-search-notification';
-        notification.style.cssText = 'position: fixed; top: 10px; right: 10px; padding: 10px 15px; border-radius: 4px; z-index: 1000; font-size: 14px; max-width: 300px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);';
-        
-        // Устанавливаем стиль в зависимости от типа
-        switch (type) {
-            case 'success':
-                notification.style.backgroundColor = '#d4edda';
-                notification.style.color = '#155724';
-                notification.style.border = '1px solid #c3e6cb';
-                break;
-            case 'error':
-                notification.style.backgroundColor = '#f8d7da';
-                notification.style.color = '#721c24';
-                notification.style.border = '1px solid #f5c6cb';
-                break;
-            case 'info':
-            default:
-                notification.style.backgroundColor = '#d1ecf1';
-                notification.style.color = '#0c5460';
-                notification.style.border = '1px solid #bee5eb';
-                break;
-        }
-        
+        notification.className = 'doc-search-notification ' + type;
         notification.textContent = message;
-        document.body.appendChild(notification);
         
-        // Автоматически удаляем уведомление через 3 секунды
-        setTimeout(function() {
-            if (notification && notification.parentNode) {
-                notification.remove();
-            }
-        }, 3000);
+        container.appendChild(notification);
+        
+        // Автоматически удаляем уведомление через 3 секунды для info и error
+        if (type === 'info' || type === 'error') {
+            setTimeout(function() {
+                if (notification && notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
     }
     
     // Защита от ошибки с updateAdditionalInfo
     if (typeof updateAdditionalInfo === 'undefined') {
         window.updateAdditionalInfo = function() {
-            // Пустая функция для предотвращения ошибок
+            console.log('updateAdditionalInfo вызвана (пустая функция)');
         };
+    } else {
+        console.log('updateAdditionalInfo уже существует');
     }
 
     // Валидация формы
@@ -613,7 +745,6 @@ $user = new User();
     }
 </script>
 
-<!-- Далее идет HTML/PHP часть формы (без изменений) -->
 <?php if ($user->id_orgctrl == 1) {
     switch ($mode) {
         case 'buro':

@@ -1381,7 +1381,8 @@ public function action_index($filter = null)
 			->bind('companies', $companies);
 	}
 
-public function action_get_person_by_document() {
+/* 
+	public function action_get_person_by_document() {
     // Отключаем автоматический рендеринг шаблона
     $this->auto_render = FALSE;
     
@@ -1395,7 +1396,7 @@ public function action_get_person_by_document() {
         $doc_type = isset($_POST['doc_type']) ? trim($_POST['doc_type']) : '';
         
         // Логируем полученные данные для отладки
-        Log::instance()->add(Log::DEBUG, 'Received data: docnum1=' . $docnum1 . ', docnum2=' . $docnum2 . ', doc_type=' . $doc_type);
+        Log::instance()->add(Log::DEBUG, '1398 Received data: docnum1=' . $docnum1 . ', docnum2=' . $docnum2 . ', doc_type=' . $doc_type);
         
         // Проверяем наличие обязательных параметров
         if (empty($docnum1) || empty($docnum2) || empty($doc_type)) {
@@ -1411,7 +1412,7 @@ public function action_get_person_by_document() {
         $numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
         
         // Логируем сформированный номер документа
-        Log::instance()->add(Log::DEBUG, 'Searching for document: ' . $numdoc);
+        Log::instance()->add(Log::DEBUG, '1414 Searching for document: ' . $numdoc);
         
         // Инициализируем модель Guest2
         $guest = new Guest2();
@@ -1420,7 +1421,7 @@ public function action_get_person_by_document() {
         $person = $guest->getPersonByDocument($numdoc);
         
         // Логируем результат поиска
-        Log::instance()->add(Log::DEBUG, 'Search result: ' . print_r($person, true));
+        Log::instance()->add(Log::DEBUG, '1423 Search result: ' . print_r($person, true));
         
         if (!empty($person)) {
             // Данные найдены
@@ -1447,7 +1448,7 @@ public function action_get_person_by_document() {
                     }
                 } catch (Exception $e) {
                     // Игнорируем ошибки форматирования даты
-                    Log::instance()->add(Log::DEBUG, 'Date formatting error: ' . $e->getMessage());
+                    Log::instance()->add(Log::DEBUG, '1450 Date formatting error: ' . $e->getMessage());
                 }
             }
             
@@ -1462,7 +1463,7 @@ public function action_get_person_by_document() {
         
     } catch (Exception $e) {
         // Обработка ошибок
-        Log::instance()->add(Log::ERROR, 'Error in get_person_by_document: ' . $e->getMessage());
+        Log::instance()->add(Log::ERROR, '1465 Error in get_person_by_document: ' . $e->getMessage());
         echo json_encode(array(
             'success' => false,
             'message' => 'Ошибка сервера: ' . $e->getMessage()
@@ -1471,7 +1472,7 @@ public function action_get_person_by_document() {
     
     exit; // Важно: останавливаем выполнение после вывода JSON
 }
-	
+	 */
 	
 	
 	public function action_history()
@@ -3078,7 +3079,7 @@ public function action_searchByDocument()
         $result['success'] = false;
     }
     
-    Log::instance()->add(Log::DEBUG, 'Returning result: ' . json_encode($result));
+    Log::instance()->add(Log::DEBUG, '3081 Returning result: ' . json_encode($result));
     $this->response->body(json_encode($result));
 }
 
