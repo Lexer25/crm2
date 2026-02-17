@@ -270,7 +270,7 @@ public function action_index($filter = null)
 	*/
 	public function action_save()
 	{
-		//echo Debug::vars('70', $_POST); exit;
+		echo Debug::vars('70', $_POST); exit;
 		
 		
 		$id			= Arr::get($_POST, 'id_pep');

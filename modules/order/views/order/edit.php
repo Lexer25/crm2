@@ -20,17 +20,6 @@ $user = new User();
 ?>
 
 <style>
-
-#document-suggestions .guest-doc {
-    color: #0066cc;
-    font-size: 11px;
-    margin-right: 8px;
-    font-family: monospace;
-    background: #e6f2ff;
-    padding: 1px 4px;
-    border-radius: 3px;
-}
-
 /* Стили для полей документа в одной строке */
 .doc-fields-row {
     display: flex;
@@ -160,14 +149,15 @@ $user = new User();
     margin-right: 8px;
 }
 
-#document-suggestions .guest-numdoc {
-    color: #666;
-    font-size: 10px;
+#document-suggestions .guest-doc {
+    color: #0066cc;
+    font-size: 11px;
     margin-right: 8px;
     font-family: monospace;
-    background: #f5f5f5;
+    background: #e6f2ff;
     padding: 1px 4px;
     border-radius: 3px;
+    display: inline-block;
 }
 
 #document-suggestions .guest-status {
@@ -182,39 +172,47 @@ $user = new User();
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+/* Стили для формы */
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: inline-block;
+    width: 100px;
+    font-size: 13px;
+    color: #333;
+}
+
+.form-group input {
+    width: 200px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.error {
+    color: red;
+    font-size: 11px;
+    margin-left: 10px;
+}
 </style>
 
 <script type="text/javascript">
-    // Глобальное отключение всех старых функций поиска
+    // Полное отключение всех старых функций поиска
     window.fetchPersonDataByDocument = function() {
-        console.log('⚠️ Старая функция fetchPersonDataByDocument заблокирована');
+        console.log('Старая функция fetchPersonDataByDocument заблокирована');
         return false;
     };
     
     window.get_person_by_document = function() {
-        console.log('⚠️ Старая функция get_person_by_document заблокирована');
+        console.log('Старая функция get_person_by_document заблокирована');
         return false;
     };
-    
-    // Перехватываем все AJAX запросы
-    (function() {
-        var originalOpen = XMLHttpRequest.prototype.open;
-        XMLHttpRequest.prototype.open = function(method, url, async) {
-            console.log('🌐 AJAX запрос перехвачен:', method, url);
-            
-            // Блокируем запросы к старому методу
-            if (url && url.toString().indexOf('get_person_by_document') !== -1) {
-                console.log('🚫 БЛОКИРУЕМ запрос к get_person_by_document');
-                return;
-            }
-            
-            return originalOpen.apply(this, arguments);
-        };
-    })();
-    
+
     // Передаем информацию о количестве бюро из PHP
     var countBuro = <?php echo (int)$user->count_buro; ?>;
-    var searchNotificationTimer = null;
     
     document.addEventListener('DOMContentLoaded', function() {
         // Создаем контейнер для уведомлений под полями документа
@@ -227,14 +225,6 @@ $user = new User();
         if (docFieldsRow) {
             docFieldsRow.parentNode.insertBefore(notificationContainer, docFieldsRow.nextSibling);
             console.log('Контейнер уведомлений добавлен после .doc-fields-row');
-        } else {
-            // Если не нашли, ищем по id полей
-            var docnum2Field = document.getElementById('docnum2');
-            if (docnum2Field) {
-                var parent = docnum2Field.closest('td') || docnum2Field.parentNode;
-                parent.appendChild(notificationContainer);
-                console.log('Контейнер уведомлений добавлен в конец ячейки');
-            }
         }
         
         var fields = [
@@ -285,9 +275,6 @@ $user = new User();
         var nameField = document.getElementById('name');
         var patronymicField = document.getElementById('patronymic');
         
-        console.log('docnum1Field найден:', docnum1Field);
-        console.log('docnum2Field найден:', docnum2Field);
-        
         var searchTimeout;
         var selectedIndex = -1;
         var currentResults = [];
@@ -309,10 +296,10 @@ $user = new User();
         
         // Функция поиска гостей по документу
         function searchGuestsByDocument() {
-            var docnum1 = docnum1Field ? docnum1Field.value.trim() : '';
-            var docnum2 = docnum2Field ? docnum2Field.value.trim() : '';
+            var docnum1 = docnum1Field ? String(docnum1Field.value).trim() : '';
+            var docnum2 = docnum2Field ? String(docnum2Field.value).trim() : '';
             
-            console.log('=== НАЧАЛО ПОИСКА ===');
+            console.log('=== НАЧАЛО ПОИСКА ПО ДОКУМЕНТУ ===');
             console.log('docnum1:', docnum1);
             console.log('docnum2:', docnum2);
             
@@ -340,11 +327,9 @@ $user = new User();
                                 if (response.success && response.data && response.data.length > 0) {
                                     console.log('✅ Найдено гостей:', response.data.length);
                                     showSuggestions(response);
-                                    // Очищаем уведомление
                                     clearNotification();
                                 } else {
                                     console.log('❌ Гости не найдены');
-                                    // Показываем красное уведомление под полями документа
                                     showNotification('❌ Гость не найден', 'error');
                                 }
                             } catch (e) {
@@ -369,128 +354,124 @@ $user = new User();
             }
         }
         
-       // Функция отображения результатов
-function showSuggestions(response) {
-    suggestionsContainer.innerHTML = '';
-    selectedIndex = -1;
-    
-    if (response.success && response.data && response.data.length > 0) {
-        var results = response.data;
-        
-        // Заголовок
-        var header = document.createElement('div');
-        header.className = 'suggestion-header';
-        header.textContent = 'Найдено: ' + results.length;
-        suggestionsContainer.appendChild(header);
-        
-        // Создаем элементы для каждого гостя
-        results.forEach(function(guest, index) {
-            var item = document.createElement('div');
-            item.className = 'suggestion-item';
-            item.setAttribute('data-index', index);
+        // Функция отображения результатов
+        function showSuggestions(response) {
+            suggestionsContainer.innerHTML = '';
+            selectedIndex = -1;
             
-            // Формируем ФИО одной строкой
+            if (response.success && response.data && response.data.length > 0) {
+                var results = response.data;
+                
+                // Заголовок
+                var header = document.createElement('div');
+                header.className = 'suggestion-header';
+                header.textContent = 'Найдено: ' + results.length;
+                suggestionsContainer.appendChild(header);
+                
+                // Создаем элементы для каждого гостя
+                results.forEach(function(guest, index) {
+                    var item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.setAttribute('data-index', index);
+                    
+                    // Формируем ФИО одной строкой
+                    var fullName = [guest.surname, guest.name, guest.patronymic]
+                        .filter(function(part) { return part && part.trim() !== ''; })
+                        .join(' ');
+                    
+                    // Извлекаем серию и номер документа из numdoc
+                    var docDisplay = '';
+                    if (guest.numdoc && guest.numdoc !== '#@') {
+                        var parts = guest.numdoc.split('#');
+                        if (parts.length > 0) {
+                            var docSeries = parts[0];
+                            if (parts.length > 1) {
+                                var numberParts = parts[1].split('@');
+                                var docNumber = numberParts[0];
+                                docDisplay = docSeries + ' ' + docNumber;
+                            }
+                        }
+                    }
+                    
+                    // Индикатор активности
+                    var statusMarker = guest.is_active ? '🟢' : '⚪';
+                    
+                    // Формируем строку: ФИО + документ + ID + статус
+                    item.innerHTML = '<span class="guest-name">' + fullName + '</span> ' +
+                                    '<span class="guest-doc">' + docDisplay + '</span> ' +
+                                    '<span class="guest-id">ID:' + guest.id_pep + '</span> ' +
+                                    '<span class="guest-status">' + statusMarker + '</span>';
+                    
+                    if (!guest.is_active) {
+                        item.classList.add('inactive');
+                    }
+                    
+                    item.onclick = function() {
+                        selectGuest(guest);
+                    };
+                    
+                    suggestionsContainer.appendChild(item);
+                });
+                
+                suggestionsContainer.style.display = 'block';
+                
+                // Добавляем обработчик клавиш для навигации
+                docnum2Field.addEventListener('keydown', handleSuggestionKeydown);
+            }
+        }
+        
+        // Функция выбора гостя
+        function selectGuest(guest) {
+            surnameField.value = guest.surname || '';
+            nameField.value = guest.name || '';
+            patronymicField.value = guest.patronymic || '';
+            
+            // Парсим numdoc для заполнения полей документа
+            if (guest.numdoc && guest.numdoc !== '#@') {
+                var parts = guest.numdoc.split('#');
+                
+                // Серия документа (docnum1)
+                if (parts.length > 0) {
+                    docnum1Field.value = parts[0] || '';
+                }
+                
+                // Номер и тип документа (docnum2 и doc_type)
+                if (parts.length > 1) {
+                    var numberParts = parts[1].split('@');
+                    // Номер документа (docnum2)
+                    if (numberParts.length > 0) {
+                        docnum2Field.value = numberParts[0] || '';
+                    }
+                    // Тип документа (doc_type)
+                    if (numberParts.length > 1) {
+                        var docTypeField = document.getElementById('doc_type');
+                        if (docTypeField) {
+                            docTypeField.value = numberParts[1];
+                        }
+                    }
+                }
+            }
+            
+            // Добавляем или обновляем скрытое поле с ID гостя
+            var idField = document.getElementById('selected_guest_id');
+            if (!idField) {
+                idField = document.createElement('input');
+                idField.type = 'hidden';
+                idField.name = 'selected_guest_id';
+                idField.id = 'selected_guest_id';
+                document.getElementById('main_form').appendChild(idField);
+            }
+            idField.value = guest.id_pep;
+            
+            // Показываем уведомление об успешном выборе
             var fullName = [guest.surname, guest.name, guest.patronymic]
                 .filter(function(part) { return part && part.trim() !== ''; })
                 .join(' ');
+            showNotification('✅ Выбран: ' + fullName, 'success');
             
-            // Извлекаем серию и номер документа из numdoc
-            var docSeries = '';
-            var docNumber = '';
-            var docDisplay = '';
-            
-            if (guest.numdoc && guest.numdoc !== '#@') {
-                var parts = guest.numdoc.split('#');
-                if (parts.length > 0) {
-                    docSeries = parts[0];
-                }
-                if (parts.length > 1) {
-                    var numberParts = parts[1].split('@');
-                    docNumber = numberParts[0];
-                }
-                docDisplay = docSeries + ' ' + docNumber;
-            }
-            
-            // Индикатор активности
-            var statusMarker = guest.is_active ? '🟢' : '⚪';
-            
-            // Формируем строку: ФИО + документ + ID + статус
-            item.innerHTML = '<span class="guest-name">' + fullName + '</span> ' +
-                            '<span class="guest-doc">' + docDisplay + '</span> ' +
-                            '<span class="guest-id">ID:' + guest.id_pep + '</span> ' +
-                            '<span class="guest-status">' + statusMarker + '</span>';
-            
-            if (!guest.is_active) {
-                item.classList.add('inactive');
-            }
-            
-            item.onclick = function() {
-                selectGuest(guest);
-            };
-            
-            suggestionsContainer.appendChild(item);
-        });
-        
-        suggestionsContainer.style.display = 'block';
-        
-        // Добавляем обработчик клавиш для навигации
-        docnum2Field.addEventListener('keydown', handleSuggestionKeydown);
-    }
-}
-        
-       // Функция выбора гостя
-function selectGuest(guest) {
-    // Заполняем ФИО
-    surnameField.value = guest.surname || '';
-    nameField.value = guest.name || '';
-    patronymicField.value = guest.patronymic || '';
-    
-    // Парсим numdoc для заполнения полей документа
-    if (guest.numdoc && guest.numdoc !== '#@') {
-        var parts = guest.numdoc.split('#');
-        
-        // Серия документа (docnum1)
-        if (parts.length > 0) {
-            docnum1Field.value = parts[0] || '';
+            hideSuggestions();
+            docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
         }
-        
-        // Номер и тип документа (docnum2 и doc_type)
-        if (parts.length > 1) {
-            var numberParts = parts[1].split('@');
-            // Номер документа (docnum2)
-            if (numberParts.length > 0) {
-                docnum2Field.value = numberParts[0] || '';
-            }
-            // Тип документа (doc_type)
-            if (numberParts.length > 1) {
-                var docTypeField = document.getElementById('doc_type');
-                if (docTypeField) {
-                    docTypeField.value = numberParts[1];
-                }
-            }
-        }
-    }
-    
-    // Добавляем или обновляем скрытое поле с ID гостя
-    var idField = document.getElementById('selected_guest_id');
-    if (!idField) {
-        idField = document.createElement('input');
-        idField.type = 'hidden';
-        idField.name = 'selected_guest_id';
-        idField.id = 'selected_guest_id';
-        document.getElementById('main_form').appendChild(idField);
-    }
-    idField.value = guest.id_pep;
-    
-    // Показываем уведомление об успешном выборе под полями документа
-    var fullName = [guest.surname, guest.name, guest.patronymic]
-        .filter(function(part) { return part && part.trim() !== ''; })
-        .join(' ');
-    showNotification('✅ Выбран: ' + fullName, 'success');
-    
-    hideSuggestions();
-    docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
-}
         
         // Функция обработки клавиш для навигации по списку
         function handleSuggestionKeydown(event) {
@@ -552,40 +533,30 @@ function selectGuest(guest) {
             }
         }
         
-		if (docnum1Field) {
-			docnum1Field.addEventListener('input', function() {
-				console.log('docnum1 input событие, значение:', this.value);
-				console.log('Тип значения:', typeof this.value);
-				console.log('Длина значения:', this.value.length);
-				clearTimeout(searchTimeout);
-				hideSuggestions();
-				clearNotification();
-				searchTimeout = setTimeout(function() {
-					console.log('Таймер сработал для docnum1, запускаем поиск');
-					searchGuestsByDocument();
-				}, 1000);
-			});
-		}
-
-		if (docnum2Field) {
-			docnum2Field.addEventListener('input', function() {
-				console.log('docnum2 input событие, значение:', this.value);
-				console.log('Тип значения:', typeof this.value);
-				console.log('Длина значения:', this.value.length);
-				clearTimeout(searchTimeout);
-				hideSuggestions();
-				clearNotification();
-				searchTimeout = setTimeout(function() {
-					console.log('Таймер сработал для docnum2, запускаем поиск');
-					searchGuestsByDocument();
-				}, 1000);
-			});
-}
+        // Добавляем обработчики событий
+        if (docnum1Field) {
+            docnum1Field.addEventListener('input', function() {
+                console.log('docnum1 input событие, значение:', this.value);
+                clearTimeout(searchTimeout);
+                hideSuggestions();
+                clearNotification();
+                searchTimeout = setTimeout(function() {
+                    console.log('Таймер сработал для docnum1, запускаем поиск');
+                    searchGuestsByDocument();
+                }, 1000);
+            });
+            
+            docnum1Field.addEventListener('focus', function() {
+                var idField = document.getElementById('selected_guest_id');
+                if (idField) {
+                    idField.value = '';
+                }
+            });
+        }
         
         if (docnum2Field) {
-            docnum2Field.removeEventListener('input', searchGuestsByDocument);
             docnum2Field.addEventListener('input', function() {
-                console.log('docnum2 input событие');
+                console.log('docnum2 input событие, значение:', this.value);
                 clearTimeout(searchTimeout);
                 hideSuggestions();
                 clearNotification();
@@ -600,7 +571,6 @@ function selectGuest(guest) {
                 if (idField) {
                     idField.value = '';
                 }
-                clearNotification();
             });
         }
         
@@ -638,18 +608,8 @@ function selectGuest(guest) {
     function showNotification(message, type) {
         var container = document.getElementById('doc-search-notification-container');
         if (!container) {
-            console.log('Контейнер уведомлений не найден, создаем новый');
-            container = document.createElement('div');
-            container.id = 'doc-search-notification-container';
-            container.className = 'doc-search-notification-container';
-            
-            // Пытаемся найти место для вставки
-            var docFieldsRow = document.querySelector('.doc-fields-row');
-            if (docFieldsRow) {
-                docFieldsRow.parentNode.insertBefore(container, docFieldsRow.nextSibling);
-            } else {
-                document.body.appendChild(container);
-            }
+            console.log('Контейнер уведомлений не найден');
+            return;
         }
         
         // Очищаем контейнер
@@ -662,23 +622,20 @@ function selectGuest(guest) {
         
         container.appendChild(notification);
         
-        // Автоматически удаляем уведомление через 3 секунды для info и error
-        if (type === 'info' || type === 'error') {
-            setTimeout(function() {
-                if (notification && notification.parentNode) {
-                    notification.remove();
-                }
-            }, 3000);
-        }
+        // Автоматически удаляем уведомление через 3 секунды
+        setTimeout(function() {
+            if (notification && notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
     }
     
     // Защита от ошибки с updateAdditionalInfo
     if (typeof updateAdditionalInfo === 'undefined') {
         window.updateAdditionalInfo = function() {
             console.log('updateAdditionalInfo вызвана (пустая функция)');
+            return true;
         };
-    } else {
-        console.log('updateAdditionalInfo уже существует');
     }
 
     // Валидация формы
