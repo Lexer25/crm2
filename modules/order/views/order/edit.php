@@ -29,32 +29,6 @@ $user = new User();
     flex-wrap: wrap;
 }
 
-.doc-field-group {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.doc-field-group label {
-    white-space: nowrap;
-    font-size: 12px;
-    color: #666;
-    min-width: 40px;
-}
-
-.doc-field-group input,
-.doc-field-group select {
-    width: 120px;
-    padding: 4px 6px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 13px;
-}
-
-.doc-field-group select {
-    width: 140px;
-}
-
 /* Контейнер для уведомлений поиска - ПОД ПОЛЯМИ ДОКУМЕНТА */
 .doc-search-notification-container {
     margin-top: 5px;
@@ -172,45 +146,9 @@ $user = new User();
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-
-/* Стили для формы */
-.form-group {
-    margin-bottom: 10px;
-}
-
-.form-group label {
-    display: inline-block;
-    width: 100px;
-    font-size: 13px;
-    color: #333;
-}
-
-.form-group input {
-    width: 200px;
-    padding: 4px 6px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-}
-
-.error {
-    color: red;
-    font-size: 11px;
-    margin-left: 10px;
-}
 </style>
 
 <script type="text/javascript">
-    // Полное отключение всех старых функций поиска
-    window.fetchPersonDataByDocument = function() {
-        console.log('Старая функция fetchPersonDataByDocument заблокирована');
-        return false;
-    };
-    
-    window.get_person_by_document = function() {
-        console.log('Старая функция get_person_by_document заблокирована');
-        return false;
-    };
-
     // Передаем информацию о количестве бюро из PHP
     var countBuro = <?php echo (int)$user->count_buro; ?>;
     
@@ -224,7 +162,6 @@ $user = new User();
         var docFieldsRow = document.querySelector('.doc-fields-row');
         if (docFieldsRow) {
             docFieldsRow.parentNode.insertBefore(notificationContainer, docFieldsRow.nextSibling);
-            console.log('Контейнер уведомлений добавлен после .doc-fields-row');
         }
         
         var fields = [
@@ -266,8 +203,6 @@ $user = new User();
 
     // Функция для настройки автозаполнения по документу
     function setupDocumentAutoFill() {
-        console.log('setupDocumentAutoFill инициализация');
-        
         // Получаем ссылки на поля
         var docnum1Field = document.getElementById('docnum1');
         var docnum2Field = document.getElementById('docnum2');
@@ -291,7 +226,6 @@ $user = new User();
                 parent.style.position = 'relative';
             }
             parent.appendChild(suggestionsContainer);
-            console.log('suggestionsContainer добавлен');
         }
         
         // Функция поиска гостей по документу
@@ -299,13 +233,7 @@ $user = new User();
             var docnum1 = docnum1Field ? String(docnum1Field.value).trim() : '';
             var docnum2 = docnum2Field ? String(docnum2Field.value).trim() : '';
             
-            console.log('=== НАЧАЛО ПОИСКА ПО ДОКУМЕНТУ ===');
-            console.log('docnum1:', docnum1);
-            console.log('docnum2:', docnum2);
-            
             if (docnum1 && docnum2) {
-                console.log('Отправляем запрос с параметрами:', docnum1, docnum2);
-                
                 // Показываем уведомление "Поиск..." под полями документа
                 showNotification('🔍 Поиск...', 'info');
                 
@@ -325,15 +253,12 @@ $user = new User();
                                 
                                 // Показываем результаты только если есть данные
                                 if (response.success && response.data && response.data.length > 0) {
-                                    console.log('✅ Найдено гостей:', response.data.length);
                                     showSuggestions(response);
                                     clearNotification();
                                 } else {
-                                    console.log('❌ Гости не найдены');
                                     showNotification('❌ Гость не найден', 'error');
                                 }
                             } catch (e) {
-                                console.error('Ошибка обработки ответа:', e);
                                 hideSuggestions();
                                 showNotification('❌ Ошибка обработки данных', 'error');
                             }
@@ -346,7 +271,6 @@ $user = new User();
                 
                 var params = 'docnum1=' + encodeURIComponent(docnum1) + 
                            '&docnum2=' + encodeURIComponent(docnum2);
-                console.log('Отправляемые параметры:', params);
                 xhr.send(params);
             } else {
                 hideSuggestions();
@@ -536,12 +460,10 @@ $user = new User();
         // Добавляем обработчики событий
         if (docnum1Field) {
             docnum1Field.addEventListener('input', function() {
-                console.log('docnum1 input событие, значение:', this.value);
                 clearTimeout(searchTimeout);
                 hideSuggestions();
                 clearNotification();
                 searchTimeout = setTimeout(function() {
-                    console.log('Таймер сработал для docnum1, запускаем поиск');
                     searchGuestsByDocument();
                 }, 1000);
             });
@@ -556,12 +478,10 @@ $user = new User();
         
         if (docnum2Field) {
             docnum2Field.addEventListener('input', function() {
-                console.log('docnum2 input событие, значение:', this.value);
                 clearTimeout(searchTimeout);
                 hideSuggestions();
                 clearNotification();
                 searchTimeout = setTimeout(function() {
-                    console.log('Таймер сработал для docnum2, запускаем поиск');
                     searchGuestsByDocument();
                 }, 1000);
             });
@@ -607,10 +527,7 @@ $user = new User();
     // Функция для показа уведомлений под полями документа
     function showNotification(message, type) {
         var container = document.getElementById('doc-search-notification-container');
-        if (!container) {
-            console.log('Контейнер уведомлений не найден');
-            return;
-        }
+        if (!container) return;
         
         // Очищаем контейнер
         container.innerHTML = '';
@@ -633,7 +550,6 @@ $user = new User();
     // Защита от ошибки с updateAdditionalInfo
     if (typeof updateAdditionalInfo === 'undefined') {
         window.updateAdditionalInfo = function() {
-            console.log('updateAdditionalInfo вызвана (пустая функция)');
             return true;
         };
     }
@@ -660,23 +576,18 @@ $user = new User();
         var orgSelector = document.getElementById('org_selector');
         
         if (isConsentButton) {
-            // Для кнопки согласия убираем required
             if (surnameField) surnameField.removeAttribute('required');
             if (nameField) nameField.removeAttribute('required');
             if (orgSelector) orgSelector.removeAttribute('required');
             
-            // Убираем required с бюро для кнопки согласия
             var buroRadios = document.querySelectorAll('input[name="selected_buro"]');
             buroRadios.forEach(function(radio) {
                 radio.removeAttribute('required');
             });
         } else {
-            // Для других кнопок управляем required в зависимости от режима
             if (currentMode === 'neworder') {
-                // В neworder фамилия обязательна
                 if (surnameField) surnameField.setAttribute('required', 'required');
                 
-                // Бюро обязательно, если бюро больше одного
                 var buroRadios = document.querySelectorAll('input[name="selected_buro"]');
                 if (countBuro > 1) {
                     buroRadios.forEach(function(radio) {
@@ -688,22 +599,18 @@ $user = new User();
                     });
                 }
             } else {
-                // В других режимах фамилия не обязательна
                 if (surnameField) surnameField.removeAttribute('required');
                 
-                // Убираем required с бюро в других режимах
                 var buroRadios = document.querySelectorAll('input[name="selected_buro"]');
                 buroRadios.forEach(function(radio) {
                     radio.removeAttribute('required');
                 });
             }
             
-            // Имя и организация не обязательны
             if (nameField) nameField.removeAttribute('required');
             if (orgSelector) orgSelector.removeAttribute('required');
         }
 
-        // Фамилия обязательна в режиме neworder
         if (currentMode === 'neworder' && surname === '') {
             error1.style.display = 'block';
             isValid = false;
@@ -711,7 +618,6 @@ $user = new User();
             error1.style.display = 'none';
         }
 
-        // Имя проверяем только на длину (не обязательно)
         if (name.length > 50) {
             error_name.style.display = 'block';
             isValid = false;
@@ -719,7 +625,6 @@ $user = new User();
             error_name.style.display = 'none';
         }
 
-        // Отчество проверяем только на длину
         var patronymic = document.getElementById('patronymic').value.trim();
         if (patronymic.length > 50) {
             error_patronymic.style.display = 'block';
@@ -728,12 +633,10 @@ $user = new User();
             error_patronymic.style.display = 'none';
         }
 
-        // Организация не обязательна
         if (error_org) {
             error_org.style.display = 'none';
         }
         
-        // Бюро обязательно в neworder, если бюро больше одного
         if (currentMode === 'neworder' && countBuro > 1) {
             var selectedBuro = document.querySelector('input[name="selected_buro"]:checked');
             if (!selectedBuro) {
@@ -747,13 +650,11 @@ $user = new User();
                 }
             }
         } else {
-            // В других случаях бюро не обязательно
             if (error_buro) {
                 error_buro.style.display = 'none';
             }
         }
 
-        // Согласие на ПД не проверяем в валидации формы
         var error_consent = document.getElementById('error_consent');
         if (error_consent) {
             error_consent.style.display = 'none';
@@ -762,13 +663,6 @@ $user = new User();
         return isValid;
     }
 </script>
-
-<?php if ($user->id_orgctrl == 1) {
-    switch ($mode) {
-        case 'buro':
-            break;
-    }
-} ?>
 
 <div class="onecolumn">
     <div class="header">
@@ -941,7 +835,6 @@ $user = new User();
             }
         }
         
-        // Добавляем сообщение об ошибке для ПД
         echo '<br /><span class="error" id="error_consent" style="color: red; display: none;">' . __('Требуется согласие на обработку персональных данных') . '</span>';
         
         if (!empty($cardlist[0]['ID_CARD'])) {
@@ -1000,9 +893,6 @@ $user = new User();
                             }
                         }
                         
-                    } else {
-                        // echo Form::hidden('todo', 'update');
-                        // echo Form::submit('update', __('Обновить гостя'));
                     }
                     echo Form::close();
                     echo Form::open('order/historyGuest/' . $id_pep, array('class' => 'history-form'));
@@ -1015,7 +905,6 @@ $user = new User();
                     break;
                 case 'archive_mode':
     if ($user->id_role == 1 || $user->id_role == 2) {
-        // Форма для forceexit
         if (!empty($cardlist[0]['ID_CARD'])) {
             echo Form::open('order/save');
             echo Form::hidden('todo', 'forceexit');
@@ -1025,7 +914,6 @@ $user = new User();
             echo Form::close();
             echo '<br>';
         }
-        // Форма для newguestorder
         echo Form::open('order/save');
         echo Form::hidden('todo', 'newguestorder3');
         echo Form::submit('newguestorder3', __('order.edit.nameRepeatOrderBtn'), array(
