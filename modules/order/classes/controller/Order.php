@@ -3001,6 +3001,74 @@ private function saveSettings($settings) {
     HTTP::redirect('order/buro_details/' . $id_buro);
 }
 
+/**17.02.2026 Поиск по фамилии
+*/
+public function action_searchByFio()
+{
+    $this->auto_render = false;
+    $this->response->headers('Content-Type', 'application/json');
+    
+    $surname = trim(Arr::get($_POST, 'surname', ''));
+    
+    $result = array(
+        'success' => false,
+        'data' => array(),
+        'message' => ''
+    );
+    
+    try {
+        if (strlen($surname) < 3) {
+            $result['message'] = 'Введите минимум 3 символа';
+            return $this->response->body(json_encode($result));
+        }
+        
+		
+		Log::instance()->add(Log::DEBUG, '3026 : ' .Debug::vars($surname));  
+        // Поиск по фамилии, регистронезависимый, с wildcard
+        $searchPattern = iconv('UTF-8','CP1251', '%' . $surname . '%');
+        
+        $sql = "SELECT id_pep, surname, name, patronymic, numdoc, \"ACTIVE\" as is_active
+                FROM people 
+                WHERE UPPER(surname) LIKE UPPER(:search_pattern)
+                ORDER BY \"ACTIVE\" DESC, surname ASC";
+					
+        
+         $query = DB::query(Database::SELECT, $sql)
+            ->param(':search_pattern', $searchPattern)
+            ->execute(Database::instance('fb'))
+            //->as_array()
+			;
+      Log::instance()->add(Log::DEBUG, '3037 : ' .Debug::vars($query));  
+     
+        if (!empty($query)) {
+            $guests = array();
+            foreach ($query as $row) {
+                $guests[] = array(
+                    'id_pep' => $row['ID_PEP'],
+                    'surname' => iconv('CP1251', 'UTF-8', $row['SURNAME']),
+                    'name' => iconv('CP1251', 'UTF-8', $row['NAME']),
+                    'patronymic' => iconv('CP1251', 'UTF-8', $row['PATRONYMIC']),
+                    'numdoc' => iconv('CP1251', 'UTF-8', $row['NUMDOC']),
+                    'is_active' => ($row['IS_ACTIVE'] == 1)
+                );
+            }
+            $result['success'] = true;
+            $result['data'] = $guests;
+            $result['message'] = 'Найдено гостей: ' . count($guests);
+        } else {
+            $result['message'] = 'Гости с такой фамилией не найдены';
+        }
+        
+    } catch (Exception $e) {
+        Log::instance()->add(Log::ERROR, 'Search by fio error: ' . $e->getMessage());
+        $result['message'] = 'Ошибка поиска';
+    }
+    
+    return $this->response->body(json_encode($result));
+}
+
+/**16.02.2026
+*/
 public function action_searchByDocument()
 {
     // Отключаем шаблон для AJAX запросов
@@ -3035,12 +3103,15 @@ public function action_searchByDocument()
         // Формируем паттерн поиска: серия#номер@%
         $searchPattern = $docnum1 . '#' . $docnum2 . '%';
         Log::instance()->add(Log::DEBUG, '3037 Search pattern: ' . $searchPattern);
-        
+		
+	     
         // Ищем всех гостей с таким документом (активных и неактивных)
         $sql = "SELECT id_pep, surname, name, patronymic, numdoc, \"ACTIVE\" as is_active
                 FROM people 
                 WHERE numdoc LIKE :search_pattern
                 ORDER BY \"ACTIVE\" DESC, id_pep DESC";
+				
+			
         
         Log::instance()->add(Log::DEBUG, 'SQL: ' . $sql);
         
