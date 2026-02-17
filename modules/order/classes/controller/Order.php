@@ -3030,6 +3030,7 @@ public function action_searchByFio()
         $sql = "SELECT id_pep, surname, name, patronymic, numdoc, \"ACTIVE\" as is_active
                 FROM people 
                 WHERE UPPER(surname) LIKE UPPER(:search_pattern)
+				and id_org in (2,3)
                 ORDER BY \"ACTIVE\" DESC, surname ASC";
 					
         
