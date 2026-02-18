@@ -438,11 +438,11 @@ $user = new User();
                                 } else {
                                     showNotification('❌ Гость не найден', 'error');
                                     // Очищаем ФИО и скрытое поле, если ничего не найдено
-                                    surnameField.value = '';
+                                   /*  surnameField.value = '';
                                     nameField.value = '';
                                     patronymicField.value = '';
                                     var idField = document.getElementById('selected_guest_id');
-                                    if (idField) idField.value = '';
+                                    if (idField) idField.value = ''; */
                                 }
                             } catch (e) {
                                 hideSuggestions();
@@ -690,11 +690,11 @@ $user = new User();
                 hideSuggestions();
                 clearNotification();
                 // Очищаем ФИО при новом вводе
-                surnameField.value = '';
+             /*    surnameField.value = '';
                 nameField.value = '';
                 patronymicField.value = '';
                 var idField = document.getElementById('selected_guest_id');
-                if (idField) idField.value = '';
+                if (idField) idField.value = ''; */
                 
                 searchTimeout = setTimeout(function() {
                     searchGuestsByDocument();
@@ -715,11 +715,11 @@ $user = new User();
                 hideSuggestions();
                 clearNotification();
                 // Очищаем ФИО при новом вводе
-                surnameField.value = '';
+               /*  surnameField.value = '';
                 nameField.value = '';
                 patronymicField.value = '';
                 var idField = document.getElementById('selected_guest_id');
-                if (idField) idField.value = '';
+                if (idField) idField.value = ''; */
                 
                 searchTimeout = setTimeout(function() {
                     searchGuestsByDocument();
