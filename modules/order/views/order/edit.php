@@ -146,95 +146,6 @@ $user = new User();
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-
-/* Стили для кнопки настройки и индикатора */
-.settings-btn {
-    margin-bottom: 10px;
-    text-align: right;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.settings-btn button {
-    padding: 5px 10px;
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.settings-btn button:hover {
-    background: #e0e0e0;
-}
-
-.mode-indicator {
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.mode-document {
-    background-color: #e3f2fd;
-    color: #0d47a1;
-    border: 1px solid #90caf9;
-}
-
-.mode-name {
-    background-color: #f3e5f5;
-    color: #4a148c;
-    border: 1px solid #ce93d8;
-}
-
-/* Модальное окно */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-window {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    width: 300px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.modal-window h3 {
-    margin-top: 0;
-}
-
-.modal-options {
-    margin: 15px 0;
-}
-
-.modal-options label {
-    display: block;
-    margin-bottom: 8px;
-}
-
-.modal-buttons {
-    text-align: right;
-}
-
-.modal-buttons button {
-    padding: 5px 10px;
-    margin-left: 5px;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-}
 </style>
 
 <script type="text/javascript">
@@ -246,35 +157,8 @@ $user = new User();
         return matches ? decodeURIComponent(matches[1]) : undefined;
     }
 
-    // Установка куки
-    function setCookie(name, value, days) {
-        var expires = "";
-        if (days) {
-            var date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toUTCString();
-        }
-        document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
-    }
-
-    // Обновление индикатора режима
-    function updateModeIndicator(mode) {
-        var indicator = document.getElementById('search-mode-indicator');
-        if (!indicator) return;
-        
-        if (mode === 'name') {
-            indicator.className = 'mode-indicator mode-name';
-            indicator.innerHTML = '🟣 Поиск по фамилии';
-        } else {
-            indicator.className = 'mode-indicator mode-document';
-            indicator.innerHTML = '🔵 Поиск по документу';
-        }
-    }
-
-    // Текущий режим поиска из куки (по умолчанию 'document')
-    var searchMode = getCookie('search_mode') || 'document';
-    // Флаг для поиска по фамилии (true - включен, false - отключен)
-    var ENABLE_NAME_SEARCH = (searchMode === 'name');
+    // Оба поиска всегда включены
+    var ENABLE_NAME_SEARCH = true;
 
     // Передаем информацию о количестве бюро из PHP
     var countBuro = <?php echo (int)$user->count_buro; ?>;
@@ -326,60 +210,6 @@ $user = new User();
         if (currentMode === 'buro' || currentMode === 'guest_mode' || currentMode === 'neworder') {
             setupDocumentAutoFill();
         }
-
-        // Настройка модального окна
-        var modalOverlay = document.getElementById('settings-modal');
-        var settingsBtn = document.getElementById('settings-button');
-        var closeBtn = document.getElementById('modal-close');
-        var saveBtn = document.getElementById('modal-save');
-        var nameRadio = document.getElementById('mode-name');
-        var docRadio = document.getElementById('mode-document');
-
-        // Устанавливаем текущий режим в радиокнопках
-        if (searchMode === 'name') {
-            nameRadio.checked = true;
-        } else {
-            docRadio.checked = true;
-        }
-
-        // Обновляем индикатор при загрузке
-        updateModeIndicator(searchMode);
-
-        if (settingsBtn) {
-            settingsBtn.addEventListener('click', function() {
-                modalOverlay.style.display = 'flex';
-            });
-        }
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                modalOverlay.style.display = 'none';
-            });
-        }
-
-        if (saveBtn) {
-            saveBtn.addEventListener('click', function() {
-                var newMode = nameRadio.checked ? 'name' : 'document';
-                setCookie('search_mode', newMode, 365);
-                searchMode = newMode;
-                ENABLE_NAME_SEARCH = (newMode === 'name');
-                modalOverlay.style.display = 'none';
-                
-                // Обновляем индикатор
-                updateModeIndicator(newMode);
-                
-                showNotification('Режим поиска изменен', 'info');
-            });
-        }
-
-        // Закрытие по клику на фон
-        if (modalOverlay) {
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === modalOverlay) {
-                    modalOverlay.style.display = 'none';
-                }
-            });
-        }
     });
 
     // Функция для настройки автозаполнения по документу
@@ -416,7 +246,7 @@ $user = new User();
             
             if (docnum1 && docnum2) {
                 // Показываем уведомление "Поиск..." под полями документа
-                showNotification('🔍 Поиск...', 'info');
+                showNotification('🔍 Поиск по документу...', 'info');
                 
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', 'order/searchByDocument', true);
@@ -437,12 +267,6 @@ $user = new User();
                                     clearNotification();
                                 } else {
                                     showNotification('❌ Гость не найден', 'error');
-                                    // Очищаем ФИО и скрытое поле, если ничего не найдено
-                                   /*  surnameField.value = '';
-                                    nameField.value = '';
-                                    patronymicField.value = '';
-                                    var idField = document.getElementById('selected_guest_id');
-                                    if (idField) idField.value = ''; */
                                 }
                             } catch (e) {
                                 hideSuggestions();
@@ -464,7 +288,7 @@ $user = new User();
             }
         }
         
-        // Функция поиска по фамилии (будет доступна, если включен флаг)
+        // Функция поиска по фамилии (всегда включена)
         function searchByFio(surname) {
             if (surname.length < 3) return;
             
@@ -689,12 +513,6 @@ $user = new User();
                 clearTimeout(searchTimeout);
                 hideSuggestions();
                 clearNotification();
-                // Очищаем ФИО при новом вводе
-             /*    surnameField.value = '';
-                nameField.value = '';
-                patronymicField.value = '';
-                var idField = document.getElementById('selected_guest_id');
-                if (idField) idField.value = ''; */
                 
                 searchTimeout = setTimeout(function() {
                     searchGuestsByDocument();
@@ -714,12 +532,6 @@ $user = new User();
                 clearTimeout(searchTimeout);
                 hideSuggestions();
                 clearNotification();
-                // Очищаем ФИО при новом вводе
-               /*  surnameField.value = '';
-                nameField.value = '';
-                patronymicField.value = '';
-                var idField = document.getElementById('selected_guest_id');
-                if (idField) idField.value = ''; */
                 
                 searchTimeout = setTimeout(function() {
                     searchGuestsByDocument();
@@ -734,7 +546,7 @@ $user = new User();
             });
         }
         
-        // Добавляем обработчик поиска по фамилии (внутри проверяем флаг)
+        // Добавляем обработчик поиска по фамилии (всегда включен)
         if (surnameField) {
             surnameField.addEventListener('input', function() {
                 var val = this.value.trim();
@@ -754,7 +566,8 @@ $user = new User();
         document.addEventListener('click', function(event) {
             if (suggestionsContainer && !suggestionsContainer.contains(event.target) && 
                 event.target !== docnum1Field && 
-                event.target !== docnum2Field) {
+                event.target !== docnum2Field && 
+                event.target !== surnameField) {
                 hideSuggestions();
             }
         });
@@ -920,27 +733,6 @@ $user = new User();
     }
 </script>
 
-<!-- Модальное окно настроек -->
-<div class="modal-overlay" id="settings-modal">
-    <div class="modal-window">
-        <h3>Настройки поиска</h3>
-        <div class="modal-options">
-            <label>
-                <input type="radio" name="searchMode" id="mode-document" value="document" checked>
-                Поиск по номеру документа
-            </label>
-            <label>
-                <input type="radio" name="searchMode" id="mode-name" value="name">
-                Поиск по фамилии
-            </label>
-        </div>
-        <div class="modal-buttons">
-            <button type="button" id="modal-close">Отмена</button>
-            <button type="button" id="modal-save">Сохранить</button>
-        </div>
-    </div>
-</div>
-
 <div class="onecolumn">
     <div class="header">
         <span>
@@ -965,12 +757,6 @@ $user = new User();
     </div>
     <br class="clear" />
     <div class="content">
-        <!-- Кнопка настройки и индикатор -->
-        <div class="settings-btn">
-            <span id="search-mode-indicator" class="mode-indicator mode-document">🔵 Поиск по документу</span>
-            <button type="button" id="settings-button">⚙️ Настройка</button>
-        </div>
-
         <form action="order/save" method="post" id="main_form" onsubmit="return validate()">
             <input type="hidden" name="hidden" value="form_sent" />
             <input type="hidden" name="id_pep" value="<?php echo $id_pep; ?>" />

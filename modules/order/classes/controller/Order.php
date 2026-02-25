@@ -3032,8 +3032,24 @@ public function action_searchByFio()
                 WHERE UPPER(surname) LIKE UPPER(:search_pattern)
 				and id_org in (2,3)
                 ORDER BY \"ACTIVE\" DESC, surname ASC";
+				
+		$sql="SELECT DISTINCT p.id_pep, p.surname, p.name, p.patronymic, p.numdoc, p.\"ACTIVE\" as is_active
+				FROM people p
+				WHERE UPPER(p.surname) LIKE UPPER(:search_pattern)
+					AND p.id_org IN (2,3)
+					AND NOT EXISTS (
+						SELECT 1 
+						FROM people p2
+						WHERE UPPER(p2.surname) LIKE UPPER(:search_pattern)
+							AND p2.id_org IN (2,3)
+							AND p2.surname = p.surname
+							AND p2.name = p.name
+							AND (p2.patronymic = p.patronymic OR (p2.patronymic IS NULL AND p.patronymic IS NULL))
+							AND p2.id_pep > p.id_pep
+					)
+				ORDER BY p.\"ACTIVE\" DESC, p.surname ASC";		
 					
-        
+       Log::instance()->add(Log::ERROR, $sql);
          $query = DB::query(Database::SELECT, $sql)
             ->param(':search_pattern', $searchPattern)
             ->execute(Database::instance('fb'))
