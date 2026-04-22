@@ -30,6 +30,10 @@ class Model_monitor extends Model
 			$titleArray=array('YEARFROM', 'MONTFROM', 'COUNT' );
 			return array('title'=>$titleArray, 'data'=>$query);
 	}
+
+	public function getReport2(){
+		
+	}
 	
 }
 

@@ -7,3 +7,4 @@
 **/logs
 /application/cache
 /temp
+/nbproject/private/

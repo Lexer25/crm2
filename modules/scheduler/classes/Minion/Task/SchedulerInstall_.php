@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Minion_Task_SchedulerInstall-aa extends Minion_Task {
+class Minion_Task_SchedulerInstall extends Minion_Task {
 
     protected $_options = array(
         'install' => NULL,

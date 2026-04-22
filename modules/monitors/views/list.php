@@ -247,7 +247,11 @@ if ($alert) { ?>
 
 			<div id="chart_wrapper" class="chart_wrapper"></div>
 		
-
+                <div id="additionalInfo">
+    <div id="currentTime"></div>
+    <div id="eventCounter"></div>
+    <div id="visibleEventCount"></div>
+</div>
 	</div>
 </div>
 
