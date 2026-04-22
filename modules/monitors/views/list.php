@@ -1,257 +1,315 @@
+<?php defined('SYSPATH') or die('No direct script access.'); ?>
 <script type="text/javascript" src="js/modal-window.js"></script>
 <script type="text/javascript" src="js/modal-photo.js"></script>
-<script type="text/javascript">
-	
-  	$(function(){		
-  		$("#tablesorter").tablesorter({ headers: { 7:{sorter: false}},  widgets: ['zebra']});
-  	});	
-	//пробел остановка событий
-	$(document).bind('keypress', function(e){
-		if (e.keyCode == 32) document.getElementById("updatemonitor").checked=!document.getElementById("updatemonitor").checked;
-	});
-	setInterval(
-	//функция обновления монитора событий
-	function showUser() {
-	//проверка кнопки остановки событий
-	if(document.getElementById("updatemonitor").checked) return;
-	// формирование get запроса
-	var xmlhttp=new XMLHttpRequest();
-	var photoneed=document.getElementById("photomonitor").checked;
-	// обработка get запроса
-	xmlhttp.onreadystatechange=function() {
-		//проверка на наличие событий
-		if(this.responseText=='') return;
-		//поиск элементов
-		var table=document.getElementById("txtHint");
-		var select=document.getElementById("selectsSize");
-		// добавить строки к таблице
-		table.insertAdjacentHTML('afterbegin',this.responseText);
-		// удалить строки из таблицы
-		while(table.rows.length>select.value) table.deleteRow(table.rows.length-1);
-		// формирование карточки
-		if(photoneed) for (let i = 0; i < table.rows.length && i<windowsCountsetings; i++){		
-			var photo=table.rows[i].cells.namedItem('photo');
-			if(photo)
-			createModal(table.rows[i].cells.namedItem('even_name').innerText, photo.innerText,
-			table.rows[i].cells.namedItem('people_name').innerText,
-			table.rows[i].cells.namedItem('org_name').innerText,
-			table.rows[i].cells.namedItem('people_post').innerText,
-			table.rows[i].cells.namedItem('device_name').innerText,
-			);
-		}
-	}
-	//get запрос
-	xmlhttp.open("GET","/crm2/events/getEvent?photo="+photoneed,false);
-	// отправка запроса
-	xmlhttp.send();
-	// время обнавления монитора событий
-	},timeUpdate*1000)
-</script>
+
 <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* Занимаем 100% высоты окна браузера */
-        }
-
-        #myTableContainer {
-            flex: 1; /* Занимаем оставшееся пространство, необходимое для таблицы */
-            overflow: auto; /* Добавляем полосы прокрутки, если содержимое больше экрана */
-            margin-bottom: 40px; 
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #dddddd;
-            padding: 8px;
-            text-align: left;
-            position: relative;
-            transition: background-color 0.3s; /* Анимация перехода цвета */
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        tr:hover {
-            background-color: #f5f5f5; /* Цвет подсветки при наведении */
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: max-content;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 5px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -75px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        td:hover .tooltip .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Новые стили для строки с дополнительной информацией */
-        #additionalInfo {
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            display: flex;
-            flex-direction: row-reverse;
-            align-items: center;
-            gap: 20px;
-        }
-
-        #currentTime, #eventCounter, #visibleEventCount {
-            font-size: 14px;
-            color: #333; /* Цвет текста */
-        }
-        
-        .modal {
-            display: none;
-            position: absolute;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-header {
-            cursor: move;
-            padding: 10px;
-            background-color: #f1f1f1;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .close-button {
-            width: 15px;
-            height: 15px;
-            cursor: pointer;
-            margin-right: 5px;
-            background-color: #ff6f6f;
-            border: none;
-            color: #fff;
-            font-weight: bold;
-            border-radius: 10px;
-        }
-
-        .tabs {
-            display: flex;
-            margin-top: 10px;
-        }
-
-        .tab-button {
-            margin-right: 2px;
-            padding: 8px 12px;
-            border: none;
-            background-color: #eee;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .tab-button:hover {
-            background-color: #ddd;
-        }
-
-        .tab-button.active {
-            background-color: #ccc;
-        }
+    body { font-family: Arial; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .control-panel { margin-bottom: 20px; padding: 10px; background: #f0f0f0; }
+    .control-group { display: inline-block; margin-right: 15px; }
+    #txtHint tr:hover { background-color: #f5f5f5; cursor: pointer; }
 </style>
-<?php 
-//https://webformyself.com/sortirovka-tablic-pri-pomoshhi-plagina-tablesorter-js/?ysclid=lrgdz4nrzp693511651
-// список идентификаторов
-//echo Debug::vars('2', $cards); //exit;
-//echo Debug::vars('2-2', $cardsList); //exit;
-//echo Debug::vars('16', array_diff($cards, $cardsList));//exit;
-//echo Debug::vars('12', $cardsList); //exit;
-//echo Debug::vars('2', $catdTypelist); //exit;
-//echo Debug::vars('3', $alert); //exit;
-//echo Debug::vars('4', $filter); //exit;
-//echo Debug::vars('5', $pagination); //exit;
-define ('_notAllowed', "HTML::image('images/text_lock.png', array('title' => __('tip.notAllowed'), 'width'=>'32'))");
-include Kohana::find_file('views','alert');
-if ($alert) { ?>
+
+<?php include Kohana::find_file('views', 'alert'); ?>
+
+<?php if ($alert): ?>
 <div class="alert_success">
-	<p>
-		<img class="mid_align" alt="success" src="images/icon_accept.png" />
-		<?php echo $alert; ?>
-	</p>
+    <p><img alt="success" src="images/icon_accept.png" /> <?php echo htmlspecialchars($alert); ?></p>
 </div>
-<?php } ?>
+<?php endif; ?>
+
 <div class="onecolumn">
-	<div class="header">
-		<div id="search"<?php if (isset($hidesearch)) echo ' style="display: none;"'; ?>>
-			<form action="cards/search_any" method="post">
-			
-				<input type="text" class="search noshadow" title="<?php echo __('search'); ?>" name="q" id="q" value="<?php if (isset($filter)) echo $filter; ?>" />
-			</form>
-		</div>
-		<span><?php 
-		switch(Session::instance()->get('identifier')){
-			case 1:
-				echo __('cards.titleRFID'); 
-			break;
-			case 1:
-				echo __('cards.titleGRZ'); 
-			break;
-			default:
-		break;
-		}			
-		
-	?></span>
-	</div>
-	<br class="clear"/>
-	<div class="content">
-	Количество Событий: 
-		<select id="selectsSize">
-				<option value=10>10</option>
-				<option value=20 selected="selected">20</option>
-				<option value=30 >30</option>
-		</select>
-	<button onclick="createSettingsModal2()">Настройки</button>
-	Остановить:
-	<input type="checkbox" id="updatemonitor"/>
-	Фотографии:
-	<input type="checkbox" id="photomonitor" checked />
-		<form id="form_data" name="form_data" action="" method="post">
-			<table class="data tablesorter-blue" width="100%" cellpadding="0" cellspacing="0"  >
-			<thead>
-					<tr>
-						<th>ID_EVENT</th>
-						<th>ID_EVENTTYPE</th>
-						<th>DATETIME</th>
-						<th>EVENTTYPE_NAME</th>
-						<th>DEVICE_NAME</th>
-						<th>PEOPLE_NAME</th>
-						<th>ORGANIZATION_NAME</th>
-					</tr>
-			</thead>		
-			<tbody id="txtHint"/>
-			</table>
-
-			<div id="chart_wrapper" class="chart_wrapper"></div>
-		
-                <div id="additionalInfo">
-    <div id="currentTime"></div>
-    <div id="eventCounter"></div>
-    <div id="visibleEventCount"></div>
-</div>
-	</div>
+    <div class="header">
+        <span>Монитор событий</span>
+    </div>
+    
+    <div class="control-panel">
+        <div class="control-group">
+            <label>Количество:</label>
+            <select id="selectsSize">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label>
+                <input type="checkbox" id="updatemonitor" /> Остановить
+            </label>
+        </div>
+        
+        <div class="control-group">
+            <label>
+                <input type="checkbox" id="photomonitor" checked /> Фото
+            </label>
+        </div>
+        
+        <button id="clearBtn" onclick="clearEvents()">Очистить</button>
+        <span id="status" style="color: green;">● Работает</span>
+    </div>
+    
+    <div style="overflow: auto; max-height: 70vh;">
+        <table class="data">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Тип</th>
+                    <th>Дата/Время</th>
+                    <th>Событие</th>
+                    <th>Устройство</th>
+                    <th>Сотрудник</th>
+                    <th>Организация</th>
+                </tr>
+            </thead>
+            <tbody id="txtHint">
+                <tr><td colspan="7" style="text-align:center;">Загрузка событий...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div id="debugInfo" style="margin-top: 10px; font-size: 11px; color: #666; border-top: 1px solid #ccc; padding-top: 5px;"></div>
 </div>
 
+<script>
+// Простой и надежный скрипт для получения событий
+var isRunning = true;
+var lastId = 0;
+var maxRows = 20;
+var withPhoto = true;
+
+// Получение настроек из куки
+function loadSettings() {
+    var sizeSelect = document.getElementById('selectsSize');
+    if (sizeSelect) {
+        maxRows = parseInt(sizeSelect.value);
+    }
+    var photoCheck = document.getElementById('photomonitor');
+    if (photoCheck) {
+        withPhoto = photoCheck.checked;
+    }
+}
+
+// Обновление отладочной информации
+function updateDebug(msg) {
+    var debugDiv = document.getElementById('debugInfo');
+    if (debugDiv) {
+        var time = new Date().toLocaleTimeString();
+        debugDiv.innerHTML = '[' + time + '] ' + msg + '<br>' + debugDiv.innerHTML;
+        // Ограничиваем количество строк отладки
+        var lines = debugDiv.innerHTML.split('<br>');
+        if (lines.length > 10) {
+            debugDiv.innerHTML = lines.slice(0, 10).join('<br>');
+        }
+    }
+}
+
+// Очистка таблицы
+function clearEvents() {
+    var tbody = document.getElementById('txtHint');
+    if (tbody) {
+        tbody.innerHTML = '';
+        updateDebug('Таблица очищена');
+    }
+}
+
+// Обновление счетчика событий
+function updateEventCounter(count) {
+    var counterEl = document.getElementById('eventCounter');
+    if (!counterEl) {
+        var infoDiv = document.getElementById('debugInfo');
+        if (infoDiv && !document.getElementById('eventCounter')) {
+            var span = document.createElement('span');
+            span.id = 'eventCounter';
+            span.style.marginLeft = '10px';
+            infoDiv.parentNode.insertBefore(span, infoDiv);
+        }
+    }
+    if (document.getElementById('eventCounter')) {
+        document.getElementById('eventCounter').innerHTML = 'Всего: ' + count;
+    }
+}
+
+// Добавление событий в таблицу
+function addEventsToTable(html) {
+    if (!html || html.trim() === '') return;
+    
+    var tbody = document.getElementById('txtHint');
+    if (!tbody) return;
+    
+    // Удаляем сообщение "Загрузка..." если оно есть
+    if (tbody.children.length === 1 && tbody.children[0].innerHTML.indexOf('Загрузка') !== -1) {
+        tbody.innerHTML = '';
+    }
+    
+    // Вставляем новые события в начало
+    tbody.insertAdjacentHTML('afterbegin', html);
+    
+    // Ограничиваем количество строк
+    while (tbody.rows.length > maxRows) {
+        tbody.deleteRow(tbody.rows.length - 1);
+    }
+    
+    // Анимация новых строк
+    for (var i = 0; i < Math.min(3, tbody.rows.length); i++) {
+        tbody.rows[i].style.backgroundColor = '#ffffcc';
+        setTimeout(function(row) {
+            return function() {
+                if (row) row.style.backgroundColor = '';
+            };
+        }(tbody.rows[i]), 1000);
+    }
+    
+    updateDebug('Добавлено событий: ' + (html.match(/<tr/g) || []).length);
+}
+
+// Получение событий от сервера
+function fetchEvents() {
+    if (!isRunning) return;
+    
+    var url = '/crm2/events/getEvent?photo=' + (withPhoto ? '1' : '0') + '&format=json&limit=' + maxRows;
+    
+    updateDebug('Запрос: ' + url);
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    updateDebug('Ответ: success=' + response.success + ', events=' + (response.events ? response.events.length : 0));
+                    
+                    if (response.success && response.html) {
+                        addEventsToTable(response.html);
+                    } else if (response.success && response.events && response.events.length > 0) {
+                        // Если нет HTML, но есть JSON события - рендерим вручную
+                        var html = renderEventsToHtml(response.events);
+                        addEventsToTable(html);
+                    } else if (response.success) {
+                        updateDebug('Новых событий нет');
+                    } else {
+                        updateDebug('Ошибка: ' + (response.error || 'Неизвестная ошибка'));
+                    }
+                } catch (e) {
+                    updateDebug('Ошибка парсинга JSON: ' + e.message + ' | Ответ: ' + xhr.responseText.substring(0, 200));
+                }
+            } else {
+                updateDebug('HTTP ошибка: ' + xhr.status);
+            }
+        }
+    };
+    xhr.onerror = function() {
+        updateDebug('Сетевая ошибка');
+    };
+    xhr.send();
+}
+
+// Рендеринг событий в HTML (если сервер не вернул HTML)
+function renderEventsToHtml(events) {
+    var html = '';
+    for (var i = 0; i < events.length; i++) {
+        var e = events[i];
+        html += '<tr>';
+        html += '<td>' + (e.id_event || '') + '</td>';
+        html += '<td>' + (e.id_eventtype || '') + '</td>';
+        html += '<td>' + (e.datetime || '') + '</td>';
+        html += '<td>' + escapeHtml(e.eventtype_name || '') + '</td>';
+        html += '<td>' + escapeHtml(e.device_name || '') + '</td>';
+        html += '<td>' + escapeHtml(e.people_name || '') + '</td>';
+        html += '<td>' + escapeHtml(e.organization_name || '') + '</td>';
+        html += '</tr>';
+    }
+    return html;
+}
+
+// Функция экранирования HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+}
+
+// Настройка обработчиков событий
+function setupEventHandlers() {
+    var stopCheckbox = document.getElementById('updatemonitor');
+    if (stopCheckbox) {
+        stopCheckbox.onchange = function() {
+            isRunning = !this.checked;
+            var statusSpan = document.getElementById('status');
+            if (statusSpan) {
+                statusSpan.innerHTML = isRunning ? '● Работает' : '○ Остановлен';
+                statusSpan.style.color = isRunning ? 'green' : 'red';
+            }
+            updateDebug(isRunning ? 'Монитор запущен' : 'Монитор остановлен');
+            if (isRunning) {
+                fetchEvents();
+            }
+        };
+    }
+    
+    var sizeSelect = document.getElementById('selectsSize');
+    if (sizeSelect) {
+        sizeSelect.onchange = function() {
+            maxRows = parseInt(this.value);
+            updateDebug('Максимум строк: ' + maxRows);
+            // Ограничиваем существующие строки
+            var tbody = document.getElementById('txtHint');
+            if (tbody) {
+                while (tbody.rows.length > maxRows) {
+                    tbody.deleteRow(tbody.rows.length - 1);
+                }
+            }
+        };
+    }
+    
+    var photoCheckbox = document.getElementById('photomonitor');
+    if (photoCheckbox) {
+        photoCheckbox.onchange = function() {
+            withPhoto = this.checked;
+            updateDebug('Фото: ' + (withPhoto ? 'вкл' : 'выкл'));
+        };
+    }
+    
+    // Пробел для остановки/запуска
+    document.onkeypress = function(e) {
+        if (e.keyCode === 32 || e.key === ' ') {
+            if (stopCheckbox) {
+                stopCheckbox.checked = !stopCheckbox.checked;
+                stopCheckbox.onchange();
+            }
+            e.preventDefault();
+        }
+    };
+}
+
+// Запуск монитора
+function startMonitor() {
+    loadSettings();
+    setupEventHandlers();
+    
+    // Первый запрос сразу
+    fetchEvents();
+    
+    // Запускаем интервал
+    var intervalTime = (window.timeUpdate || 2) * 1000;
+    setInterval(function() {
+        if (isRunning) {
+            fetchEvents();
+        }
+    }, intervalTime);
+    
+    updateDebug('Монитор запущен, интервал: ' + intervalTime + 'ms');
+}
+
+// Запускаем при загрузке страницы
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startMonitor);
+} else {
+    startMonitor();
+}
+</script>
