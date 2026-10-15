@@ -26,31 +26,26 @@ class Auth_City extends Auth {
 	 */
 	protected function _login($username, $password, $remember)
 	{
-		
-		$sql='select p.id_pep, p.id_org, p.surname, p.name, p.patronymic, p.tabnum, p.login, p.flag, coalesce(p.id_orgctrl, p.id_org) as id_orgctrl , p.id_devgroup  from people p
-			where p.login=\''.$username.'\'
-			and p.pswd=\''.$password.'\'
-			and p."ACTIVE">0';
-		
-		
-		
 		$sql='select p.id_pep, p.id_org, p.surname, p.name, p.patronymic, p.tabnum, p.login, p.flag, coalesce(p.id_orgctrl, 1) as id_orgctrl , p.id_devgroup  from people p
 			where p.login=\''.$username.'\'
 			and p.pswd=\''.$password.'\'
 			and p."ACTIVE">0';
 		
-		
-		
+		Log::instance()->add(Log::DEBUG, '34 _login sql '.$sql);
+
 		//echo Debug::vars('36', $sql); exit;	
 		try 
 		{
 			$query = DB::query(Database::SELECT, iconv('UTF-8','windows-1251',$sql))
 			->execute(Database::instance('fb'))
 			->as_array();
+			//Log::instance()->add(Log::DEBUG, '42 _login sql '.Debug::vars($query));
 				
 		} catch (Exception $e) { 
 		
-		//throw new Exception('Ошибка с базой данных при авторизации', 64);
+			//Log::instance()->add(Log::DEBUG, '42 _login sql '.Debug::vars($e->getMessage()));
+				
+			//throw new Exception('Ошибка с базой данных при авторизации', 64);
 		
 		// Login failed
 		return FALSE;

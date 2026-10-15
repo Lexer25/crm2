@@ -208,7 +208,10 @@ window.checkCardFieldState = function() {
                           (viewSignatureButton && viewSignatureButton.offsetParent !== null) ||
                           (consentFileLink && consentFileLink.offsetParent !== null);
         
-        // Во всех режимах (guest_mode, buro, neworder) требуются: фамилия, имя, организация и согласие на ПД
+        // Во всех режимах (guest_mode, buro, neworder) для ВЫДАЧИ КАРТЫ
+        // требуются: фамилия, имя, организация и согласие на ПД.
+        // Но СОЗДАНИЕ / ОБНОВЛЕНИЕ ЗАЯВКИ возможно и без карты/согласия,
+        // поэтому предупреждения показываем только если пользователь уже работает с полем карты.
         const canAddCard = isSurnameFilled && isNameFilled && isOrgSelected && hasConsent;
         const placeholderText = 'Заполните фамилию, имя, организацию и получите согласие на ПД';
         
@@ -254,14 +257,25 @@ window.checkCardFieldState = function() {
             cardField.removeAttribute('oninvalid');
             cardField.removeAttribute('oninput');
             
-            // Показываем предупреждения, если они есть
+            // Показываем предупреждения только если пользователь уже ввёл или пытается ввести карту.
             const warningDiv = document.querySelector('.consent-warning');
             const dynamicWarningDiv = document.querySelector('.dynamic-warning');
-            if (warningDiv) {
-                warningDiv.style.display = 'block';
-            }
-            if (dynamicWarningDiv) {
-                dynamicWarningDiv.style.display = 'block';
+            if (hasCardValue) {
+                if (warningDiv) {
+                    warningDiv.style.display = 'block';
+                }
+                if (dynamicWarningDiv) {
+                    dynamicWarningDiv.style.display = 'block';
+                }
+            } else {
+                // При пустой карте не навязываем выдачу карты:
+                // оператор может спокойно создать/обновить заявку без карты и без согласия.
+                if (warningDiv) {
+                    warningDiv.style.display = 'none';
+                }
+                if (dynamicWarningDiv) {
+                    dynamicWarningDiv.style.display = 'none';
+                }
             }
         }
     }

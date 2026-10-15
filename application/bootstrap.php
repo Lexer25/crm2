@@ -1,4 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
+// Устанавливаем максимальное время жизни сессии на сервере
+ini_set('session.gc_maxlifetime', 43200); // 12 часов
+// Если нужно, можно и cookie_lifetime переопределить, но Kohana сама его выставляет
 
 // -- Environment setup --------------------------------------------------------
 
@@ -150,6 +153,7 @@ Kohana::modules(array(
 	'setup' => MODPATH.'setup',
 	'doors' => MODPATH.'doors',
 	'scheduler' => MODPATH.'scheduler',
+	'auditlog' => MODPATH.'auditlog'
 	));
 /*
 Добавляю хранение настроек в базе данных

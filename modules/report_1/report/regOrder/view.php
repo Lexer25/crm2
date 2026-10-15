@@ -1,0 +1,89 @@
+<div class="onecolumn">
+	<div class="header">
+		<span><?php 
+		//echo __('Количество заявок и выданных пропусков') ; 
+		echo $report->titleReport; 
+		?></span>
+<?php
+	
+    //echo Debug::vars('9-9', $report); exit;
+$data=array();
+if(isset($report)) $data=$report;
+//$ruid='regOrder3';//
+	?>
+	</div>
+	<br class="clear">
+	<div class="content">
+
+
+		<?php 
+		if( $data instanceof Report) {//если есть переменная дата $data типа Report, то организую вывод данных в таблицу
+		
+		
+		$t1=microtime(true);
+		if ($data->totalCountRow>1) { 
+		
+			echo __('<p>Отчет содержит :count записей.</p>', array(':count'=>$data->totalCountRow));
+			
+			if($data->totalCountRow>$data->totalCountRow) echo __('<p>Будут показаны первые 100 событий. Для получения полного отчета нажмите "Сохранить результат".</p>');
+			
+			
+			  $tempFile=new tempCSV;
+			  $tempFile->getFile();
+			 // echo Debug::vars('96', $tempFile->getRow());exit;
+			  
+			?>
+			<table class="data" width="100%" cellpadding="0" cellspacing="0">
+				<thead>
+					<tr>
+								
+						<?php
+						//echo Debug::vars('109', $tempFile->getRow());exit;
+						// первая строка файла содержит заголовки столбцов
+						$headerRow = $tempFile->getRow();
+						if (is_array($headerRow)) {
+							foreach($headerRow as $key=>$value)
+							{
+								echo '<th>'. $value.'</th>'; 
+							}
+						}
+						?>
+					</tr>
+				</thead>
+				<tbody>
+					<?php 
+				$countMax=100;
+				// ограничиваем количество выводимых строк, но не вычитаем 1,
+				// так как totalCountRow уже содержит количество записей
+				if($data->totalCountRow < $countMax) $countMax=$data->totalCountRow;		
+				for($i=0; $i<$countMax; $i++)
+				{
+					// читаем следующую строку данных из файла
+					$row = $tempFile->getRow();
+					if ($row === false || !is_array($row)) {
+						// достигли конца файла
+						break;
+					}
+					echo '<tr>';
+					foreach($row as $key=>$value)
+					{
+						echo '<td>'. $value.'</td>'; 
+					}
+					echo '</tr>';				
+				}?>
+				</tbody>
+			</table>
+		<?php 
+		//echo __('Время выполнения :timeexec сек.', array(':timeexec'=>(microtime(true)-$t1)));
+		} else { ?>
+		<div style="margin: 100px 0; text-align: center;">
+			<?php echo __('history.empty'); ?><br><br>
+		</div>
+		<?php } 
+			
+		}
+			
+			echo __('<p>Отчет подготовлен за :count секунд.</p>', array(':count'=>number_format($data->timeExecute, 3, '.', '')));
+			?>
+	</div>
+</div>

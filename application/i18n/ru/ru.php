@@ -417,6 +417,9 @@ return array
 	'guest.delOnTabNumOk'			=>'Гость с табельным номером :tabnum удален успешно.',
 	'guest.delOnTabNumErr'			=>'Гость с табельным номером :delOnTabNum не удален. Ошибка.',
 	
+	'guest.documentNotUnique'		=>'Документ с такой серией и номером уже зарегистрирован у другого человека.',
+	'guest.documentNotUniqueIssuedTo'	=>'Документ с такой серией и номером уже зарегистрирован у гостя: :surname :name :patronymic (id_pep=:id_pep)',
+	
 	'guest.addTabNumOk'				=>'Табельный номер для  :surname :name :patronymic зарегистрирован успешно :tabnum.',
 	'guest.addTabNumErr'			=>'Табельный номер для  :surname :name :patronymic :tabnum не зарегистрирован. Ошибка.',
 	

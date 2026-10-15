@@ -17,11 +17,32 @@ $reportdateend = isset($params['reportdateend']) ? $params['reportdateend'] : Da
 
 
 ?>
+<style>
+<style>
+/* Минимальная ширина для выпадающего списка */
+.select2-container--default .select2-dropdown {
+    min-width: 300px !important;
+    width: auto !important;
+}
+
+/* Для самого select */
+.select2-container {
+    width: 100% !important;
+    min-width: 250px;
+}
+
+/* Чтобы выпадающий список был шире поля ввода */
+.select2-container--open .select2-dropdown {
+    min-width: 350px !important;
+    left: 0;
+}
+</style>
+</style>
 
 <script language="javascript">
 $(document).ready(function () {
 //change selectboxes to selectize mode to be searchable
-$("select").find('option[value="1"]').attr('disabled','disabled').attr('value','');
+//$("select").find('option[value="1"]').attr('disabled','disabled').attr('value','');
 $("select").select2();
 });
 </script>

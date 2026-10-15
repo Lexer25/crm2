@@ -37,7 +37,7 @@
 				},
 
 				// set this to false if you want to block ajax loading on init
-				processAjaxOnInit: true,
+				processAjaxOnInit: false,
 
 				// process ajax so that the following information is returned:
 				// [ total_rows (number), rows (array of arrays), headers (array; optional) ]
@@ -70,7 +70,7 @@
 				pageReset: 0,
 
 				// Number of visible rows
-				size: 10,
+				size: 100,
 
 				// Number of options to include in the pager number selector
 				maxOptionSize: 20,

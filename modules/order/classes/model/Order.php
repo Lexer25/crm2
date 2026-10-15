@@ -71,6 +71,16 @@ public function getListNowOrder($id_pep, $mode = null, $user_role = null, $buro_
         $baseWhere = 'gu.id_org = :id_org';
     }
 
+    // Подготовка фильтра по ФИО (используем параметр $buro_filter как строку поиска)
+    $search_filter = '';
+    if (!empty($buro_filter)) {
+        // Ожидаем UTF-8, приводим к CP1251 и верхнему регистру
+        $search_cp = @iconv('UTF-8', 'CP1251//IGNORE', $buro_filter);
+        if ($search_cp !== false) {
+            $search_filter = mb_strtoupper($search_cp, 'CP1251');
+        }
+    }
+
     $sql = 'SELECT 
         gu.id_guestorder, 
         g."ID_PEP" AS id_guest, 
@@ -84,7 +94,6 @@ public function getListNowOrder($id_pep, $mode = null, $user_role = null, $buro_
         g.time_stamp,
         gu.timeplan,
         gu.timeorder,
-        gu.is_active,
         gu.id_buro,
         gu.id_pep AS id_pep,
         c_g.id_card AS guest_card_number,
@@ -119,6 +128,13 @@ public function getListNowOrder($id_pep, $mode = null, $user_role = null, $buro_
 
     $sql .= ')';
 
+    // Фильтр по ФИО гостя, если задан поиск
+    if ($search_filter !== '') {
+        $sql .= ' AND (UPPER(g."SURNAME") LIKE :pattern 
+                    OR UPPER(g."NAME") LIKE :pattern 
+                    OR UPPER(COALESCE(g."PATRONYMIC", \'\')) LIKE :pattern)';
+    }
+
     if ($mode === 'guest_mode') {
         $sql .= ' ORDER BY gu.timeorder DESC';
     } elseif ($mode === 'archive_mode') {
@@ -134,6 +150,10 @@ public function getListNowOrder($id_pep, $mode = null, $user_role = null, $buro_
     if ($user_role == 3) {
         $user = new User();
         $query->param(':id_org', $user->id_org);
+    }
+
+    if ($search_filter !== '') {
+        $query->param(':pattern', '%'.$search_filter.'%');
     }
 
     $rows = $query->execute(Database::instance('fb'))->as_array();
@@ -284,7 +304,6 @@ public function getListNowOrder2($id_pep, $mode = null, $user_role = null, $buro
         g.time_stamp,
         gu.timeplan,
         gu.timeorder,
-        gu.is_active,
         gu.id_buro,
         gu.id_pep AS id_pep,
         c_g.id_card AS guest_card_number,

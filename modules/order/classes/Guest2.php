@@ -150,7 +150,23 @@ class Guest2
 			->execute(Database::instance('fb'));
 		$result = $query->current();
 		$this->id_pep=Arr::get($result, 'GEN_ID');
-		
+		//03.03.2026 проверка документа на уникальность перед добавлением гостя
+		if (!Documents::isDocumentUnique($this->numdoc, null)) {
+			$this->actionResult = 3;
+			$existing = $this->getPersonByDocument($this->numdoc);
+			if (!empty($existing)) {
+				$this->actionDesc = __('guest.documentNotUniqueIssuedTo', array(
+					':surname'    => $existing['SURNAME'],
+					':name'       => $existing['NAME'],
+					':patronymic' => $existing['PATRONYMIC'],
+					':id_pep'     => isset($existing['ID_PEP']) ? $existing['ID_PEP'] : ''
+				));
+			} else {
+				$this->actionDesc = __('guest.documentNotUnique');
+			}
+			return -1;
+		}
+
 		//echo Debug::vars('109', Arr::get($result, 'GEN_ID')); exit;
 		$sql=__('INSERT INTO people (id_pep, id_db, surname, name, patronymic, id_org, numdoc, datedoc, note) 
                 VALUES (:id,1, \':surname\', \':name\', \':patronymic\',:org, \':numdoc\', \':datedoc\',  \':note\')', array
@@ -896,7 +912,7 @@ public function getOrg(){
 
     public function getEvents($id_pep) {
         
-		$sql = 'SELECT 
+		$sql = 'SELECT
                 e.ID_EVENT,
                 e.ID_EVENTTYPE,
                 e.DATETIME,
@@ -915,7 +931,7 @@ public function getOrg(){
                 JOIN EVENTTYPE et ON e.ID_EVENTTYPE = et.ID_EVENTTYPE
                 LEFT JOIN DEVICE d ON e.ID_DEV = d.ID_DEV
                 WHERE e.ESS1 = :id_pep
-                ORDER BY e.DATETIME desc';
+                ORDER BY e.ID_EVENT';
 
 
 
@@ -923,7 +939,7 @@ public function getOrg(){
 
         $query = DB::query(Database::SELECT, $sql)
             ->param(':id_pep', $id_pep);
-//echo Debug::vars('898',$sql, $query); exit;
+//echo Debug::vars('898',$query); exit;
         $result = $query->execute(Database::instance('fb'))
                        ->as_array();
 
@@ -1005,9 +1021,11 @@ public function getPersonByDocument($numdoc) {
         $numdoc_encoded = iconv('UTF-8', 'CP1251', $numdoc);
         
         // Выполняем запрос к базе данных
-        $sql = 'SELECT SURNAME, NAME, PATRONYMIC, DATEDOC, ID_PEP
+        // ORDER BY ID_PEP ASC — при дубликатах numdoc берём запись с минимальным id_pep (первая по регистрации)
+        $sql = 'SELECT FIRST 1 SURNAME, NAME, PATRONYMIC, DATEDOC, ID_PEP
                 FROM PEOPLE
-                WHERE NUMDOC = \''.$numdoc_encoded.'\'';
+                WHERE NUMDOC = \''.$numdoc_encoded.'\'
+                ORDER BY ID_PEP DESC';
         
         $query = DB::query(Database::SELECT, $sql)
             ->execute(Database::instance('fb'));
@@ -1038,10 +1056,13 @@ public function getPersonByDocument($numdoc) {
 }
 
 public function getPersonByDocumentParts($docnum1, $docnum2, $doc_type) {
-    if (empty($docnum1) || empty($docnum2) || empty($doc_type)) {
+    // Тип документа обязателен, а из серии/номера должен быть указан хотя бы один
+    if (empty($doc_type) || (empty($docnum1) && empty($docnum2))) {
         return null;
     }
     
+    // Формируем номер документа в формате: серия#номер@тип_документа
+    // При пустой серии получаем строку вида "#номер@тип", при пустом номере — "серия#@тип"
     $numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
     
     return $this->getPersonByDocument($numdoc);

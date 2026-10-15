@@ -301,6 +301,13 @@ return [
 									'tooltip' => 'Статистика выданных пропусков в бюро пропусвков',
 									'visible' => true,
 								],
+						'allGuestOrder'=>[
+									'url'     => 'report/allGuestOrder',
+									'icon'    => '',
+									'title'   => 'Созданные заявки',
+									'tooltip' => 'Список заявок с картами',
+									'visible' => true,
+						],
 						
 						
 						

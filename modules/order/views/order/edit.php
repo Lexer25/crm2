@@ -19,162 +19,11 @@ $mode = isset($mode) ? $mode : 'guest_mode';
 $user = new User();
 ?>
 
-<style>
-/* Стили для полей документа в одной строке */
-.doc-fields-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-}
-
-/* Контейнер для уведомлений поиска - ПОД ПОЛЯМИ ДОКУМЕНТА */
-.doc-search-notification-container {
-    margin-top: 5px;
-    margin-bottom: 10px;
-    min-height: 30px;
-}
-
-.doc-search-notification {
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 13px;
-    display: inline-block;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.doc-search-notification.info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
-
-.doc-search-notification.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.doc-search-notification.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-/* Стили для выпадающего списка результатов поиска */
-#document-suggestions {
-    position: absolute;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    max-height: 250px;
-    overflow-y: auto;
-    width: 500px;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    font-size: 12px;
-    line-height: 1.3;
-}
-
-#document-suggestions .suggestion-header {
-    padding: 4px 8px;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    font-size: 11px;
-    color: #666;
-    font-weight: normal;
-    cursor: default;
-}
-
-#document-suggestions .suggestion-item {
-    padding: 4px 8px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#document-suggestions .suggestion-item:last-child {
-    border-bottom: none;
-}
-
-#document-suggestions .suggestion-item:hover {
-    background: #f0f7ff;
-}
-
-#document-suggestions .suggestion-item.selected {
-    background: #e3f2fd;
-}
-
-#document-suggestions .suggestion-item.inactive {
-    color: #999;
-}
-
-#document-suggestions .guest-name {
-    font-weight: 500;
-    margin-right: 8px;
-}
-
-#document-suggestions .guest-id {
-    color: #888;
-    font-size: 10px;
-    margin-right: 8px;
-}
-
-#document-suggestions .guest-doc {
-    color: #0066cc;
-    font-size: 11px;
-    margin-right: 8px;
-    font-family: monospace;
-    background: #e6f2ff;
-    padding: 1px 4px;
-    border-radius: 3px;
-    display: inline-block;
-}
-
-#document-suggestions .guest-status {
-    font-size: 10px;
-    opacity: 0.8;
-}
-
-/* Компактный режим для заголовка */
-#document-suggestions .suggestion-header {
-    padding: 2px 8px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-</style>
-
 <script type="text/javascript">
-    // Чтение куки
-    function getCookie(name) {
-        var matches = document.cookie.match(new RegExp(
-            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-        ));
-        return matches ? decodeURIComponent(matches[1]) : undefined;
-    }
-
-    // Оба поиска всегда включены
-    var ENABLE_NAME_SEARCH = true;
-
     // Передаем информацию о количестве бюро из PHP
-    var countBuro = <?php echo (int)$user->count_buro; ?>;
+    var countBuro = <?php echo $user->count_buro; ?>;
     
     document.addEventListener('DOMContentLoaded', function() {
-        // Создаем контейнер для уведомлений под полями документа
-        var notificationContainer = document.createElement('div');
-        notificationContainer.id = 'doc-search-notification-container';
-        notificationContainer.className = 'doc-search-notification-container';
-        
-        // Находим контейнер с полями документа и вставляем уведомления после него
-        var docFieldsRow = document.querySelector('.doc-fields-row');
-        if (docFieldsRow) {
-            docFieldsRow.parentNode.insertBefore(notificationContainer, docFieldsRow.nextSibling);
-        }
-        
         var fields = [
             'surname',
             'name',
@@ -214,399 +63,121 @@ $user = new User();
 
     // Функция для настройки автозаполнения по документу
     function setupDocumentAutoFill() {
-        // Получаем ссылки на поля
         var docnum1Field = document.getElementById('docnum1');
         var docnum2Field = document.getElementById('docnum2');
+        var docTypeRadios = document.querySelectorAll('input[name="doc_type"]');
         var surnameField = document.getElementById('surname');
         var nameField = document.getElementById('name');
         var patronymicField = document.getElementById('patronymic');
         
         var searchTimeout;
-        var selectedIndex = -1;
-        var currentResults = [];
         
-        // Создаем контейнер для результатов поиска
-        var suggestionsContainer = document.createElement('div');
-        suggestionsContainer.id = 'document-suggestions';
+        // Функция поиска гостя по документу
+        function searchGuestByDocument() {
+    var docnum1 = docnum1Field ? docnum1Field.value.trim() : '';
+    var docnum2 = docnum2Field ? docnum2Field.value.trim() : '';
+    
+    // Проверяем, что оба поля заполнены
+    if (docnum1 && docnum2) {
+        // Отправляем AJAX запрос
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'order/searchByDocument', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         
-        // Добавляем контейнер после поля номера документа
-        if (docnum2Field) {
-            var parent = docnum2Field.parentNode;
-            var computedStyle = window.getComputedStyle(parent);
-            if (computedStyle.position === 'static') {
-                parent.style.position = 'relative';
-            }
-            parent.appendChild(suggestionsContainer);
-        }
-        
-        // Функция поиска гостей по документу
-        function searchGuestsByDocument() {
-            var docnum1 = docnum1Field ? String(docnum1Field.value).trim() : '';
-            var docnum2 = docnum2Field ? String(docnum2Field.value).trim() : '';
-            
-            if (docnum1 && docnum2) {
-                // Показываем уведомление "Поиск..." под полями документа
-                showNotification('🔍 Поиск по документу...', 'info');
-                
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'order/searchByDocument', true);
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            try {
-                                var response = JSON.parse(xhr.responseText);
-                                currentResults = response.data || [];
-                                
-                                // Скрываем список перед обновлением
-                                hideSuggestions();
-                                
-                                if (response.success && response.data && response.data.length > 0) {
-                                    showSuggestions(response);
-                                    clearNotification();
-                                } else {
-                                    showNotification('❌ Гость не найден', 'error');
-                                }
-                            } catch (e) {
-                                hideSuggestions();
-                                showNotification('❌ Ошибка обработки данных', 'error');
-                            }
-                        } else {
-                            hideSuggestions();
-                            showNotification('❌ Ошибка сервера: ' + xhr.status, 'error');
-                        }
-                    }
-                };
-                
-                var params = 'docnum1=' + encodeURIComponent(docnum1) + 
-                           '&docnum2=' + encodeURIComponent(docnum2);
-                xhr.send(params);
-            } else {
-                hideSuggestions();
-                clearNotification();
-            }
-        }
-        
-        // Функция поиска по фамилии (всегда включена)
-        function searchByFio(surname) {
-            if (surname.length < 3) return;
-            
-            showNotification('🔍 Поиск по фамилии...', 'info');
-            
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'order/searchByFio', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-                            currentResults = response.data || [];
-                            
-                            hideSuggestions();
-                            
-                            if (response.success && response.data && response.data.length > 0) {
-                                showSuggestions(response);
-                                clearNotification();
-                            } else {
-                                showNotification('❌ Гости с такой фамилией не найдены', 'error');
-                            }
-                        } catch (e) {
-                            hideSuggestions();
-                            showNotification('❌ Ошибка обработки данных', 'error');
-                        }
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    
+                    // Выводим JSON в alert
+                    alert('Полученный JSON от сервера:\n\n' + JSON.stringify(response, null, 2));
+                    
+                    if (response.success && response.data) {
+                        // Заполняем поля ФИО
+                        if (surnameField) surnameField.value = response.data.surname || '';
+                        if (nameField) nameField.value = response.data.name || '';
+                        if (patronymicField) patronymicField.value = response.data.patronymic || '';
+                        
+                        // Показываем уведомление
+                        showNotification('Данные гостя найдены и заполнены', 'success');
                     } else {
-                        hideSuggestions();
-                        showNotification('❌ Ошибка сервера: ' + xhr.status, 'error');
+                        // Гость не найден - очищаем поля ФИО
+                        if (surnameField) surnameField.value = '';
+                        if (nameField) nameField.value = '';
+                        if (patronymicField) patronymicField.value = '';
+                        
+                        showNotification(response.message || 'Гость не найден', 'info');
                     }
-                }
-            };
-            
-            var params = 'surname=' + encodeURIComponent(surname);
-            xhr.send(params);
-        }
-        
-        // Функция отображения результатов (общая для обоих поисков)
-        function showSuggestions(response) {
-            suggestionsContainer.innerHTML = '';
-            selectedIndex = -1;
-            
-            if (response.success && response.data && response.data.length > 0) {
-                var results = response.data;
-                
-                // Заголовок
-                var header = document.createElement('div');
-                header.className = 'suggestion-header';
-                header.textContent = 'Найдено: ' + results.length;
-                suggestionsContainer.appendChild(header);
-                
-                // Создаем элементы для каждого гостя
-                results.forEach(function(guest, index) {
-                    var item = document.createElement('div');
-                    item.className = 'suggestion-item';
-                    item.setAttribute('data-index', index);
+                } catch (e) {
+                    console.error('Ошибка обработки ответа:', e);
+                    showNotification('Ошибка обработки ответа сервера', 'error');
                     
-                    // Формируем ФИО одной строкой
-                    var fullName = [guest.surname, guest.name, guest.patronymic]
-                        .filter(function(part) { return part && part.trim() !== ''; })
-                        .join(' ');
-                    
-                    // Извлекаем серию и номер документа из numdoc
-                    var docDisplay = '';
-                    if (guest.numdoc && guest.numdoc !== '#@') {
-                        var parts = guest.numdoc.split('#');
-                        if (parts.length > 0) {
-                            var docSeries = parts[0];
-                            if (parts.length > 1) {
-                                var numberParts = parts[1].split('@');
-                                var docNumber = numberParts[0];
-                                docDisplay = docSeries + ' ' + docNumber;
-                            }
-                        }
-                    }
-                    
-                    // Индикатор активности
-                    var statusMarker = guest.is_active ? '🟢' : '⚪';
-                    
-                    // Формируем строку: ФИО + документ + ID + статус
-                    item.innerHTML = '<span class="guest-name">' + fullName + '</span> ' +
-                                    '<span class="guest-doc">' + docDisplay + '</span> ' +
-                                    '<span class="guest-id">ID:' + guest.id_pep + '</span> ' +
-                                    '<span class="guest-status">' + statusMarker + '</span>';
-                    
-                    if (!guest.is_active) {
-                        item.classList.add('inactive');
-                    }
-                    
-                    item.onclick = function() {
-                        selectGuest(guest);
-                    };
-                    
-                    suggestionsContainer.appendChild(item);
-                });
-                
-                suggestionsContainer.style.display = 'block';
-                
-                // Добавляем обработчик клавиш для навигации
-                docnum2Field.addEventListener('keydown', handleSuggestionKeydown);
-            }
-        }
-        
-        // Функция выбора гостя
-        function selectGuest(guest) {
-            surnameField.value = guest.surname || '';
-            nameField.value = guest.name || '';
-            patronymicField.value = guest.patronymic || '';
-            
-            // Парсим numdoc для заполнения полей документа
-            if (guest.numdoc && guest.numdoc !== '#@') {
-                var parts = guest.numdoc.split('#');
-                
-                // Серия документа (docnum1)
-                if (parts.length > 0) {
-                    docnum1Field.value = parts[0] || '';
-                }
-                
-                // Номер и тип документа (docnum2 и doc_type)
-                if (parts.length > 1) {
-                    var numberParts = parts[1].split('@');
-                    // Номер документа (docnum2)
-                    if (numberParts.length > 0) {
-                        docnum2Field.value = numberParts[0] || '';
-                    }
-                    // Тип документа (doc_type)
-                    if (numberParts.length > 1) {
-                        var docTypeField = document.getElementById('doc_type');
-                        if (docTypeField) {
-                            docTypeField.value = numberParts[1];
-                        }
-                    }
+                    // Также показываем сырой ответ в alert при ошибке
+                    alert('Ошибка парсинга JSON. Сырой ответ:\n\n' + xhr.responseText);
                 }
             }
-            
-            // Добавляем или обновляем скрытое поле с ID гостя
-            var idField = document.getElementById('selected_guest_id');
-            if (!idField) {
-                idField = document.createElement('input');
-                idField.type = 'hidden';
-                idField.name = 'selected_guest_id';
-                idField.id = 'selected_guest_id';
-                document.getElementById('main_form').appendChild(idField);
-            }
-            idField.value = guest.id_pep;
-            
-            // Показываем уведомление об успешном выборе
-            var fullName = [guest.surname, guest.name, guest.patronymic]
-                .filter(function(part) { return part && part.trim() !== ''; })
-                .join(' ');
-            showNotification('✅ Выбран: ' + fullName, 'success');
-            
-            hideSuggestions();
-            docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
-        }
+        };
         
-        // Функция обработки клавиш для навигации по списку
-        function handleSuggestionKeydown(event) {
-            var items = suggestionsContainer.querySelectorAll('.suggestion-item:not(.suggestion-header)');
-            
-            if (items.length === 0) return;
-            
-            switch(event.key) {
-                case 'ArrowDown':
-                    event.preventDefault();
-                    selectedIndex = (selectedIndex + 1) % items.length;
-                    updateSelectedItem(items);
-                    break;
-                    
-                case 'ArrowUp':
-                    event.preventDefault();
-                    selectedIndex = selectedIndex <= 0 ? items.length - 1 : selectedIndex - 1;
-                    updateSelectedItem(items);
-                    break;
-                    
-                case 'Enter':
-                    event.preventDefault();
-                    if (selectedIndex >= 0 && selectedIndex < items.length) {
-                        var index = items[selectedIndex].getAttribute('data-index');
-                        if (index !== null && currentResults[index]) {
-                            selectGuest(currentResults[index]);
-                        }
-                    }
-                    break;
-                    
-                case 'Escape':
-                    event.preventDefault();
-                    hideSuggestions();
-                    break;
-            }
-        }
+        var params = 'docnum1=' + encodeURIComponent(docnum1) + 
+                   '&docnum2=' + encodeURIComponent(docnum2);
+        xhr.send(params);
+    }
+}
         
-        // Функция обновления выделенного элемента
-        function updateSelectedItem(items) {
-            items.forEach(function(item) {
-                item.classList.remove('selected');
-            });
-            
-            if (selectedIndex >= 0 && selectedIndex < items.length) {
-                items[selectedIndex].classList.add('selected');
-                items[selectedIndex].scrollIntoView({ block: 'nearest' });
-            }
-        }
-        
-        // Функция скрытия результатов
-        function hideSuggestions() {
-            if (suggestionsContainer) {
-                suggestionsContainer.style.display = 'none';
-                suggestionsContainer.innerHTML = '';
-            }
-            selectedIndex = -1;
-            if (docnum2Field) {
-                docnum2Field.removeEventListener('keydown', handleSuggestionKeydown);
-            }
-        }
-        
-        // Добавляем обработчики событий для полей документа
+        // Добавляем обработчики событий
         if (docnum1Field) {
             docnum1Field.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
-                hideSuggestions();
-                clearNotification();
-                
-                searchTimeout = setTimeout(function() {
-                    searchGuestsByDocument();
-                }, 1000);
-            });
-            
-            docnum1Field.addEventListener('focus', function() {
-                var idField = document.getElementById('selected_guest_id');
-                if (idField) {
-                    idField.value = '';
-                }
+                searchTimeout = setTimeout(searchGuestByDocument, 1000); // Поиск через 1 секунду после остановки ввода
             });
         }
         
         if (docnum2Field) {
             docnum2Field.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
-                hideSuggestions();
-                clearNotification();
-                
-                searchTimeout = setTimeout(function() {
-                    searchGuestsByDocument();
-                }, 1000);
-            });
-            
-            docnum2Field.addEventListener('focus', function() {
-                var idField = document.getElementById('selected_guest_id');
-                if (idField) {
-                    idField.value = '';
-                }
+                searchTimeout = setTimeout(searchGuestByDocument, 1000);
             });
         }
         
-        // Добавляем обработчик поиска по фамилии (всегда включен)
-        if (surnameField) {
-            surnameField.addEventListener('input', function() {
-                var val = this.value.trim();
-                clearTimeout(searchTimeout);
-                hideSuggestions();
-                clearNotification();
-                
-                if (ENABLE_NAME_SEARCH && val.length >= 3) {
-                    searchTimeout = setTimeout(function() {
-                        searchByFio(val);
-                    }, 1000);
-                }
-            });
-        }
-        
-        // Закрывать список при клике вне его
-        document.addEventListener('click', function(event) {
-            if (suggestionsContainer && !suggestionsContainer.contains(event.target) && 
-                event.target !== docnum1Field && 
-                event.target !== docnum2Field && 
-                event.target !== surnameField) {
-                hideSuggestions();
-            }
-        });
-        
-        // Очищаем скрытое поле при ручном изменении ФИО
-        [surnameField, nameField, patronymicField].forEach(function(field) {
-            if (field) {
-                field.addEventListener('input', function() {
-                    var idField = document.getElementById('selected_guest_id');
-                    if (idField && idField.value) {
-                        idField.value = '';
-                    }
-                });
-            }
-        });
+        // Обработчик изменения типа документа больше не нужен, 
+        // так как поиск происходит только по серии и номеру
     }
     
-    // Функция для очистки уведомления
-    function clearNotification() {
-        var container = document.getElementById('doc-search-notification-container');
-        if (container) {
-            container.innerHTML = '';
-        }
-    }
-    
-    // Функция для показа уведомлений под полями документа
+    // Функция для показа уведомлений
     function showNotification(message, type) {
-        var container = document.getElementById('doc-search-notification-container');
-        if (!container) return;
-        
-        // Очищаем контейнер
-        container.innerHTML = '';
+        // Удаляем предыдущее уведомление
+        var existingNotification = document.getElementById('doc-search-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
         
         // Создаем новое уведомление
         var notification = document.createElement('div');
-        notification.className = 'doc-search-notification ' + type;
-        notification.textContent = message;
+        notification.id = 'doc-search-notification';
+        notification.style.cssText = 'position: fixed; top: 10px; right: 10px; padding: 10px 15px; border-radius: 4px; z-index: 1000; font-size: 14px; max-width: 300px;';
         
-        container.appendChild(notification);
+        // Устанавливаем стиль в зависимости от типа
+        switch (type) {
+            case 'success':
+                notification.style.backgroundColor = '#d4edda';
+                notification.style.color = '#155724';
+                notification.style.border = '1px solid #c3e6cb';
+                break;
+            case 'error':
+                notification.style.backgroundColor = '#f8d7da';
+                notification.style.color = '#721c24';
+                notification.style.border = '1px solid #f5c6cb';
+                break;
+            case 'info':
+            default:
+                notification.style.backgroundColor = '#d1ecf1';
+                notification.style.color = '#0c5460';
+                notification.style.border = '1px solid #bee5eb';
+                break;
+        }
+        
+        notification.textContent = message;
+        document.body.appendChild(notification);
         
         // Автоматически удаляем уведомление через 3 секунды
         setTimeout(function() {
@@ -619,11 +190,27 @@ $user = new User();
     // Защита от ошибки с updateAdditionalInfo
     if (typeof updateAdditionalInfo === 'undefined') {
         window.updateAdditionalInfo = function() {
-            return true;
+            // Пустая функция для предотвращения ошибок
         };
     }
 
-    // Валидация формы
+
+        var form = document.getElementById('main_form');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                if (event.submitter && event.submitter.type !== 'submit') {
+                    event.preventDefault(); // Блокируем отправку, если не нажата кнопка submit
+                }
+                
+        // Для кнопки согласия пропускаем валидацию
+        if (event.submitter && event.submitter.name === 'consent2') {
+            return true; // Пропускаем валидацию для кнопки согласия
+        }
+        
+            });
+        }
+    });
+
     function validate() {
         var surname = document.getElementById('surname').value.trim();
         var name = document.getElementById('name').value.trim();
@@ -645,18 +232,23 @@ $user = new User();
         var orgSelector = document.getElementById('org_selector');
         
         if (isConsentButton) {
+            // Для кнопки согласия убираем required
             if (surnameField) surnameField.removeAttribute('required');
             if (nameField) nameField.removeAttribute('required');
             if (orgSelector) orgSelector.removeAttribute('required');
             
+            // Убираем required с бюро для кнопки согласия
             var buroRadios = document.querySelectorAll('input[name="selected_buro"]');
             buroRadios.forEach(function(radio) {
                 radio.removeAttribute('required');
             });
         } else {
+            // Для других кнопок управляем required в зависимости от режима
             if (currentMode === 'neworder') {
+                // В neworder фамилия обязательна
                 if (surnameField) surnameField.setAttribute('required', 'required');
                 
+                // Бюро обязательно, если бюро больше одного
                 var buroRadios = document.querySelectorAll('input[name="selected_buro"]');
                 if (countBuro > 1) {
                     buroRadios.forEach(function(radio) {
@@ -668,18 +260,22 @@ $user = new User();
                     });
                 }
             } else {
+                // В других режимах фамилия не обязательна
                 if (surnameField) surnameField.removeAttribute('required');
                 
+                // Убираем required с бюро в других режимах
                 var buroRadios = document.querySelectorAll('input[name="selected_buro"]');
                 buroRadios.forEach(function(radio) {
                     radio.removeAttribute('required');
                 });
             }
             
+            // Имя и организация не обязательны
             if (nameField) nameField.removeAttribute('required');
             if (orgSelector) orgSelector.removeAttribute('required');
         }
 
+        // Фамилия обязательна в режиме neworder
         if (currentMode === 'neworder' && surname === '') {
             error1.style.display = 'block';
             isValid = false;
@@ -687,6 +283,7 @@ $user = new User();
             error1.style.display = 'none';
         }
 
+        // Имя проверяем только на длину (не обязательно)
         if (name.length > 50) {
             error_name.style.display = 'block';
             isValid = false;
@@ -694,6 +291,7 @@ $user = new User();
             error_name.style.display = 'none';
         }
 
+        // Отчество проверяем только на длину
         var patronymic = document.getElementById('patronymic').value.trim();
         if (patronymic.length > 50) {
             error_patronymic.style.display = 'block';
@@ -702,10 +300,12 @@ $user = new User();
             error_patronymic.style.display = 'none';
         }
 
+        // Организация не обязательна
         if (error_org) {
             error_org.style.display = 'none';
         }
         
+        // Бюро обязательно в neworder, если бюро больше одного
         if (currentMode === 'neworder' && countBuro > 1) {
             var selectedBuro = document.querySelector('input[name="selected_buro"]:checked');
             if (!selectedBuro) {
@@ -719,19 +319,31 @@ $user = new User();
                 }
             }
         } else {
+            // В других случаях бюро не обязательно
             if (error_buro) {
                 error_buro.style.display = 'none';
             }
         }
 
+        // Согласие на ПД не проверяем в валидации формы
         var error_consent = document.getElementById('error_consent');
         if (error_consent) {
             error_consent.style.display = 'none';
         }
 
+        // Валидация карты происходит только через HTML5 атрибуты при отправке формы
+        // Никакой дополнительной валидации в JavaScript не нужно
+
         return isValid;
     }
 </script>
+
+<?php if ($user->id_orgctrl == 1) {
+    switch ($mode) {
+        case 'buro':
+            break;
+    }
+} ?>
 
 <div class="onecolumn">
     <div class="header">
@@ -885,6 +497,7 @@ $user = new User();
                 case 'neworder':
     if ($user->id_role == 1 || $user->id_role == 2) {
         echo Form::open('order/save');
+        echo Form::hidden('found_id_pep', '', array('id' => 'found_id_pep'));
         echo Form::hidden('todo', 'savenewwithcard'); 
         echo Form::submit('savenewwithcard', __('order.edit.nameAddGuestWithCardBtn'), array(
             'class' => 'btn',
@@ -904,6 +517,7 @@ $user = new User();
             }
         }
         
+        // Добавляем сообщение об ошибке для ПД
         echo '<br /><span class="error" id="error_consent" style="color: red; display: none;">' . __('Требуется согласие на обработку персональных данных') . '</span>';
         
         if (!empty($cardlist[0]['ID_CARD'])) {
@@ -962,6 +576,9 @@ $user = new User();
                             }
                         }
                         
+                    } else {
+                        // echo Form::hidden('todo', 'update');
+                        // echo Form::submit('update', __('Обновить гостя'));
                     }
                     echo Form::close();
                     echo Form::open('order/historyGuest/' . $id_pep, array('class' => 'history-form'));
@@ -974,6 +591,7 @@ $user = new User();
                     break;
                 case 'archive_mode':
     if ($user->id_role == 1 || $user->id_role == 2) {
+        // Форма для forceexit
         if (!empty($cardlist[0]['ID_CARD'])) {
             echo Form::open('order/save');
             echo Form::hidden('todo', 'forceexit');
@@ -983,6 +601,7 @@ $user = new User();
             echo Form::close();
             echo '<br>';
         }
+        // Форма для newguestorder
         echo Form::open('order/save');
         echo Form::hidden('todo', 'newguestorder3');
         echo Form::submit('newguestorder3', __('order.edit.nameRepeatOrderBtn'), array(
@@ -990,6 +609,14 @@ $user = new User();
             'onclick' => "this.form.elements.todo.value='newguestorder3'; return confirm('Вы уверены, что хотите повторить заявку?');"
         ));
         echo Form::close();
+        // Форма для newguestorder2 (идентична newguestorder)
+        // echo Form::open('order/save');
+        // echo Form::hidden('todo', 'newguestorder2');
+        // echo Form::submit('newguestorder2', __('order.edit.nameNewguestorder2'), array(
+        //     'class' => 'btn',
+        //     'onclick' => "this.form.elements.todo.value='newguestorder2'; return confirm('Вы уверены, что хотите повторить заявку?');"
+        // ));
+        // echo Form::close();
     } elseif ($user->id_role == 2 || $user->id_role == 3) {
         echo Form::open('order/save');
         echo Form::hidden('todo', 'newguestorder');
@@ -1067,7 +694,11 @@ $user = new User();
             <?php
             echo 'id_pep=' . $guest->id_pep;
             echo '<br>';
-            echo 'mode=' . $mode;
+            // Версия модуля берется из modules/order/init.php
+            if (defined('MODPATH')) {
+                @include_once MODPATH . 'order/init.php';
+            }
+            echo 'mod version ' . (defined('ORDER_MODULE_VERSION') ? ORDER_MODULE_VERSION : 'unknown');
             ?>
         </form>
     </div>

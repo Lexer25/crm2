@@ -40,9 +40,13 @@ if ($alert) { ?>
             <?php 
             echo Form::open('order/edit/0/neworder', array('style' => 'display: inline-block; margin-right: 10px;'));
             echo Form::hidden('todo', 'neworder');
+            // Переход на страницу добавления гостя
             echo Form::submit('neworder', __('Добавить гостя'), array(
                 'style' => 'margin-left: 0;',
-                'onclick' => "this.form.elements.todo.value='neworder';"
+                'title' => 'Переход на страницу добавления гостя с выдачей карты',
+                'onclick' => (Session::instance()->get('mode') == 'archive_mode')
+                    ? "if (!confirm('Перейти на страницу добавления гостя?')) { return false; } this.form.elements.todo.value='neworder';"
+                    : "this.form.elements.todo.value='neworder';"
             ));
             echo Form::close();
             ?>
@@ -56,7 +60,10 @@ if ($alert) { ?>
             }
             echo Form::open($export_url, array('style' => 'display: inline-block;'));
             echo Form::submit('export', __('Экспорт в CSV'), array(
-                'style' => 'margin-left: 0;'
+                'style' => 'margin-left: 0;',
+                'title' => (Session::instance()->get('mode') == 'archive_mode')
+                    ? 'Выгрузка всех данных из архива в CSV'
+                    : 'Экспорт данных в CSV'
             ));
             echo Form::close();
             ?>
@@ -69,7 +76,8 @@ if ($alert) { ?>
             $current_url = Request::current()->uri() . '?show_all=' . $show_all_param;
             echo Form::open($current_url, array('style' => 'display: inline-block;'));
             echo Form::submit('show_all', __($button_text), array(
-                'style' => 'margin-left: 10px;'
+                'style' => 'margin-left: 10px;',
+                'title' => $button_text
             ));
             echo Form::close();
             ?>
@@ -271,5 +279,9 @@ if ($alert) { ?>
     </div>
 </div>
 <?php
-    echo 'mode=' . $mode;
+    // Версия модуля берется из modules/order/init.php
+    if (defined('MODPATH')) {
+        @include_once MODPATH . 'order/init.php';
+    }
+    echo 'mod version ' . (defined('ORDER_MODULE_VERSION') ? ORDER_MODULE_VERSION : 'unknown');
 ?>

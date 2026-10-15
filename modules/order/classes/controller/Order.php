@@ -102,6 +102,15 @@ class Controller_Order extends Controller_Template
 		$this->action_index($pattern);
 	}
 	
+	/*
+	Сброс поиска и возврат к начальному состоянию архива
+	*/
+	public function action_clearlist()
+	{
+		$this->session->delete('search_contact');
+		$this->redirect('order/archive');
+	}
+	
 
 
 	//ВОТ ЭТО  Я ИСКАЛ!!!!!!!!!!!!!!!!!!!!!!!!
@@ -173,9 +182,19 @@ public function action_index($filter = null)
         }
     }
 
+    // Признак "показать все" из GET
     $show_all = isset($_GET['show_all']) && $_GET['show_all'] == 1;
 
-    $list = $po->getListNowOrder($id_pep, $mode, $user_role, '', $show_all);
+    // Поиск по ФИО (фильтр из action_search передаётся UTF‑8 строкой)
+    $search_filter = $filter !== null ? trim($filter) : '';
+
+    // В режиме архива по умолчанию не загружаем весь архив,
+    // пока пользователь явно не нажал "Показать все" или не задал поиск
+    if ($mode === 'archive_mode' && !$show_all && $search_filter === '') {
+        $list = array();
+    } else {
+        $list = $po->getListNowOrder($id_pep, $mode, $user_role, $search_filter, $show_all);
+    }
     
     foreach ($list as &$pep) {
         // Concatenate full name
@@ -224,7 +243,9 @@ public function action_index($filter = null)
     $arrAlert = $this->session->get('arrAlert');
     $this->session->delete('alert');
     $this->session->delete('arrAlert');
-    $mode = 'neworder';
+
+    // Пагинация для заявок пока не используется
+    $pagination = '';
 
     $this->template->content = View::factory('order/list')
         ->bind('mode', $mode)
@@ -270,7 +291,7 @@ public function action_index($filter = null)
 	*/
 	public function action_save()
 	{
-		echo Debug::vars('70', $_POST); exit;
+		//echo Debug::vars('70', $_POST); exit;
 		
 		
 		$id			= Arr::get($_POST, 'id_pep');
@@ -376,9 +397,9 @@ public function action_index($filter = null)
 							 
 					Session::instance()->set('alert', $alert);
 					} else {
-						
-						//не удалось добавить гостя в базу данных СКУД.
-						
+						//не удалось добавить гостя в базу данных СКУД (в т.ч. документ не уникален)
+						$alert = $guest->actionDesc ? $guest->actionDesc : __('Ошибка добавления гостя', array());
+						Session::instance()->set('e_mess', array('result' => $alert));
 					}
 					//Session::instance()->set('alert', __('contact.key_occuped_NO'));
 				
@@ -469,6 +490,17 @@ public function action_index($filter = null)
         $order->id_buro = $id_buro;
         //echo Debug::vars('456', $order->add());exit;
         if($order->add() === 0) {
+            // Получаем ID созданной заявки
+            $id_guestorder = null;
+            try {
+                $sql = 'SELECT gen_id(GEN_GUESTORDER_ID, 0) FROM rdb$database';
+                $id_guestorder = DB::query(Database::SELECT, $sql)
+                    ->execute(Database::instance('fb'))
+                    ->get('GEN_ID');
+                Log::instance()->add(Log::DEBUG, 'ID созданной заявки: ' . $id_guestorder);
+            } catch (Exception $e) {
+                Log::instance()->add(Log::DEBUG, 'Ошибка получения ID заявки: ' . $e->getMessage());
+            }
             $arrAlert[] = array(
                 'actionResult' => $guest->actionResult, 
                 'actionDesc' => $guest->actionDesc
@@ -497,6 +529,29 @@ public function action_index($filter = null)
                     }
                     
                     if($key->addRfid() == 0) {
+                        // КАРТА УСПЕШНО ВЫДАНА - добавляем запись в GUESTCARDS
+                        if (!empty($id_guestorder)) {
+                            try {
+                                $cardOrder = new CardGuestorder();
+                                $result = $cardOrder->addRecord(
+                                    $idcard,        // id_card
+                                    1,              // id_db (всегда 1)
+                                    null,           // id_binding (null)
+                                    $id_guestorder  // id_guestorder из созданной заявки
+                                );
+                                
+                                if ($result === 0) {
+                                    Log::instance()->add(Log::DEBUG, 'Связь карты ' . $idcard . ' с заказом ' . $id_guestorder . ' успешно добавлена');
+                                } else {
+                                    Log::instance()->add(Log::DEBUG, 'Ошибка добавления связи карты с заказом');
+                                }
+                            } catch (Exception $e) {
+                                Log::instance()->add(Log::DEBUG, 'Исключение при добавлении связи: ' . $e->getMessage());
+                            }
+                        } else {
+                            Log::instance()->add(Log::DEBUG, 'Пропущено добавление связи: нет ID заявки для карты ' . $idcard);
+                        }
+
                         $arrAlert[] = array(
                             'actionResult' => $guest->actionResult, 
                             'actionDesc' => $guest->actionDesc
@@ -524,8 +579,8 @@ public function action_index($filter = null)
             Session::instance()->set('e_mess', array('result'=>$alert));
         }
     } else {
-        // Если гость не был добавлен
-        $alert = __('Ошибка добавления гостя', array());
+        // Если гость не был добавлен (в т.ч. документ не уникален)
+        $alert = !empty($guest->actionDesc) ? $guest->actionDesc : __('Ошибка добавления гостя', array());
         Session::instance()->set('e_mess', array('result'=>$alert));
         $this->redirect('order/edit/0/neworder');
         return;
@@ -535,7 +590,7 @@ public function action_index($filter = null)
     // Перенаправляем на страницу редактирования этого гостя в режиме buro
     $this->redirect('order/edit/' . $guest->id_pep . '/buro');
     //$this->redirect('order/guest');
-	break;
+    break;
 
 
 			//06.08.2025
@@ -580,38 +635,44 @@ public function action_index($filter = null)
 				Session::instance()->set('ok_mess', array('result'=>$alert));
 				break;
             
-            case 'newguestorder2':
+           case 'newguestorder2':
     $guest = new Guest2(Arr::get($_POST,'id_pep', 0));
-    $id_guest = $guest->id_pep;
-    
-    $get = $guest->getOrderByIdpep($id_guest);
-    
-    // Проверяем, что данные получены
-    if (empty($get) || !isset($get[0])) {
-        $alert = __('Ошибка: данные заявки не найдены', array());
-        Session::instance()->set('e_mess', array('result'=>$alert));
-        $this->redirect('order/edit/'.$id_guest);
-        break;
-    }
+    $id_guest = $guest->id_pep;          // гость, которому оформляем заявку
     $user = new User();
-    $id_pep = $user->id_pep;
-    //echo Debug::vars('597', $id_pep);exit;
-    $id_org = $get[0]['ID_ORG'];
+    $id_pep = $user->id_pep;             // оператор, создающий заявку
+    $id_org = Arr::get($_POST, 'org_selector', 2);
     $id_buro = Arr::get($_POST, 'selected_buro');
-    
-    if($guest->updateOrder($id_pep, $id_guest, $id_org, $id_buro) === 0) {
-        $arrAlert[] = array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
-        $alert = __('Заявка успешно обновлена', array());
-        Session::instance()->set('ok_mess', array('result'=>$alert));
+
+    // Пытаемся создать новую заявку
+    if ($guest->updateOrder($id_pep, $id_guest, $id_org, $id_buro) === 0) {
+        // Заявка создана успешно
         
-        // Обработка карты - добавляем логику выдачи карты
+        // ПОЛУЧАЕМ ID СОЗДАННОЙ ЗАЯВКИ из последней вставки
+        // Используем тот же генератор, но без увеличения (currval)
+        try {
+            $sql = 'SELECT gen_id(GEN_GUESTORDER_ID, 0) FROM rdb$database';
+            $id_guestorder = DB::query(Database::SELECT, $sql)
+                ->execute(Database::instance('fb'))
+                ->get('GEN_ID');
+            
+            Log::instance()->add(Log::DEBUG, 'ID созданной заявки: ' . $id_guestorder);
+        } catch (Exception $e) {
+            Log::instance()->add(Log::DEBUG, 'Ошибка получения ID заявки: ' . $e->getMessage());
+            $id_guestorder = null;
+        }
+        
+        $arrAlert[] = array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
+        $alert = __('Заявка успешно создана', array());
+        Session::instance()->set('ok_mess', array('result'=>$alert));
+
+        // Обработка карты (ТОЛЬКО после успешного создания заявки)
         $idcard = Arr::get($_POST, 'idcard', null);
         $rfidmode = Arr::get($_POST, 'rfidmode', null);
-        
+
         if (!empty($idcard)) {
             $key = new Keyk($idcard);
             $check = $key->check(1);
-            
+
             if(is_null($check)) {
                 $key->id_card = $idcard;
                 $key->timestart = Arr::get($_POST, 'carddatestart');
@@ -621,12 +682,35 @@ public function action_index($filter = null)
                 $key->rfidmode = $rfidmode;
                 $id_pep1 = $id_guest;
                 $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
-                
+
                 if ($id_accessname) {
                     $guest->setAclDefault($id_pep1, $id_accessname);
                 }
-                
+
                 if($key->addRfid() == 0) {
+                    // КАРТА УСПЕШНО ВЫДАНА - добавляем запись в card_guestorders
+                    if (!empty($id_guestorder)) {
+                        try {
+                            $cardOrder = new CardGuestorder();
+                            $result = $cardOrder->addRecord(
+                                $idcard,        // id_card
+                                1,              // id_db (всегда 1)
+                                null,           // id_binding (null)
+                                $id_guestorder  // id_guestorder из созданной заявки
+                            );
+                            
+                            if ($result === 0) {
+                                Log::instance()->add(Log::DEBUG, 'Связь карты ' . $idcard . ' с заказом ' . $id_guestorder . ' успешно добавлена');
+                            } else {
+                                Log::instance()->add(Log::DEBUG, 'Ошибка добавления связи карты с заказом');
+                            }
+                        } catch (Exception $e) {
+                            Log::instance()->add(Log::DEBUG, 'Исключение при добавлении связи: ' . $e->getMessage());
+                        }
+                    } else {
+                        Log::instance()->add(Log::DEBUG, 'Пропущено добавление связи: нет ID заявки для карты ' . $idcard);
+                    }
+                    
                     $arrAlert[] = array(
                         'actionResult' => $guest->actionResult, 
                         'actionDesc' => $guest->actionDesc
@@ -650,108 +734,146 @@ public function action_index($filter = null)
             }
         }
     } else {
+        // Ошибка создания заявки — карту НЕ выдаём
         $arrAlert[] = array('actionResult'=>3, 'actionDesc'=>'guest.noDocForSave');
-        $alert = __('Ошибка обновления заявки', array());
+        $alert = __('Ошибка создания заявки', array());
         Session::instance()->set('e_mess', array('result'=>$alert));
     }
-    
-    // Правильный редирект
-    //$this->redirect('order/edit/'.$id_guest);
-	$this->redirect('order/guest');
+
+    $this->redirect('order/guest');
     break;
-	case 'newguestorder3':
+case 'newguestorder3':
     $guest = new Guest2(Arr::get($_POST,'id_pep', 0));
     $id_guest = $guest->id_pep;
-    
-    $get = $guest->getOrderByIdpep($id_guest);
-    
-    // Проверяем, что данные получены
-    if (empty($get) || !isset($get[0])) {
-        $alert = __('Ошибка: данные заявки не найдены', array());
-        Session::instance()->set('e_mess', array('result'=>$alert));
-        $this->redirect('order/edit/'.$id_guest);
-        break;
-    }
     $user = new User();
     $id_pep = $user->id_pep;
-    //echo Debug::vars('597', $id_pep);exit;
-    $id_org = $get[0]['ID_ORG'];
+    $id_org = Arr::get($_POST, 'org_selector', 2);
     $id_buro = Arr::get($_POST, 'selected_buro');
     
-    if($guest->updateOrder($id_pep, $id_guest, $id_org, $id_buro) === 0) {
-        $arrAlert[] = array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
-        $alert = __('Заявка успешно обновлена', array());
-        Session::instance()->set('ok_mess', array('result'=>$alert));
-        
-        // Обработка карты - добавляем логику выдачи карты
-        $idcard = Arr::get($_POST, 'idcard', null);
-        $rfidmode = Arr::get($_POST, 'rfidmode', null);
-        
-        if (!empty($idcard)) {
-            $key = new Keyk($idcard);
-            $check = $key->check(1);
-            
-            if(is_null($check)) {
-                $key->id_card = $idcard;
-                $key->timestart = Arr::get($_POST, 'carddatestart');
-                $key->timeend = Arr::get($_POST, 'carddateend');
-                $key->id_pep = $guest->id_pep;
-                $key->flag = 1;
-                $key->rfidmode = $rfidmode;
-                $id_pep1 = $id_guest;
-                $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
-                
-                if ($id_accessname) {
-                    $guest->setAclDefault($id_pep1, $id_accessname);
-                }
-                
-                if($key->addRfid() == 0) {
-                    $arrAlert[] = array(
-                        'actionResult' => $guest->actionResult, 
-                        'actionDesc' => $guest->actionDesc
-                    );
-                    $alert = __('Карта успешно выдана', array());
-                    Session::instance()->set('ok_mess', array('result'=>$alert));
-                    $this->session->set('mode', 'guest_mode');
-                } else {
-                    $alert = __('Ошибка выдачи карты', array());
-                    Session::instance()->set('e_mess', array('result'=>$alert));
-                }
-            } else {
-                $alert = __('guest.key_occuped', array(
-                    ':idcard' => $idcard,
-                    ':id_pep' => $check,
-                    ':name' => $guest->name,
-                    ':surname' => $guest->surname,
-                    ':patronymic' => $guest->patronymic
-                ));
-                Session::instance()->set('e_mess', array('result'=>$alert));
-            }
+    $get = $guest->getOrderByIdpep($id_guest);
+    if (empty($get) || !isset($get[0])) {
+        // Создаём новую заявку
+        $guest->updateOrder($id_pep, $id_guest, $id_org, $id_buro);
+        $alert = __('Заявка успешно создана', array());
+
+        // Получаем ID созданной заявки
+        $id_guestorder = null;
+        try {
+            $sql = 'SELECT gen_id(GEN_GUESTORDER_ID, 0) FROM rdb$database';
+            $id_guestorder = DB::query(Database::SELECT, $sql)
+                ->execute(Database::instance('fb'))
+                ->get('GEN_ID');
+            Log::instance()->add(Log::DEBUG, 'ID созданной заявки (newguestorder3, новая): ' . $id_guestorder);
+        } catch (Exception $e) {
+            Log::instance()->add(Log::DEBUG, 'Ошибка получения ID заявки (newguestorder3, новая): ' . $e->getMessage());
         }
     } else {
-        $arrAlert[] = array('actionResult'=>3, 'actionDesc'=>'guest.noDocForSave');
-        $alert = __('Ошибка обновления заявки', array());
-        Session::instance()->set('e_mess', array('result'=>$alert));
+        // Обновляем существующую заявку
+        if (empty($id_buro) && isset($get[0]['ID_BURO'])) {
+            $id_buro = $get[0]['ID_BURO'];
+        }
+        $guest->updateExistingOrder($get[0]['ID_GUESTORDER'], $id_pep, $id_guest, $id_org, $id_buro);
+        $alert = __('Заявка успешно обновлена', array());
+        $id_guestorder = $get[0]['ID_GUESTORDER'];
+    }
+    Session::instance()->set('ok_mess', array('result'=>$alert));
+    
+    // Обработка карты
+    $idcard = Arr::get($_POST, 'idcard', null);
+    $rfidmode = Arr::get($_POST, 'rfidmode', null);
+    
+    if (!empty($idcard)) {
+        $key = new Keyk($idcard);
+        $check = $key->check(1);
+        
+        if(is_null($check)) {
+            $key->id_card = $idcard;
+            $key->timestart = Arr::get($_POST, 'carddatestart');
+            $key->timeend = Arr::get($_POST, 'carddateend');
+            $key->id_pep = $guest->id_pep;
+            $key->flag = 1;
+            $key->rfidmode = $rfidmode;
+            $id_pep1 = $id_guest;
+            $id_accessname = Arr::get($_POST, 'ACCESS_NAME');
+            
+            if ($id_accessname) {
+                $guest->setAclDefault($id_pep1, $id_accessname);
+            }
+            
+            if($key->addRfid() == 0) {
+                // КАРТА УСПЕШНО ВЫДАНА - добавляем запись в GUESTCARDS
+                if (!empty($id_guestorder)) {
+                    try {
+                        $cardOrder = new CardGuestorder();
+                        $result = $cardOrder->addRecord(
+                            $idcard,        // id_card
+                            1,              // id_db (всегда 1)
+                            null,           // id_binding (null)
+                            $id_guestorder  // id_guestorder из заявки
+                        );
+                        
+                        if ($result === 0) {
+                            Log::instance()->add(Log::DEBUG, 'Связь карты ' . $idcard . ' с заказом ' . $id_guestorder . ' успешно добавлена (newguestorder3)');
+                        } else {
+                            Log::instance()->add(Log::DEBUG, 'Ошибка добавления связи карты с заказом (newguestorder3)');
+                        }
+                    } catch (Exception $e) {
+                        Log::instance()->add(Log::DEBUG, 'Исключение при добавлении связи (newguestorder3): ' . $e->getMessage());
+                    }
+                } else {
+                    Log::instance()->add(Log::DEBUG, 'Пропущено добавление связи (newguestorder3): нет ID заявки для карты ' . $idcard);
+                }
+
+                $arrAlert[] = array(
+                    'actionResult' => $guest->actionResult, 
+                    'actionDesc' => $guest->actionDesc
+                );
+                $alert = __('Карта успешно выдана', array());
+                Session::instance()->set('ok_mess', array('result'=>$alert));
+                $this->session->set('mode', 'guest_mode');
+            } else {
+                $alert = __('Ошибка выдачи карты', array());
+                Session::instance()->set('e_mess', array('result'=>$alert));
+            }
+        } else {
+            $alert = __('guest.key_occuped', array(
+                ':idcard' => $idcard,
+                ':id_pep' => $check,
+                ':name' => $guest->name,
+                ':surname' => $guest->surname,
+                ':patronymic' => $guest->patronymic
+            ));
+            Session::instance()->set('e_mess', array('result'=>$alert));
+        }
     }
     
-    // Правильный редирект
     $this->redirect('order/edit/'.$id_guest);
-    //$this->redirect('order/guest');
-            
+    break;
 			case 'forceexit':// ручная отметка о выходе
 				
-				Log::instance()->add(Log::ERROR, '663-000 forceExit!!!');
+				//echo Debug::vars('312',$_POST);//exit;
 				
-			//if(false){ //выключатель удаления карты через веб-панель true -удаление выполнляется,  false - удаление не выполняется.	Бухаров А.В. 26.10.2025
-			if(true){ //выключатель удаления карты через веб-панель true -удаление выполнляется,  false - удаление не выполняется.	Бухаров А.В. 26.10.2025
+				
 				$guest=new Guest2(Arr::get($_POST,'id_pep', 0));
+				//echo Debug::vars('326', $guest);exit;
 				$guest->idOrgGuest = $this->idOrgGuest;// указал организацию гостя
 				$guest->idOrgGuestArchive =$this->idOrgGuestArchive;//указал организацию архива
-
+					
+				
+								
+				//удаляю карту у гостя - не реализовано 7.07.2025
+				/*
+				я предлагаю сделать гостю метод "Удалить все его карты". Быстро и сердито.
+				Вызывать этот метод здесь всегда.
+				
+				*/
 				if($guest->forceexit()==0){
-					
+					// перемещаю в архив
 					$guest->moveToArchive();
-					
+					//делаю запись о ручном удалении карты
+					/*
+					не реализовано 7.07.2025
+					*/
 					$alert = __('guest.forceexitOK', array(
 						':name' => $guest->name,
 						':surname' => $guest->surname,
@@ -767,9 +889,7 @@ public function action_index($filter = null)
 						));
 						Session::instance()->set('alert', $alert);
 					}
-			} else {
-				Log::instance()->add(Log::ERROR, '690-000 forceExit отключен!!!');
-			}
+
 					$this->redirect('order');
 				break;
 
@@ -832,6 +952,17 @@ public function action_index($filter = null)
                         $order->id_buro = $id_buro;
                         
                         if($order->add() === 0) {
+                            // Получаем ID созданной заявки
+                            $id_guestorder = null;
+                            try {
+                                $sql = 'SELECT gen_id(GEN_GUESTORDER_ID, 0) FROM rdb$database';
+                                $id_guestorder = DB::query(Database::SELECT, $sql)
+                                    ->execute(Database::instance('fb'))
+                                    ->get('GEN_ID');
+                                Log::instance()->add(Log::DEBUG, 'ID созданной заявки: ' . $id_guestorder);
+                            } catch (Exception $e) {
+                                Log::instance()->add(Log::DEBUG, 'Ошибка получения ID заявки: ' . $e->getMessage());
+                            }
                             $arrAlert[] = array(
                                 'actionResult' => $guest->actionResult, 
                                 'actionDesc' => $guest->actionDesc
@@ -860,6 +991,29 @@ public function action_index($filter = null)
                                     }
                                     
                                     if($key->addRfid() == 0) {
+                                        // КАРТА УСПЕШНО ВЫДАНА - добавляем запись в GUESTCARDS
+                                        if (!empty($id_guestorder)) {
+                                            try {
+                                                $cardOrder = new CardGuestorder();
+                                                $result = $cardOrder->addRecord(
+                                                    $idcard,        // id_card
+                                                    1,              // id_db (всегда 1)
+                                                    null,           // id_binding (null)
+                                                    $id_guestorder  // id_guestorder из созданной заявки
+                                                );
+                                                
+                                                if ($result === 0) {
+                                                    Log::instance()->add(Log::DEBUG, 'Связь карты ' . $idcard . ' с заказом ' . $id_guestorder . ' успешно добавлена');
+                                                } else {
+                                                    Log::instance()->add(Log::DEBUG, 'Ошибка добавления связи карты с заказом');
+                                                }
+                                            } catch (Exception $e) {
+                                                Log::instance()->add(Log::DEBUG, 'Исключение при добавлении связи: ' . $e->getMessage());
+                                            }
+                                        } else {
+                                            Log::instance()->add(Log::DEBUG, 'Пропущено добавление связи: нет ID заявки для карты ' . $idcard);
+                                        }
+
                                         $arrAlert[] = array(
                                             'actionResult' => $guest->actionResult, 
                                             'actionDesc' => $guest->actionDesc
@@ -894,6 +1048,17 @@ public function action_index($filter = null)
                     break;
 
 			case 'consent2':
+    // Если поиск по документу уже нашёл человека — открываем страницу согласия для него, не создаём нового в people
+    $found_id_pep = (int) Arr::get($_POST, 'found_id_pep', 0);
+    if ($found_id_pep > 0) {
+        $guest_check = new Guest2();
+        $person = $guest_check->getPersonDetails($found_id_pep);
+        if (!empty($person)) {
+            $this->redirect('order/PersonalData/'.$found_id_pep);
+            return;
+        }
+    }
+
     // Для согласия организация не обязательна - используем значение по умолчанию
     $id_org = Arr::get($_POST, 'org_selector', null);
     if (empty($id_org)) {
@@ -953,6 +1118,17 @@ public function action_index($filter = null)
         $order->id_buro=$id_buro;
         
         if($order->add() === 0) {
+            // Получаем ID созданной заявки
+            $id_guestorder = null;
+            try {
+                $sql = 'SELECT gen_id(GEN_GUESTORDER_ID, 0) FROM rdb$database';
+                $id_guestorder = DB::query(Database::SELECT, $sql)
+                    ->execute(Database::instance('fb'))
+                    ->get('GEN_ID');
+                Log::instance()->add(Log::DEBUG, 'ID созданной заявки: ' . $id_guestorder);
+            } catch (Exception $e) {
+                Log::instance()->add(Log::DEBUG, 'Ошибка получения ID заявки: ' . $e->getMessage());
+            }
             $arrAlert[] = array(
                 'actionResult' => $guest->actionResult, 
                 'actionDesc' => $guest->actionDesc
@@ -984,6 +1160,29 @@ public function action_index($filter = null)
                     }
                     
                     if($key->addRfid() == 0) {
+                        // КАРТА УСПЕШНО ВЫДАНА - добавляем запись в GUESTCARDS
+                        if (!empty($id_guestorder)) {
+                            try {
+                                $cardOrder = new CardGuestorder();
+                                $result = $cardOrder->addRecord(
+                                    $idcard,        // id_card
+                                    1,              // id_db (всегда 1)
+                                    null,           // id_binding (null)
+                                    $id_guestorder  // id_guestorder из созданной заявки
+                                );
+                                
+                                if ($result === 0) {
+                                    Log::instance()->add(Log::DEBUG, 'Связь карты ' . $idcard . ' с заказом ' . $id_guestorder . ' успешно добавлена');
+                                } else {
+                                    Log::instance()->add(Log::DEBUG, 'Ошибка добавления связи карты с заказом');
+                                }
+                            } catch (Exception $e) {
+                                Log::instance()->add(Log::DEBUG, 'Исключение при добавлении связи: ' . $e->getMessage());
+                            }
+                        } else {
+                            Log::instance()->add(Log::DEBUG, 'Пропущено добавление связи: нет ID заявки для карты ' . $idcard);
+                        }
+
                         $arrAlert[] = array(
                             'actionResult' => $guest->actionResult, 
                             'actionDesc' => $guest->actionDesc
@@ -1010,6 +1209,12 @@ public function action_index($filter = null)
             $alert = __('Ошибка создания заявки', array());
             Session::instance()->set('e_mess', array('result'=>$alert));
         }
+    } else {
+        // Гость не добавлен (в т.ч. документ не уникален) — не редиректить на PersonalData
+        $alert = !empty($guest->actionDesc) ? $guest->actionDesc : __('Ошибка добавления гостя', array());
+        Session::instance()->set('e_mess', array('result'=>$alert));
+        $this->redirect('order/edit/0/neworder');
+        return;
     }
     
     // Перенаправляем на страницу PersonalData
@@ -1040,31 +1245,40 @@ public function action_index($filter = null)
 				//echo Debug::vars('373', $guest -> update($guest->id));exit;
 				
 				$order=new Order(Arr::get($_POST, 'id_order', 0));
-				//echo Debug::vars('383', $_POST);exit;
 				$order->timestart=Arr::get($_POST, 'carddatestart');
 				$order->timeend=Arr::get($_POST, 'carddateend');
-				//echo Debug::vars('385', $order);exit;
 				
-				// Обновляем организацию в заказе
-				$id_org = Arr::get($_POST, 'org_selector', null);
-				if (!empty($id_org)) {
-					$get = $guest->getOrderByIdpep($guest->id_pep);
-					if (!empty($get) && isset($get[0])) {
-						$id_pep_user = $get[0]['ID_PEP'];
-						// Получаем id_buro из формы, если не выбрано - используем текущее значение
-						$id_buro = Arr::get($_POST, 'selected_buro');
-						if (empty($id_buro) && isset($get[0]['ID_BURO'])) {
-							$id_buro = $get[0]['ID_BURO'];
+				// Если заявка уже есть — обновляем, иначе создаём новую (id_org=2 в people)
+				$id_org = Arr::get($_POST, 'org_selector', 2);
+				$id_buro = Arr::get($_POST, 'selected_buro');
+				$user_reissue = new User();
+				$id_pep_user = $user_reissue->id_pep;
+				$get_order = $guest->getOrderByIdpep($guest->id_pep);
+                if (empty($get_order) || !isset($get_order[0])) {
+					// Создаём новую заявку
+					$guest->updateOrder($id_pep_user, $guest->id_pep, $id_org, $id_buro);
+
+					// Получаем ID созданной заявки
+					$id_guestorder = null;
+					try {
+						$sql = 'SELECT gen_id(GEN_GUESTORDER_ID, 0) FROM rdb$database';
+						$id_guestorder = DB::query(Database::SELECT, $sql)
+							->execute(Database::instance('fb'))
+							->get('GEN_ID');
+						Log::instance()->add(Log::DEBUG, 'ID созданной заявки (reissue, новая): ' . $id_guestorder);
+					} catch (Exception $e) {
+						Log::instance()->add(Log::DEBUG, 'Ошибка получения ID заявки (reissue, новая): ' . $e->getMessage());
+					}
+				} else {
+					if (!empty($id_org)) {
+						if (empty($id_buro) && isset($get_order[0]['ID_BURO'])) {
+							$id_buro = $get_order[0]['ID_BURO'];
 						}
-						// ИСПРАВЛЕНО: Обновляем существующую запись вместо создания новой
-						$guest->updateExistingOrder($get[0]['ID_GUESTORDER'], $id_pep_user, $guest->id_pep, $id_org, $id_buro);
+						$guest->updateExistingOrder($get_order[0]['ID_GUESTORDER'], $id_pep_user, $guest->id_pep, $id_org, $id_buro);
+						$id_guestorder = $get_order[0]['ID_GUESTORDER'];
 					}
 				}
-				
 
-
-				//echo Debug::vars('383', $idcard	);exit;
-				//echo Debug::vars('381', empty($idcard), $idcard);exit;
 				if (!empty($idcard)){
 					//echo Debug::vars('382', $idcard);exit;
 					$key=new Keyk($idcard);
@@ -1087,6 +1301,28 @@ public function action_index($filter = null)
 							
 							//присвоедние карты RFID
 							if($key->addRfid()==0) { //сохраняю карту RFID
+								// КАРТА УСПЕШНО ВЫДАНА - добавляем запись в GUESTCARDS
+								if (!empty($id_guestorder)) {
+									try {
+										$cardOrder = new CardGuestorder();
+										$result = $cardOrder->addRecord(
+											$idcard,        // id_card
+											1,              // id_db (всегда 1)
+											null,           // id_binding (null)
+											$id_guestorder  // id_guestorder из заявки
+										);
+										
+										if ($result === 0) {
+											Log::instance()->add(Log::DEBUG, 'Связь карты ' . $idcard . ' с заказом ' . $id_guestorder . ' успешно добавлена (reissue)');
+										} else {
+											Log::instance()->add(Log::DEBUG, 'Ошибка добавления связи карты с заказом (reissue)');
+										}
+									} catch (Exception $e) {
+										Log::instance()->add(Log::DEBUG, 'Исключение при добавлении связи (reissue): ' . $e->getMessage());
+									}
+								} else {
+									Log::instance()->add(Log::DEBUG, 'Пропущено добавление связи (reissue): нет ID заявки для карты ' . $idcard);
+								}
 									// перемещаю гостя в Гость
 								//$guest->moveToGuest();	
 								$arrAlert[]=array('actionResult'=>$guest->actionResult, 'actionDesc'=>$guest->actionDesc);
@@ -1381,8 +1617,7 @@ public function action_index($filter = null)
 			->bind('companies', $companies);
 	}
 
-/* 
-	public function action_get_person_by_document() {
+public function action_get_person_by_document() {
     // Отключаем автоматический рендеринг шаблона
     $this->auto_render = FALSE;
     
@@ -1396,10 +1631,12 @@ public function action_index($filter = null)
         $doc_type = isset($_POST['doc_type']) ? trim($_POST['doc_type']) : '';
         
         // Логируем полученные данные для отладки
-        Log::instance()->add(Log::DEBUG, '1398 Received data: docnum1=' . $docnum1 . ', docnum2=' . $docnum2 . ', doc_type=' . $doc_type);
+        Log::instance()->add(Log::DEBUG, 'Received data: docnum1=' . $docnum1 . ', docnum2=' . $docnum2 . ', doc_type=' . $doc_type);
         
-        // Проверяем наличие обязательных параметров
-        if (empty($docnum1) || empty($docnum2) || empty($doc_type)) {
+        // Проверяем наличие обязательных параметров:
+        // тип документа обязателен, а из серии/номера должен быть заполнен
+        // хотя бы один (можно только серия, только номер или оба сразу)
+        if (empty($doc_type) || (empty($docnum1) && empty($docnum2))) {
             echo json_encode(array(
                 'success' => false,
                 'message' => 'Не заполнены обязательные поля'
@@ -1412,7 +1649,7 @@ public function action_index($filter = null)
         $numdoc = $docnum1 . '#' . $docnum2 . '@' . $doc_type;
         
         // Логируем сформированный номер документа
-        Log::instance()->add(Log::DEBUG, '1414 Searching for document: ' . $numdoc);
+        Log::instance()->add(Log::DEBUG, 'Searching for document: ' . $numdoc);
         
         // Инициализируем модель Guest2
         $guest = new Guest2();
@@ -1421,7 +1658,7 @@ public function action_index($filter = null)
         $person = $guest->getPersonByDocument($numdoc);
         
         // Логируем результат поиска
-        Log::instance()->add(Log::DEBUG, '1423 Search result: ' . print_r($person, true));
+        Log::instance()->add(Log::DEBUG, 'Search result: ' . print_r($person, true));
         
         if (!empty($person)) {
             // Данные найдены
@@ -1448,7 +1685,7 @@ public function action_index($filter = null)
                     }
                 } catch (Exception $e) {
                     // Игнорируем ошибки форматирования даты
-                    Log::instance()->add(Log::DEBUG, '1450 Date formatting error: ' . $e->getMessage());
+                    Log::instance()->add(Log::DEBUG, 'Date formatting error: ' . $e->getMessage());
                 }
             }
             
@@ -1463,7 +1700,7 @@ public function action_index($filter = null)
         
     } catch (Exception $e) {
         // Обработка ошибок
-        Log::instance()->add(Log::ERROR, '1465 Error in get_person_by_document: ' . $e->getMessage());
+        Log::instance()->add(Log::ERROR, 'Error in get_person_by_document: ' . $e->getMessage());
         echo json_encode(array(
             'success' => false,
             'message' => 'Ошибка сервера: ' . $e->getMessage()
@@ -1472,7 +1709,7 @@ public function action_index($filter = null)
     
     exit; // Важно: останавливаем выполнение после вывода JSON
 }
-	 */
+	
 	
 	
 	public function action_history()
@@ -2750,6 +2987,7 @@ private function saveSettings($settings) {
         $person = $guest->getPersonDetails($id_pep);
         
         if (empty($person)) {
+            $this->auto_render = false;
             $this->response->body(json_encode(array('status' => 'error', 'message' => 'Пользователь не найден'), JSON_UNESCAPED_UNICODE));
             return;
         }
@@ -3001,174 +3239,84 @@ private function saveSettings($settings) {
     HTTP::redirect('order/buro_details/' . $id_buro);
 }
 
-/**17.02.2026 Поиск по фамилии
-*/
-public function action_searchByFio()
-{
-    $this->auto_render = false;
-    $this->response->headers('Content-Type', 'application/json');
-    
-    $surname = trim(Arr::get($_POST, 'surname', ''));
-    
-    $result = array(
-        'success' => false,
-        'data' => array(),
-        'message' => ''
-    );
-    
-    try {
-        if (strlen($surname) < 3) {
-            $result['message'] = 'Введите минимум 3 символа';
-            return $this->response->body(json_encode($result));
-        }
-        
-		
-		Log::instance()->add(Log::DEBUG, '3026 : ' .Debug::vars($surname));  
-        // Поиск по фамилии, регистронезависимый, с wildcard
-        $searchPattern = iconv('UTF-8','CP1251', '%' . $surname . '%');
-        
-        $sql = "SELECT id_pep, surname, name, patronymic, numdoc, \"ACTIVE\" as is_active
-                FROM people 
-                WHERE UPPER(surname) LIKE UPPER(:search_pattern)
-				and id_org in (2,3)
-                ORDER BY \"ACTIVE\" DESC, surname ASC";
-				
-		$sql="SELECT DISTINCT p.id_pep, p.surname, p.name, p.patronymic, p.numdoc, p.\"ACTIVE\" as is_active
-				FROM people p
-				WHERE UPPER(p.surname) LIKE UPPER(:search_pattern)
-					AND p.id_org IN (2,3)
-					AND NOT EXISTS (
-						SELECT 1 
-						FROM people p2
-						WHERE UPPER(p2.surname) LIKE UPPER(:search_pattern)
-							AND p2.id_org IN (2,3)
-							AND p2.surname = p.surname
-							AND p2.name = p.name
-							AND (p2.patronymic = p.patronymic OR (p2.patronymic IS NULL AND p.patronymic IS NULL))
-							AND p2.id_pep > p.id_pep
-					)
-				ORDER BY p.\"ACTIVE\" DESC, p.surname ASC";		
-					
-       Log::instance()->add(Log::ERROR, $sql);
-         $query = DB::query(Database::SELECT, $sql)
-            ->param(':search_pattern', $searchPattern)
-            ->execute(Database::instance('fb'))
-            //->as_array()
-			;
-      Log::instance()->add(Log::DEBUG, '3037 : ' .Debug::vars($query));  
-     
-        if (!empty($query)) {
-            $guests = array();
-            foreach ($query as $row) {
-                $guests[] = array(
-                    'id_pep' => $row['ID_PEP'],
-                    'surname' => iconv('CP1251', 'UTF-8', $row['SURNAME']),
-                    'name' => iconv('CP1251', 'UTF-8', $row['NAME']),
-                    'patronymic' => iconv('CP1251', 'UTF-8', $row['PATRONYMIC']),
-                    'numdoc' => iconv('CP1251', 'UTF-8', $row['NUMDOC']),
-                    'is_active' => ($row['IS_ACTIVE'] == 1)
-                );
-            }
-            $result['success'] = true;
-            $result['data'] = $guests;
-            $result['message'] = 'Найдено гостей: ' . count($guests);
-        } else {
-            $result['message'] = 'Гости с такой фамилией не найдены';
-        }
-        
-    } catch (Exception $e) {
-        Log::instance()->add(Log::ERROR, 'Search by fio error: ' . $e->getMessage());
-        $result['message'] = 'Ошибка поиска';
-    }
-    
-    return $this->response->body(json_encode($result));
-}
-
-/**16.02.2026
-*/
+/**
+ * API эндпоинт для поиска гостя по номеру документа
+ * Возвращает JSON с данными гостя
+ */
 public function action_searchByDocument()
 {
-    // Отключаем шаблон для AJAX запросов
-    $this->auto_render = false;
-    
     // Устанавливаем заголовок для JSON ответа
     $this->response->headers('Content-Type', 'application/json');
-	
-	    
-    // Логируем входящие данные
-    Log::instance()->add(Log::DEBUG, '3014 searchByDocument called with POST: ' . print_r($_POST, true));
     
-    $docnum1 = trim(Arr::get($_POST, 'docnum1', ''));
-    $docnum2 = trim(Arr::get($_POST, 'docnum2', ''));
-    
-    //Log::instance()->add(Log::DEBUG, 'docnum1: "' . $docnum1 . '", docnum2: "' . $docnum2 . '"');
+    $docnum1 = Arr::get($_POST, 'docnum1', '');
+    $docnum2 = Arr::get($_POST, 'docnum2', '');
     
     $result = array(
         'success' => false,
-        'data' => array(),
+        'data' => null,
         'message' => ''
     );
-   
+    
     try {
-        if (strlen($docnum1) === 0 || strlen($docnum2) === 0) {
-            $result['message'] = 'Заполните серию и номер документа';
-            Log::instance()->add(Log::DEBUG, '3030 Empty fields, returning: ' . json_encode($result));
-            $this->response->body(json_encode($result));
-            return;
-        }
+        // Поиск гостя по серии и номеру документа (без учета типа документа)
+        // Ищем документы, которые содержат серию#номер в любом формате
+        //$sql = "SELECT desc first 1 id_pep, surname, name, patronymic, numdoc 
+               // FROM people 
+              //  WHERE numdoc LIKE :search_pattern 
+               // AND \"ACTIVE\" = 1";
+
+
+            $sql = "SELECT FIRST 1 id_pep, surname, name, patronymic, numdoc 
+                    FROM people 
+                    WHERE numdoc LIKE :search_pattern
+                    AND \"ACTIVE\" = 1
+                    ORDER BY id_pep DESC";
+
+        //echo Debug::vars('3038', $sql);exit;
         
-        // Формируем паттерн поиска: серия#номер@%
-        $searchPattern = $docnum1 . '#' . $docnum2 . '%';
-        Log::instance()->add(Log::DEBUG, '3037 Search pattern: ' . $searchPattern);
-		
-	     
-        // Ищем всех гостей с таким документом (активных и неактивных)
-        $sql = "SELECT id_pep, surname, name, patronymic, numdoc, \"ACTIVE\" as is_active
-                FROM people 
-                WHERE numdoc LIKE :search_pattern
-                ORDER BY \"ACTIVE\" DESC, id_pep DESC";
-				
-			
-        
-        Log::instance()->add(Log::DEBUG, 'SQL: ' . $sql);
+        // Формируем паттерн поиска: серия#номер@
+        $searchPattern = $docnum1 . '#' . $docnum2 . '@%';
         
         $query = DB::query(Database::SELECT, $sql)
             ->param(':search_pattern', $searchPattern)
             ->execute(Database::instance('fb'))
             ->as_array();
-        
-    //    Log::instance()->add(Log::DEBUG, 'Query results count: ' . count($query));
+
+        //cho Debug::vars('3048', $query);exit;    
         
         if (!empty($query)) {
-            $guests = array();
-            foreach ($query as $row) {
-              //  Log::instance()->add(Log::DEBUG, '3052 Raw row data: ' . Debug::vars($row));
-                
-                $guests[] = array(
-                    'id_pep' => $row['ID_PEP'],
-                    'surname' => iconv('CP1251', 'UTF-8', $row['SURNAME']),
-                    'name' => iconv('CP1251', 'UTF-8', $row['NAME']),
-                    'patronymic' => iconv('CP1251', 'UTF-8', $row['PATRONYMIC']),
-					 'numdoc' => iconv('CP1251', 'UTF-8', $row['NUMDOC']), // ДОБАВЛЕНО!
-                    'is_active' => ($row['IS_ACTIVE'] == 1)
-                );
-            }
-            // Log::instance()->add(Log::DEBUG, '3062 Raw row data: ' . Debug::vars($guests));
+            $guest_data = $query[0];
             $result['success'] = true;
-            $result['data'] = $guests;
-            $result['message'] = 'Найдено гостей: ' . count($guests);
+            $result['data'] = array(
+                'id_pep' => $guest_data['id_pep'],
+                'surname' => iconv('CP1251', 'UTF-8', $guest_data['surname']),
+                'name' => iconv('CP1251', 'UTF-8', $guest_data['name']),
+                'patronymic' => iconv('CP1251', 'UTF-8', $guest_data['patronymic'])
+            );
+            $result['message'] = 'Гость найден';
         } else {
-            $result['message'] = 'Гости с таким номером документа не найдены';
+            // Попробуем найти без фильтра по ACTIVE
+            $sql2 = "SELECT id_pep, surname, name, patronymic, numdoc 
+                    FROM people 
+                    WHERE numdoc LIKE :search_pattern";
+            
+            $query2 = DB::query(Database::SELECT, $sql2)
+                ->param(':search_pattern', $searchPattern)
+                ->execute(Database::instance('fb'))
+                ->as_array();
+                
+            if (!empty($query2)) {
+                $result['message'] = 'Гость найден, но неактивен';
+            } else {
+                $result['message'] = 'Гость с таким номером документа не найден';
+            }
         }
         
     } catch (Exception $e) {
-        Log::instance()->add(Log::ERROR, 'Search by document error: ' . $e->getMessage());
-        Log::instance()->add(Log::ERROR, 'Stack trace: ' . $e->getTraceAsString());
+        Log::instance()->add(Log::DEBUG, 'Search by document error: ' . $e->getMessage());
         $result['message'] = 'Ошибка поиска: ' . $e->getMessage();
-        $result['success'] = false;
     }
     
-    Log::instance()->add(Log::DEBUG, '3081 Returning result: ' . json_encode($result));
     $this->response->body(json_encode($result));
 }
 
@@ -3196,6 +3344,7 @@ public function action_historyGuest()
     {
 		$id_pep = $this->request->param('id');
         $guest = new Guest2($id_pep);
+        //echo Debug::vars('3106', $guest);exit;
         //echo Debug::vars('2108', $guest);exit;
         $events = $guest->getEvents($id_pep);
 		//echo Debug::vars('1700', $events);
@@ -3340,34 +3489,29 @@ public function action_historyGuest()
         fclose($output);
         exit();
     }
-	
-	 public function action_export_events()
+
+    public function action_export_events()
 {
     $user = new User();
     $id_pep = $user->id_pep;
     $user_role = $user->id_role;
     
-    // Получаем параметры из POST
     $date_from = isset($_POST['date_from']) ? $_POST['date_from'] : null;
     $date_to = isset($_POST['date_to']) ? $_POST['date_to'] : null;
     $delete_data = isset($_POST['delete_data']) && $_POST['delete_data'] == '1';
     
-    // Если параметры не переданы, используем значения по умолчанию (3 месяца назад)
     if (!$date_from || !$date_to) {
         $date_from = date('Y-m-d', strtotime('-3 months'));
         $date_to = date('Y-m-d');
     }
     
-    // Устанавливаем заголовки для скачивания CSV файла
     header('Content-Type: text/csv; charset=windows-1251');
     header('Content-Disposition: attachment; filename="export_events_' . date('Y-m-d_H-i-s') . '.csv"');
     header('Pragma: no-cache');
     header('Expires: 0');
     
-    // Открываем поток вывода
     $output = fopen('php://output', 'w');
     
-    // Заголовки CSV - ФИО разделено на отдельные колонки, добавлены данные о логине оператора и бюро
     $headers = array(
         iconv('UTF-8', 'Windows-1251', 'Фамилия'),
         iconv('UTF-8', 'Windows-1251', 'Имя'),
@@ -3382,19 +3526,13 @@ public function action_historyGuest()
     );
     fputcsv($output, $headers, ';');
     
-    // Преобразуем даты в формат для SQL
     $date_from_sql = $date_from . ' 00:00:00';
     $date_to_sql = $date_to . ' 23:59:59';
     
-    // Массивы для хранения ID для удаления
     $guests_to_delete = array();
     $event_ids = array();
     
     try {
-        // SQL запрос для получения гостей с MAX(TIMEORDER) в выбранном периоде
-        // и их событий из таблицы EVENTS с JOIN к DEVICE для получения точки прохода
-        // Добавлен JOIN с guestorder для получения id_pep (кто добавил) и id_buro
-        // Добавлен JOIN с people для получения логина оператора
         $sql = 'SELECT 
             p."SURNAME",
             p."NAME",
@@ -3438,7 +3576,6 @@ public function action_historyGuest()
         
         $rows = $query->execute(Database::instance('fb'))->as_array();
         
-        // Отдельный запрос для получения ID гостей для удаления (только если включено удаление)
         if ($delete_data) {
             $guest_sql = 'SELECT gu.id_guest
                          FROM guestorder gu
@@ -3451,7 +3588,6 @@ public function action_historyGuest()
         
             $guest_rows = $guest_query->execute(Database::instance('fb'))->as_array();
             
-            // Сохраняем все ID гостей для удаления
             foreach ($guest_rows as $guest_row) {
                 if (isset($guest_row['ID_GUEST']) && !empty($guest_row['ID_GUEST'])) {
                     $guests_to_delete[] = $guest_row['ID_GUEST'];
@@ -3459,7 +3595,6 @@ public function action_historyGuest()
             }
         }
         
-        // Собираем уникальные id_buro из результатов для получения названий бюро
         $buro_ids = array();
         foreach ($rows as $row) {
             if (isset($row['ID_BURO']) && !empty($row['ID_BURO'])) {
@@ -3468,7 +3603,6 @@ public function action_historyGuest()
         }
         $buro_ids = array_unique($buro_ids);
         
-        // Получаем названия бюро из bu_buro (sqlite база bucfg)
         $buro_map = array();
         if (!empty($buro_ids)) {
             $buro_sql = 'SELECT id, name FROM bu_buro WHERE id IN (' . implode(',', $buro_ids) . ')';
@@ -3490,30 +3624,24 @@ public function action_historyGuest()
         }
         
         foreach ($rows as $row) {
-            // Сохраняем ID события для удаления
             if (isset($row['ID_EVENT'])) {
                 $event_ids[] = $row['ID_EVENT'];
             }
             
-            // Получаем ФИО гостя отдельно
             $surname = isset($row['SURNAME']) ? iconv('CP1251', 'UTF-8', $row['SURNAME']) : '';
             $name = isset($row['NAME']) ? iconv('CP1251', 'UTF-8', $row['NAME']) : '';
             $patronymic = isset($row['PATRONYMIC']) ? iconv('CP1251', 'UTF-8', $row['PATRONYMIC']) : '';
             
-            // Получаем логин оператора
             $added_login = isset($row['ADDED_LOGIN']) ? iconv('CP1251', 'UTF-8', $row['ADDED_LOGIN']) : '';
-            
-            // Получаем название бюро
+
             $buro_id = isset($row['ID_BURO']) ? (int)$row['ID_BURO'] : null;
             $buro_name = ($buro_id !== null && isset($buro_map[$buro_id])) ? $buro_map[$buro_id] : '';
             
-            // Получаем название организации
             $org_name = isset($row['ORG_NAME']) ? iconv('CP1251', 'UTF-8', $row['ORG_NAME']) : '';
             
             $id_eventtype = isset($row['ID_EVENTTYPE']) ? $row['ID_EVENTTYPE'] : '';
             $datetime = isset($row['DATETIME']) ? date('d.m.Y H:i:s', strtotime($row['DATETIME'])) : '';
             
-            // Формируем NOTE с добавлением точки прохода (как в historyGuest)
             $note = '';
             if (!empty($row['ID_CARD'])) {
                 $note .= iconv('CP1251', 'UTF-8', $row['ID_CARD']);
@@ -3525,7 +3653,6 @@ public function action_historyGuest()
                 $note = iconv('CP1251', 'UTF-8', $row['NOTE']);
             }
             
-            // Конвертируем eventtype_name из CP1251 в UTF-8
             $eventtype_name = isset($row['EVENTTYPE_NAME']) ? iconv('CP1251', 'UTF-8', $row['EVENTTYPE_NAME']) : '';
             
             $csv_row = array(
@@ -3544,12 +3671,9 @@ public function action_historyGuest()
             fputcsv($output, $csv_row, ';');
         }
         
-        // Закрываем вывод перед удалением данных
         fclose($output);
         
-        // Удаляем данные только если включена галочка удаления
         if ($delete_data) {
-            // Удаляем события из EVENTS после успешного экспорта
             if (!empty($event_ids)) {
                 $event_ids = array_unique($event_ids);
                 $event_ids_list = implode(',', array_map('intval', $event_ids));
@@ -3564,7 +3688,6 @@ public function action_historyGuest()
                 }
             }
             
-            // Удаляем записи из guestorder после успешного экспорта
             if (!empty($guests_to_delete)) {
                 $this->delete_guestorder_records($guests_to_delete);
             }
@@ -3573,7 +3696,6 @@ public function action_historyGuest()
         exit();
         
     } catch (Exception $e) {
-        // В случае ошибки выводим сообщение
         $error_row = array(
             iconv('UTF-8', 'Windows-1251', 'Ошибка: ' . $e->getMessage())
         );
@@ -3583,9 +3705,6 @@ public function action_historyGuest()
     }
 }
 
-/**
- * Удаление ВСЕХ записей из guestorder для указанных гостей
- */
 private function delete_guestorder_records($guest_ids)
 {
     if (empty($guest_ids)) {
@@ -3593,36 +3712,34 @@ private function delete_guestorder_records($guest_ids)
     }
     
     try {
-        // Разбиваем массив ID на части для больших объемов данных
-        $chunks = array_chunk($guest_ids, 500); // 500 ID за раз
+        $chunks = array_chunk($guest_ids, 500);
         $total_deleted = 0;
         
         foreach ($chunks as $chunk) {
-            // Удаляем ВСЕ записи для этих гостей
             $delete_sql = 'DELETE FROM guestorder WHERE id_guest IN (' . implode(',', $chunk) . ')';
               
-            // Выполняем удаление
             $result = DB::query(Database::DELETE, $delete_sql)
                 ->execute(Database::instance('fb'));
               
             // Приблизительный подсчет удаленных записей
             $total_deleted += count($chunk);
               
-            // Пауза между запросами
             usleep(50000); // 0.05 секунды
         }
         
-        // Логируем удаление
         Log::instance()->add(Log::NOTICE, 'Удалены все записи из guestorder для ' . count($guest_ids) . ' гостей');
         
         return $total_deleted;
         
     } catch (Exception $e) {
-        // Логируем ошибку удаления
         Log::instance()->add(Log::ERROR, 'Ошибка при удалении записей из guestorder: ' . $e->getMessage());
         return 0;
     }
 }
+
+
+
+
 
 
 

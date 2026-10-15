@@ -82,7 +82,7 @@ class Model_Report_history extends Model_Report_Base
 			
 			$_report->depatment  =  $org->name;
 			
-			$_report->titleColumn=array('Дата/время', 'Точка прохода', 'Событие', 'Имя, Фамилия','Должность', 'Отдел');
+			$_report->titleColumn=array('Дата/время', 'Точка прохода', 'Событие','RFID', 'Имя, Фамилия','Должность', 'Отдел');
 				
 			$tempFile=new tempCSV;//в этот файл будут заноситься данные.Открыл файл.
 			$tempFile->makeFile();
@@ -135,7 +135,7 @@ class Model_Report_history extends Model_Report_Base
 				$page=0;//количество итерация SQL запросов
 				$totalCountRow=0;//общее количесвто строк с данными.
 				
-				$post['id_event']=array(50, 65);
+				$post['id_event']=array(50, 65, 70, 71);
 				
 				//echo Debug::vars('97', implode(",", Arr::get($post, 'id_event')));exit;
 				while($sqlCount==$rowCount)
@@ -146,6 +146,7 @@ class Model_Report_history extends Model_Report_Base
 					e.datetime,
 					d.name as doorname,
 					et.name as eventname,
+					e.id_card,
 					p.surname||\' \'||p.name||\' \'||p.patronymic,
 					p.post ,
                     o.name
@@ -159,7 +160,27 @@ class Model_Report_history extends Model_Report_Base
 					and e.ess2 in ('.implode("," ,$org_list).')
 					and e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
 					 ';
-			
+					
+					$sql='select  first '.$rowCount.' skip '.$page*$rowCount.' 
+					e.datetime,
+					d.name as doorname,
+					et.name as eventname,
+					e.id_card,
+					p.surname||\' \'||p.name||\' \'||p.patronymic,
+					p.post ,
+                    o.name
+                    from device d
+					join events e on e.id_dev=d.id_dev and e.datetime between \''.Arr::get($post, 'reportdatestart').'\' and \''.Arr::get($post, 'reportdateend').'\'
+					join people p on p.id_pep=e.ess1
+					join eventtype et on et.id_eventtype=e.id_eventtype
+					 join organization o on o.id_org=p.id_org
+
+					where  e.ess2 in ('.implode("," ,$org_list).')
+					and e.id_eventtype  in ('.implode(",", Arr::get($post, 'id_event')).')
+					 ';
+					 
+					 
+Kohana::$log->add(Log::ERROR, '162'. $sql); 		
 				$t2=microtime(true);
 					$query = DB::query(Database::SELECT, $sql)
 					->execute(Database::instance('fb'))

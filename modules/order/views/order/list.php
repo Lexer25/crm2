@@ -20,12 +20,14 @@ if ($alert) { ?>
 <div class="onecolumn">
     <div class="header">
         <?php 
-        switch (Session::instance()->get('mode')) {
+        $current_mode = Session::instance()->get('mode');
+
+        switch ($current_mode) {
             case 'guest_mode':
                 echo '<span>'.__('Список заявок'). ' '. __('(всего заявок: :count)', array(':count' => count($people))).'</span>';
                 break;
             case 'archive_mode':
-                echo '<span>'.__('guests.titleinArchive'). ' '. __('guest.countArchive', array(':count' => count($people))).'</span>';
+                echo '<span>'.__('guests.titleinArchive'). ' '. __('guest.countArchive', array(':count' => count($people))).'</span>22';
                 break;
             default:
                 echo '<span>'.__('guests.unknow').'</span>';
@@ -40,9 +42,13 @@ if ($alert) { ?>
             <?php 
             echo Form::open('order/edit/0/neworder', array('style' => 'display: inline-block; margin-right: 10px;'));
             echo Form::hidden('todo', 'neworder');
+            // Переход на страницу добавления гостя
             echo Form::submit('neworder', __('Добавить гостя'), array(
                 'style' => 'margin-left: 0;',
-                'onclick' => "this.form.elements.todo.value='neworder';"
+                'title' => 'Переход на страницу добавления гостя с выдачей карты',
+                'onclick' => (Session::instance()->get('mode') == 'archive_mode')
+                    ? "if (!confirm('Перейти на страницу добавления гостя?')) { return false; } this.form.elements.todo.value='neworder';"
+                    : "this.form.elements.todo.value='neworder';"
             ));
             echo Form::close();
             ?>
@@ -55,7 +61,11 @@ if ($alert) { ?>
             }
             echo Form::open($export_url, array('style' => 'display: inline-block;'));
             echo Form::submit('export', __('Экспорт в CSV'), array(
-                'style' => 'margin-left: 0;'
+                'style' => 'margin-left: 0;',
+                'title' => (Session::instance()->get('mode') == 'archive_mode')
+                    ? 'Выгрузка всех данных из архива в CSV'
+                    : 'Экспорт данных в CSV',
+                'onclick' => "return confirm('Экспорт в CSV может занять несколько минут. Продолжить?');"
             ));
             echo Form::close();
             ?>
@@ -72,9 +82,76 @@ if ($alert) { ?>
             echo Form::close();
             ?>
             <?php endif; ?>
+            
+            <?php if (Session::instance()->get('mode') == 'archive_mode'): ?>
+            <?php
+            echo Form::open('order/archive', array(
+                'method' => 'get',
+                // Прижимаем кнопку "Показать все" вправо
+                'style' => 'display: inline-block; float: right; margin-right: 20px;'
+            ));
+            echo Form::hidden('show_all', 1);
+            echo Form::submit(null, __('Показать все'), array(
+                'style' => 'margin-left: 0;',
+                'title' => 'Вывод полного списка архива',
+                'onclick' => "return confirm('Загрузка всего архива может занять много времени. Продолжить?');"
+            ));
+            echo Form::close();
+            ?>
+            <?php endif; ?>
         </div>
         <br>
         <?php endif;?>
+        
+        <?php 
+        // Строка поиска и кнопки под "Добавить гостя" и "Экспорт в CSV" только в архиве
+        if (Session::instance()->get('mode') == 'archive_mode') {
+            $show_all_param = isset($_GET['show_all']) && $_GET['show_all'] == 1;
+            $has_filter = isset($filter) && $filter !== '';
+            //$has_active_filter = $has_filter || $show_all_param;
+        ?>
+        <div id="search"<?php if (isset($hidesearch)) echo ' style="display: none;"'; ?> style="text-align: center; margin: 10px 0 15px;">
+            <form action="order/search" method="post" style="display: inline-block; margin: 0 auto;">
+                <input
+                    type="text"
+                    name="q"
+                    id="q"
+                    title="<?php echo __('search'); ?>"
+                    value="<?php if ($has_filter) echo HTML::chars($filter); ?>"
+                    style="
+                        padding: 6px 10px;
+                        width: 260px;
+                        border: 1px solid #ccc;
+                        border-radius: 14px;
+                        -moz-border-radius: 14px;
+                        -webkit-border-radius: 14px;
+                        box-sizing: border-box;
+                    "
+                />
+                <input
+                    type="submit"
+                    class="btn"
+                    style="margin-left: 10px;"
+                    title="Поиск по архиву"
+                    value="Найти"
+                />
+            </form>
+            <?php 
+            // Показываем кнопку "Очистить список" если есть поиск ИЛИ включен режим "Показать все"
+            $show_all_active = isset($_GET['show_all']) && ($_GET['show_all'] == 1 || $_GET['show_all'] == 'Показать все');
+            if ($has_filter || $show_all_active) { 
+            ?>
+    <form action="order/clearlist" method="post" style="display: inline-block; margin-left: 10px;">
+        <input
+            type="submit"
+            class="btn"
+            value="<?php echo __('Очистить список'); ?>"
+            title="Очистить результаты поиска"
+        />
+    </form>
+<?php } ?>
+        </div>
+        <?php } ?>
         
         <?php 
         include Kohana::find_file('views', 'paginatoion_controller_template'); 
@@ -214,5 +291,9 @@ if ($alert) { ?>
     </div>
 </div>
 <?php
-    echo 'mode=' . $mode;
+    // Версия модуля берется из modules/order/init.php
+//    if (defined('MODPATH')) {
+//        @include_once MODPATH . 'order/init.php';
+//    }
+    echo 'mod version ' . (defined('ORDER_MODULE_VERSION') ? ORDER_MODULE_VERSION : 'unknown');
 ?>

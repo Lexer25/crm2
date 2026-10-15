@@ -20,7 +20,7 @@
                        
                 ) {
                    $user = Auth::instance()->get_user();
-                
+            // echo Debug::vars('22');exit;  
                   /*  Session::instance()
 						->set('language', 'ru-ru')
 						->set('listsize', Kohana::$config->load('config_newcrm')->table_view_max_contact)

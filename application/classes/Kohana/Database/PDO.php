@@ -9,11 +9,42 @@
  * @license    http://kohanaphp.com/license
  9.08.2023 Закомментирована строка Строка 199: 				//$this->_connection->lastInsertId(),//Бухаров
  после этого вставка данных в БД СКУД стала проходить без ошибок
+ 19.09.2026 добавлены элементы логирования действия оператора при выполении insert, update, delete.
+ 
+ Для логирования действия в конфигурации подключения к базе данных необходимо добавить параметр log_userconnection.
+ 'default' => array(
+    'type'       => 'PDO',
+    'connection' => array(
+        'dsn'        => 'odbc:SDUO',
+        'username'   => 'SYSDBA',
+        'password'   => 'masterkey',
+    ),
+    'log_userconnection' => TRUE,   // ← включаем аудит для этой БД при наличии таблицы USERCONNECTION.
+  ),
+Подключения фиксируются в таблице USERCONNECTION
+CREATE TABLE USERCONNECTION (
+    ID_CONNECT    INTEGER NOT NULL,
+	ID_PEP        INTEGER,
+    USER_NAME     VARCHAR(50),
+    CONNECT_TIME  TIMESTAMP NOT NULL,
+    IS_ACTIVE     INTEGER NOT NULL    
+);
+
+Триггеры базы данных срабатывают на изменения данных и заносят изменения  в таблицу auditlog
  */
 class Kohana_Database_PDO extends Database {
 
 	// PDO uses no quoting for identifiers
 	protected $_identifier = '';
+
+	// ID текущего подключения Firebird (CURRENT_CONNECTION)
+	protected $_connection_id = NULL;
+
+	// ID оператора, под которым зарегистрировано текущее подключение
+	protected $_registered_pep = NULL;
+
+	// Логировать ли подключения в USERCONNECTION (по умолчанию — нет)
+	protected $_log_userconnection = FALSE;
 
 	public function __construct($name, array $config)
 	{
@@ -39,6 +70,9 @@ class Kohana_Database_PDO extends Database {
 			'persistent' => FALSE,
 		));
 
+		// Включать ли регистрацию оператора в USERCONNECTION (по умолчанию — нет)
+		$this->_log_userconnection = ! empty($this->_config['log_userconnection']);
+
 		// Clear the connection parameters for security
 		unset($this->_config['connection']);
 
@@ -58,15 +92,172 @@ class Kohana_Database_PDO extends Database {
 		}
 		catch (PDOException $e)
 		{
+			// >>> ЛОГИРОВАНИЕ НЕУДАЧНОГО ПОДКЛЮЧЕНИЯ <<<
+			Kohana::$log->add(Log::ERROR, 'DB CONNECT FAILED ['.$this->_instance.'] :dsn user=:user error=:error', array(
+				':dsn'   => $dsn,
+				':user'  => ($username === NULL ? 'NULL' : $username),
+				':error' => $e->getMessage(),
+			));
+
 			throw new Database_Exception(':error',
 				array(':error' => $e->getMessage()),
 				$e->getCode());
 		}
 
+		// >>> ПОЛУЧАЕМ ID ПОДКЛЮЧЕНИЯ FIREBIRD <<<
+		// Нужен только если включена регистрация в USERCONNECTION
+		$this->_connection_id = NULL;
+		if ($this->_log_userconnection)
+		{
+			try
+			{
+				$stmt = $this->_connection->query(
+					'SELECT CAST(CURRENT_CONNECTION AS VARCHAR(50)) FROM RDB$DATABASE'
+				);
+				if ($stmt !== FALSE)
+				{
+					$this->_connection_id = $stmt->fetchColumn();
+					$stmt->closeCursor();
+				}
+			}
+			catch (Exception $e)
+			{
+				Kohana::$log->add(Log::ERROR, 'DB CURRENT_CONNECTION query failed: :err', array(
+					':err' => $e->getMessage(),
+				));
+			}
+		}
+
+		// >>> ЛОГИРОВАНИЕ УСПЕШНОГО ПОДКЛЮЧЕНИЯ <<<
+		Kohana::$log->add(Log::INFO, 'DB CONNECT ['.$this->_instance.'] :dsn user=:user persistent=:persistent conn_id=:conn_id', array(
+			':dsn'        => $dsn,
+			':user'       => ($username === NULL ? 'NULL' : $username),
+			':persistent' => ($persistent ? 'yes' : 'no'),
+			':conn_id'    => ($this->_connection_id === NULL ? 'NULL' : $this->_connection_id),
+		));
+
 		if ( ! empty($this->_config['charset']))
 		{
 			// Set the character set
 			$this->set_charset($this->_config['charset']);
+		}
+	}
+
+	/**
+	 * Регистрирует текущее подключение в USERCONNECTION.
+	 * Вызывается лениво — только перед первым DML-запросом (INSERT/UPDATE/DELETE).
+	 * Повторно для того же подключения в БД не ходит.
+	 */
+	protected function _register_operator()
+	{
+		if ( ! $this->_log_userconnection)
+		{
+			return;
+		}
+
+		if ($this->_registered_pep !== NULL)
+		{
+			return;
+		}
+
+		if ($this->_connection_id === NULL OR $this->_connection === NULL)
+		{
+			return;
+		}
+
+		// >>> ПОЛУЧАЕМ id_pep ТЕКУЩЕГО ОПЕРАТОРА <<<
+		$id_pep    = NULL;
+		$user_name = NULL;
+
+		try
+		{
+			if (class_exists('Auth') AND Auth::instance()->logged_in())
+			{
+				$user = Auth::instance()->get_user();
+				if ($user)
+				{
+					$id_pep    = $user->id_pep;
+					$user_name = $user->username;
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			Kohana::$log->add(Log::ERROR, 'DB get operator failed: :err', array(
+				':err' => $e->getMessage(),
+			));
+		}
+
+		if ($id_pep === NULL)
+		{
+			return;
+		}
+
+		try
+		{
+			// Убираем возможный «хвост» от упавшего скрипта
+			$stmt = $this->_connection->prepare(
+				'DELETE FROM USERCONNECTION WHERE ID_CONNECT = :conn_id'
+			);
+			$stmt->bindValue(':conn_id', $this->_connection_id, PDO::PARAM_INT);
+			$stmt->execute();
+			$stmt->closeCursor();
+
+			// Вставляем заново
+			$stmt = $this->_connection->prepare(
+				'INSERT INTO USERCONNECTION
+					(ID_CONNECT, ID_PEP, USER_NAME, CONNECT_TIME, IS_ACTIVE)
+				 VALUES (:conn_id, :id_pep, :user_name, CURRENT_TIMESTAMP, 1)'
+			);
+			$stmt->bindValue(':conn_id',   $this->_connection_id, PDO::PARAM_INT);
+			$stmt->bindValue(':id_pep',    $id_pep,               PDO::PARAM_INT);
+			$stmt->bindValue(':user_name', $user_name,            PDO::PARAM_STR);
+			$stmt->execute();
+			$stmt->closeCursor();
+
+			$this->_registered_pep = $id_pep;
+
+			Kohana::$log->add(Log::INFO, 'DB USERCONNECTION register conn_id=:conn_id id_pep=:id_pep user=:user', array(
+				':conn_id' => $this->_connection_id,
+				':id_pep'  => $id_pep,
+				':user'    => ($user_name === NULL ? 'NULL' : $user_name),
+			));
+		}
+		catch (Exception $e)
+		{
+			Kohana::$log->add(Log::ERROR, 'DB USERCONNECTION register failed: :err', array(
+				':err' => $e->getMessage(),
+			));
+		}
+	}
+
+	/**
+	 * Снимает регистрацию текущего подключения в USERCONNECTION.
+	 */
+	protected function _unregister_operator()
+	{
+		if ( ! $this->_log_userconnection)
+		{
+			return;
+		}
+
+		if ($this->_connection_id === NULL OR $this->_connection === NULL)
+		{
+			return;
+		}
+
+		try
+		{
+			$stmt = $this->_connection->prepare(
+				'UPDATE USERCONNECTION SET IS_ACTIVE = 0 WHERE ID_CONNECT = ?'
+			);
+			$stmt->execute(array($this->_connection_id));
+			$stmt->closeCursor();
+		}
+		catch (Exception $e)
+		{
+			// Не используем Kohana::$log: объект может разрушаться
+			error_log('DB USERCONNECTION unregister failed: '.$e->getMessage());
 		}
 	}
 
@@ -117,10 +308,25 @@ class Kohana_Database_PDO extends Database {
 
 	public function disconnect()
 	{
+		// >>> СНИМАЕМ РЕГИСТРАЦИЮ ОПЕРАТОРА <<<
+		$this->_unregister_operator();
+
 		// Destroy the PDO object
 		$this->_connection = NULL;
+		$this->_connection_id = NULL;
+		$this->_registered_pep = NULL;
 
 		return parent::disconnect();
+	}
+
+	/**
+	 * Гарантированное снятие регистрации при уничтожении объекта.
+	 * При persistent-соединениях реального закрытия не происходит,
+	 * поэтому запись может остаться IS_ACTIVE = 1 — чистите cron'ом.
+	 */
+	public function __destruct()
+	{
+		$this->_unregister_operator();
 	}
 
 	public function set_charset($charset)
@@ -136,6 +342,12 @@ class Kohana_Database_PDO extends Database {
 	{
 		// Make sure the database is connected
 		$this->_connection or $this->connect();
+
+		// >>> РЕГИСТРИРУЕМ ОПЕРАТОРА ТОЛЬКО ПЕРЕД DML И ТОЛЬКО ЕСЛИ ВКЛЮЧЕНО <<<
+		if ($type !== Database::SELECT AND $this->_log_userconnection)
+		{
+			$this->_register_operator();
+		}
 
 		if (Kohana::$profiling)
 		{

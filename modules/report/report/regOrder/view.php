@@ -39,24 +39,32 @@ if(isset($report)) $data=$report;
 								
 						<?php
 						//echo Debug::vars('109', $tempFile->getRow());exit;
-						foreach($tempFile->getRow()  as $key=>$value)
-						{
-							echo '<th>'. $value.'</th>'; 
+						// первая строка файла содержит заголовки столбцов
+						$headerRow = $tempFile->getRow();
+						if (is_array($headerRow)) {
+							foreach($headerRow as $key=>$value)
+							{
+								echo '<th>'. $value.'</th>'; 
+							}
 						}
-						
 						?>
 					</tr>
 				</thead>
 				<tbody>
 					<?php 
-				$countMax=100;
-				if(($data->totalCountRow-1) < $countMax) $countMax=$data->totalCountRow-1;		
-				for($i=0; $i<$countMax; $i++)
+				// выводим все строки до конца файла
+				while (true)
 				{
+					// читаем следующую строку данных из файла
+					$row = $tempFile->getRow();
+					if ($row === false || !is_array($row)) {
+						// достигли конца файла
+						break;
+					}
 					echo '<tr>';
-					foreach($tempFile->getRow() as $key=>$value)
+					foreach($row as $key=>$value)
 					{
-							echo '<td>'. $value.'</td>'; 
+						echo '<td>'. $value.'</td>'; 
 					}
 					echo '</tr>';				
 				}?>
